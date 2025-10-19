@@ -12,21 +12,23 @@ A multi-threaded pipeline that runs **three vision models in parallel** — **De
 ---
 
 ## Project Layout
+
+```text
 ObjectDetect4Blind/
-├─ MAIN.py              # Launches multithreading: depth + detection + segmentation
-├─ assets/              # Example input images
-├─ output/              # Outputs produced by MAIN.py
-├─ Depth-Anything-V2-main/ # Depth estimation module
-│ ├─ checkpoints/       # ← Put depth model weights here
-│ ├─ app.py
-│ ├─ run.py
-│ └─ run_video.py
-├─ Object detection/    # Object detection module
-│ ├─ main.py            # Usage entrypoint for detection
-│ └─ models/            # ← Put detection weights here
-├─ Segmentation/        # Segmentation module
-│ ├─ test_model.py      # Usage entrypoint for segmentation
-│ └─ models/            # ← Put segmentation weights here
+├── MAIN.py                         # Launches multithreading 3 models
+├── assets/                         # Example input images
+├── output/                         # Outputs produced by MAIN.py
+├── Depth-Anything-V2-main/         # Depth estimation module
+│   ├── checkpoints/                # ← Put depth model weights here
+│   ├── app.py
+│   ├── run.py
+│   └── run_video.py
+├── Object detection/               # Object detection module
+│   ├── main.py                     # Usage entrypoint for detection
+│   └── models/                     # ← Put detection weights here
+└── Segmentation/                   # Segmentation module
+    ├── test_model.py               # Usage entrypoint for segmentation
+    └── models/                     # ← Put segmentation weights here
 
 
 ---
