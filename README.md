@@ -30,8 +30,7 @@ ObjectDetect4Blind/
     ├── test_model.py               # Usage entrypoint for segmentation
     └── models/                     # ← Put segmentation weights here
 
-
----
+```
 
 ## Setup
 
@@ -62,7 +61,6 @@ This repo currently expects **two Python interpreters** when running `MAIN.py`:
    - Detection, Segmentation (Python 3.11)
    - Depth (Python 3.13)
 2. From the project root:
-   ```bash
    python MAIN.py
 
 ### B) Run Depth-Anything-V2 only
