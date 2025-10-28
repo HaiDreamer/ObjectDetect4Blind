@@ -6,8 +6,8 @@ import torch
 from ultralytics import YOLO
 
 ROOT = Path(__file__).resolve().parent
-IMAGE_PATH = ROOT / "assets" / "demo01.jpg"
-MODEL_PATH = ROOT / "models" / "segment_best.pt"   # YOLO model
+IMAGE_PATH = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
+MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\segment_best.pt")
 OUT_IMG = ROOT / "output"
 
 def _load_rgb(path: Path):

@@ -13,29 +13,29 @@ A multi-threaded pipeline that runs **three vision models in parallel** — **De
 
 ## Project Layout
 
+RECOMMEND: put file respitory the same as me, or u need to fix code for file/model location
 ```text
-ObjectDetect4Blind/
-├── .vscode
-├── metric_depth                    # <- Put folder metric depth here
-├── MAIN.py                         # Launches multithreading 3 models
-├── assets/                         # Example input images
-├── output/                         # Outputs produced by MAIN.py
-├── Depth-Anything-V2-main/         # Depth estimation module
-│   ├── checkpoints/                # ← Put depth model weights here
-│   ├── app.py
-│   ├── run.py
-│   ├── run_video.py
-│   ├── assets/
-│   ├── kitti_root/                 # ← Put kitti root here
-│   ├── pred_affine_kitti16_100/    # ← Put pred kitt16_100 here
-│   └── mini_gt_100/                # ← Put mini_gt here
-├── Object detection/               # Object detection module
-│   ├── main.py                     # Usage entrypoint for detection
-│   └── models/                     # ← Put detection weights here
-└── Segmentation/                   # Segmentation module
-    ├── test_model.py               # Usage entrypoint for segmentation
-    └── models/                     # ← Put segmentation weights here
 
+C:/Python/
+├────ObjectDetect4Blind/
+│    ├── .vscode
+│    ├── MAIN.py                         # Launches multithreading 3 models
+│    ├── assets/                         # Example input images
+│    ├── output/                         # Outputs produced by MAIN.py
+│    ├── Depth-Anything-V2-main/         # Depth estimation module
+│    │   ├── app.py
+│    │   ├── run.py
+│    │   └──run_video.py                 # Temp not developed
+│    ├── Object detection/               # Object detection module
+│    │   └── main.py                     # Usage entrypoint for detection
+│    └── Segmentation/                   # Segmentation module
+│        └── test_model.py               # Usage entrypoint for segmentation
+├────ObjectDetectRequireFile/
+│    ├── put-in-depth-anything
+│    ├── put-in-obj-detect                   
+│    ├── put-in-segment                   
+│    └── output/ 
+└──
 ```
 
 ## Setup
@@ -43,12 +43,7 @@ ObjectDetect4Blind/
 ### Model file
 https://drive.google.com/file/d/1DRxg3z7k4xevMxCawSWUZ3V9Ff5UiKWL/view?usp=sharing
 
-### 1) Put model files in the right folders
-- **Depth Anything V2**     weights → `./Depth-Anything-V2-main/checkpoints`
-- **Object detection**      weights → `./Object detection/models`
-- **Segmentation**          weights → `./Segmentation/models`
-
-### 2) Python versions (important)
+### Python versions (important)
 This repo currently expects **two Python interpreters** when running `MAIN.py`:
 - **YOLO / Object detection:** Python **3.11**
 - **Depth estimation:** Python **3.13**
@@ -73,8 +68,8 @@ This repo currently expects **two Python interpreters** when running `MAIN.py`:
 1. Local demo server
     - python app.py
 2. Single img(depth estimation only)
-    - python run.py --encoder vits \ --img-path assets/examples/demo01.jpg \ --outdir depth_vis --pred-only
+    - python run.py --encoder vits --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis --pred-only
 3. Single image (side-by-side input + depth)
-    - python run.py --encoder vitl \ --img-path assets/examples/demo01.jpg \ --outdir depth_vis
+    - python run.py --encoder vits --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis
 4. Video
     - python run_video.py --encoder vitl \ --video-path assets/examples_video \ --outdir video_depth_vis

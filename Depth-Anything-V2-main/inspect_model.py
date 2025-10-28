@@ -4,7 +4,12 @@ import torch
 import torch.nn as nn
 from depth_anything_v2.dpt import DepthAnythingV2
 
-CHECKPOINT_PATH = r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\checkpoints\depth_anything_v2_vits.pth"
+"""
+Check layers of model
+NOW: only for original model
+"""
+
+CHECKPOINT_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits.pth"
 
 model_configs = {
     'vits': {'encoder': 'vits', 'features': 64,  'out_channels': [48, 96, 192, 384]},

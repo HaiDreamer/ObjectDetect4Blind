@@ -3,7 +3,6 @@ import cv2, numpy as np
 
 '''
 Why "output become strange" happens ?
-
 Wrong model type for metric evaluation.
 depth_anything_v2_vits.pth is a foundation (relative) depth model — it does not predict meters. 
 DA-V2 only predicts absolute depth after metric fine-tuning (e.g., Hypersim/VKITTI2 checkpoints under metric_depth/). If you want “real meters, no GT fitting,” use those metric weights. 
@@ -21,8 +20,8 @@ d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
 '''
 
 # config
-GT_DIR   = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\mini_gt_100")                # folder of GT uint16 PNGs (subset)
-PRED_DIR = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\pred_affine_kitti16_100")    # folder of prediction uint16 PNGs
+GT_DIR   = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\mini_gt_100")                # folder of GT uint16 PNGs (subset)
+PRED_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100")    # folder of prediction uint16 PNGs
 
 def load_u16_as_meters(p: Path) -> np.ndarray:
     """

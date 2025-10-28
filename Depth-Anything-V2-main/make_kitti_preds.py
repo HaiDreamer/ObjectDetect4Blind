@@ -19,22 +19,22 @@ Output: predicted images to compare with the labelled one (NEXT step: run eval_k
 """
 
 # ------- config -------
-N = 100  # number of images to export (set None to do all)
+N = 100         # number of images to export (set None to do all)
 torch.serialization.add_safe_globals([DepthAnythingV2])
 
 # ------- paths -------
-KITTI_ROOT = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\kitti_root")
+KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\kitti_root")
 IMG_DIR = KITTI_ROOT / "val_selection_cropped" / "image"
 GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
 
-OUT_DIR = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\pred_affine_kitti16_100")
+OUT_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ------- model (relative DA-V2) -------
 from collections import OrderedDict
 from torch.ao.quantization import quantize_dynamic  # dynamic INT8 Linear  (weights-only)
 
-CKPT = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\checkpoints\depth_anything_v2_vits_q.pth")
+CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_q.pth")
 BASE_FP32 = CKPT.with_name("depth_anything_v2_vits.pth")  
 assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
 

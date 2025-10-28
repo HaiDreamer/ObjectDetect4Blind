@@ -7,8 +7,8 @@ from torch.ao.quantization import quantize_dynamic
 from depth_anything_v2.dpt import DepthAnythingV2
 
 # config
-CKPT_DIR  = r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\checkpoints"
-FP32_CKPT = os.path.join(CKPT_DIR, "depth_anything_v2_vits.pth")        # your FP32 checkpoint
+CKPT_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything"
+FP32_CKPT = os.path.join(CKPT_DIR, "depth_anything_v2_vits.pth")        # FP32 checkpoint
 INT8_CKPT = os.path.join(CKPT_DIR, "depth_anything_v2_vits_qv1.pth")    # output quantized model
 
 # Official model configs (vits/vitb/vitl/vitg) Depth-Anything-V2  

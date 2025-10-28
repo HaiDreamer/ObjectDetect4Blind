@@ -3,8 +3,8 @@ from ultralytics import YOLO
 import json
 
 ROOT = Path(__file__).resolve().parent
-IMAGE_PATH = ROOT / "assets" / "demo01.jpg"
-MODEL_PATH = ROOT / "models" / "detect_best.pt"
+IMAGE_PATH = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
+MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\detect_best.pt")
 OUT_IMG = ROOT / "output"
 RUN_NAME = "run1"
 

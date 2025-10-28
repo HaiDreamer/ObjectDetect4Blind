@@ -6,16 +6,18 @@ import numpy as np
 import os
 import torch
 from depth_anything_v2.dpt import DepthAnythingV2
+from collections import OrderedDict
+from torch.ao.quantization import quantize_dynamic  # dynamic INT8 (Linear)
 
 '''
 Run locally:
     python app.py
 Running:
-    python run.py --encoder vits --img-path assets/examples/demo01.jpg --outdir depth_vis --pred-only
-    -> will save only depth predictions
+    python run.py --encoder vits --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis --pred-only
+    -> save only depth predictions
 Running:
-    python run.py --encoder vitl --img-path assets/examples/demo01.jpg --outdir depth_vis
-    -> will save side-by-side comparison of input and depth prediction
+    python run.py --encoder vitl --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis
+    -> save side-by-side comparison of input and depth prediction
 
 For video:
     python run_video.py --encoder vitl --video-path assets/examples_video --outdir video_depth_vis
@@ -29,6 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--encoder', type=str, default='vitl', choices=['vits', 'vitb', 'vitl', 'vitg'])
     parser.add_argument('--pred-only', dest='pred_only', action='store_true', help='only display the prediction')
     parser.add_argument('--grayscale', dest='grayscale', action='store_true', help='do not apply colorful palette')
+    parser.add_argument('--precision', type=str, default='int8', choices=['fp32', 'int8'],
+                        help='Choose checkpoint/flow: fp32 loads FP32; int8 loads *_q if present or quantizes from FP32.')
     args = parser.parse_args()
 
     DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -41,12 +45,10 @@ if __name__ == '__main__':
     }
 
     # Load checkpoint (supports quantized or normal)
-    from collections import OrderedDict
-    from torch.ao.quantization import quantize_dynamic  # dynamic INT8 (Linear)
 
     # Paths for three cases
-    CKPT = f'C:/Python/ObjectDetect4Blind/Depth-Anything-V2-main/checkpoints/depth_anything_v2_{args.encoder}_q.pth'
-    BASE_FP32 = f'C:/Python/ObjectDetect4Blind/Depth-Anything-V2-main/checkpoints/depth_anything_v2_{args.encoder}.pth'
+    CKPT = f'C:/Python/ObjectDetectRequireFile/put-in-depth-anything/checkpoints/depth_anything_v2_{args.encoder}.pth'
+    BASE_FP32 = f'C:/Python/ObjectDetectRequireFile/put-in-depth-anything/checkpoints/depth_anything_v2_{args.encoder}_q.pth'
 
     def _is_state_dict(x) -> bool:
         return isinstance(x, (dict, OrderedDict))
@@ -74,16 +76,24 @@ if __name__ == '__main__':
         # rare: full model saved
         return sd if isinstance(sd, torch.nn.Module) else m
 
-    # Pick which file actually exists
-    if not os.path.exists(CKPT):
-        # Prefer qv1 if you want; else fall back to FP32 name
-        qv1 = CKPT.replace("_q.pth", "_qv1.pth")
-        if os.path.exists(qv1):
-            CKPT = qv1
-        elif os.path.exists(BASE_FP32):
-            CKPT = BASE_FP32
-        else:
-            raise FileNotFoundError(f"Checkpoint not found for encoder '{args.encoder}'")
+    # === NEW: choose checkpoint flow based on --precision
+    if args.precision == 'int8':
+        # Prefer *_q or *_qv1, else fall back to building INT8 from FP32
+        if not os.path.exists(CKPT):
+            qv1 = CKPT.replace("_q.pth", "_qv1.pth")
+            if os.path.exists(qv1):
+                CKPT = qv1
+            elif os.path.exists(BASE_FP32):
+                CKPT = BASE_FP32  # we'll quantize dynamically below
+            else:
+                raise FileNotFoundError(f"INT8/FP32 checkpoints not found for encoder '{args.encoder}'")
+    else:  # 'fp32'
+        if not os.path.exists(BASE_FP32):
+            # If only *_q exists, we can't "dequantize" it—fail clearly
+            raise FileNotFoundError(
+                f"FP32 checkpoint not found for encoder '{args.encoder}'. Expected: {BASE_FP32}"
+            )
+        CKPT = BASE_FP32
 
     name = os.path.basename(CKPT).lower()
     raw_obj, raw_sd = _load_raw(CKPT)
@@ -101,9 +111,18 @@ if __name__ == '__main__':
             else:
                 raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
 
+            # If user asked for int8 but we landed on FP32, quantize now
+            if args.precision == 'int8':
+                print("Converting FP32 → INT8-dynamic (Linear only).")
+                model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+
         # -------- Case B: INT8 quantized (_q or _qv1) --------
         elif name.endswith(f"depth_anything_v2_{args.encoder}_q.pth") or \
-            name.endswith(f"depth_anything_v2_{args.encoder}_qv1.pth"):
+             name.endswith(f"depth_anything_v2_{args.encoder}_qv1.pth"):
+            if args.precision == 'fp32':
+                # User explicitly requested FP32 but provided only INT8 file
+                raise RuntimeError("Requested --precision fp32, but selected checkpoint is INT8 (*.pth with _q/_qv1).")
+
             if isinstance(raw_obj, torch.nn.Module):
                 model = raw_obj
                 print("Loaded full quantized model object.")
@@ -130,6 +149,9 @@ if __name__ == '__main__':
                     model = DepthAnythingV2(**model_configs[args.encoder])
                     model.load_state_dict(sd, strict=True)
                     print("Loaded FP32 state_dict (named like *_q*).")
+                    if args.precision == 'int8':
+                        print("Converting FP32 → INT8-dynamic (Linear only).")
+                        model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
             else:
                 raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
 
@@ -144,6 +166,11 @@ if __name__ == '__main__':
                 print("Loaded generic state_dict into DepthAnythingV2.")
             else:
                 raise TypeError(f"Unknown checkpoint layout: {type(raw_obj)}")
+
+            # Honor precision if we fell into a generic path
+            if args.precision == 'int8':
+                print("Converting FP32 → INT8-dynamic (Linear only).")
+                model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
 
     except Exception as e:
         # Final safety: always produce a runnable model

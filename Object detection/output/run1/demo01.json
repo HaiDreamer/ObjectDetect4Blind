@@ -1,5 +1,5 @@
 {
-  "image": "C:\\Python\\ObjectDetect4Blind\\Object detection\\assets\\demo01.jpg",
+  "image": "C:\\Python\\ObjectDetect4Blind\\assets\\demo01.jpg",
   "detections": [
     {
       "class_id": 28,

@@ -6,22 +6,19 @@ import time
 
 # Paths and Python environments
 ROOT = Path(__file__).resolve().parent
-
-# Script
 YOLO_SCRIPT   = ROOT / "Object detection" / "main.py"
 DEPTH_SCRIPT  = ROOT / "Depth-Anything-V2-main" / "run.py"
-SEG_SCRIPT    = ROOT / "Segmentation" / "test_model.py"         # segmentation runner (saves mask.png + mask_border.txt)
+SEG_SCRIPT    = ROOT / "Segmentation" / "test_model.py"         
 
-# Python interpreters 
 PY_YOLO   = r"C:\Python\miniconda\envs\tensor_test\python.exe"
 PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
 PY_SEG    = PY_YOLO
 
 # Inputs/outputs
-ORIG_IMG   = ROOT / "assets" / "demo01.jpg"                                              # test image
+ORIG_IMG   = ROOT / "assets" / "demo01.jpg"                                          
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels" 
 DEPTH_OUT_PNG   = DEPTH_SCRIPT.parent / "depth_vis" / f"{ORIG_IMG.stem}.png"
-SEG_BORDER_TXT  = ROOT / "Segmentation" / "output" / "mask_border.txt"                   # already produced by seg code
+SEG_BORDER_TXT  = ROOT / "Segmentation" / "output" / "mask_border.txt"                   
 FINAL_OUT       = ROOT / "output" / f"{ORIG_IMG.stem}_depth_boxes_borders.png"
 
 
@@ -63,7 +60,7 @@ def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int, 
         if conf is not None:
             label = f"{label} {conf:.2f}"
 
-        cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), (255, 255, 255), 2)  # draw box
+        cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), (255, 255, 255), 2)
         cv2.putText(depth_bgr, label, (x1, max(0, y1 - 6)),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
     return depth_bgr
@@ -115,11 +112,16 @@ def run_parallel_and_overlay(class_names: dict | None = None, seg_args: list[str
         cwd=str(YOLO_SCRIPT.parent)
     )
     # Depth estimation
+    image_path = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
     p_depth = subprocess.Popen(
-        [PY_DEPTH, "-u", str(DEPTH_SCRIPT),
-         "--encoder", "vits",
-         "--img-path", "assets/examples/demo01.jpg",  # relative to depth repo
-         "--outdir", "depth_vis", "--pred-only"],
+        [
+            PY_DEPTH, "-u", str(DEPTH_SCRIPT),
+            "--encoder", "vits",
+            "--precision", "int8",
+            "--img-path", str(image_path),
+            "--outdir", "depth_vis",
+            "--pred-only",
+        ],
         cwd=str(DEPTH_SCRIPT.parent)
     )
     # Image segmentation
