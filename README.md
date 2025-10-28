@@ -41,7 +41,7 @@ ObjectDetect4Blind/
 ## Setup
 
 ### Model file
-https://drive.google.com/file/d/1DRxg3z7k4xevMxCawSWUZ3V9Ff5UiKWL/view?usp=sharing
+https://drive.google.com/file/d/1DwhseV8bqV_qw7CIuWS7pnMRJ9au9lpE/view
 
 ### 1) Put model files in the right folders
 - **Depth Anything V2**     weights → `./Depth-Anything-V2-main/checkpoints`
