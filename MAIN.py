@@ -28,7 +28,7 @@ FINAL_OUT       = ROOT / "output" / f"{ORIG_IMG.stem}_depth_boxes_borders.png"
 # Helpers
 def _watch(name: str, proc: subprocess.Popen):
     """Wait for the child process to exit and log its rc. (safe because we don't pipe stdout)"""
-    rc = proc.wait()  # Popen.wait blocks until completion. :contentReference[oaicite:1]{index=1}
+    rc = proc.wait()  # Popen.wait blocks until completion. 
     print(f"[{name}] finished with exit code {rc}")
 
 def _ensure_depth_size(depth_bgr, H, W):
@@ -97,7 +97,7 @@ def _draw_seg_borders_on(depth_bgr, border_txt_path: Path, W: int, H: int, *, no
             polys.append(poly)
 
     if polys:
-        # Draw many polylines at once, faster
+        # Draw many polylines at once
         cv2.polylines(depth_bgr, polys, isClosed=True, color=color, thickness=thickness, lineType=cv2.LINE_AA)
     return depth_bgr
 
@@ -128,7 +128,7 @@ def run_parallel_and_overlay(class_names: dict | None = None, seg_args: list[str
         seg_cmd.extend(seg_args)
     p_seg = subprocess.Popen(seg_cmd, cwd=str(ROOT))
 
-    # wait with lightweight watcher threads (join waits until thread finishes). :contentReference[oaicite:3]{index=3}
+    # wait with lightweight watcher threads (join waits until thread finishes)
     t1 = threading.Thread(target=_watch, args=("YOLO", p_yolo), daemon=True)
     t2 = threading.Thread(target=_watch, args=("DEPTH", p_depth), daemon=True)
     t3 = threading.Thread(target=_watch, args=("SEG", p_seg), daemon=True)
@@ -160,12 +160,6 @@ def run_parallel_and_overlay(class_names: dict | None = None, seg_args: list[str
     print(f"[FINAL] saved: {FINAL_OUT}")
 
 if __name__ == "__main__":
-    # Optionally pass human-readable names for class ids (0:"person", etc.)
-    CLASS_NAMES = None
-    # If your segmentation script accepts args, add them here:
-    SEG_ARGS = None  # e.g., ["--something", "value"]
-    run_parallel_and_overlay(CLASS_NAMES, SEG_ARGS)
-
     # Calculate run time
     _t0 = time.perf_counter()
     try:

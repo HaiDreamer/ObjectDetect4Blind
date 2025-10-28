@@ -15,6 +15,8 @@ A multi-threaded pipeline that runs **three vision models in parallel** — **De
 
 ```text
 ObjectDetect4Blind/
+├── .vscode
+├── metric_depth                    # <- Put folder metric depth here
 ├── MAIN.py                         # Launches multithreading 3 models
 ├── assets/                         # Example input images
 ├── output/                         # Outputs produced by MAIN.py
@@ -22,7 +24,11 @@ ObjectDetect4Blind/
 │   ├── checkpoints/                # ← Put depth model weights here
 │   ├── app.py
 │   ├── run.py
-│   └── run_video.py
+│   ├── run_video.py
+│   ├── assets/
+│   ├── kitti_root/                 # ← Put kitti root here
+│   ├── pred_affine_kitti16_100/    # ← Put pred kitt16_100 here
+│   └── mini_gt_100/                # ← Put mini_gt here
 ├── Object detection/               # Object detection module
 │   ├── main.py                     # Usage entrypoint for detection
 │   └── models/                     # ← Put detection weights here
