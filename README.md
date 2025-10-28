@@ -41,7 +41,7 @@ C:/Python/
 ## Setup
 
 ### Model file
-https://drive.google.com/file/d/1DRxg3z7k4xevMxCawSWUZ3V9Ff5UiKWL/view?usp=sharing
+https://drive.google.com/file/d/1DwhseV8bqV_qw7CIuWS7pnMRJ9au9lpE/view
 
 ### Python versions (important)
 This repo currently expects **two Python interpreters** when running `MAIN.py`:
