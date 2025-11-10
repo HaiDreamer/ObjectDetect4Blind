@@ -8,6 +8,8 @@ import torch
 from depth_anything_v2.dpt import DepthAnythingV2
 from collections import OrderedDict
 from torch.ao.quantization import quantize_dynamic  # dynamic INT8 (Linear)
+import json
+from pathlib import Path
 
 '''
 Run locally:
@@ -18,6 +20,8 @@ Running:
 Running:
     python run.py --encoder vitl --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis
     -> save side-by-side comparison of input and depth prediction
+Run prunned model
+    python run.py --encoder vits --precision fp32 --use-pruned --pruned-ckpt "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned.pth" --pruned-meta "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned.meta.json" --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis
 
 For video:
     python run_video.py --encoder vitl --video-path assets/examples_video --outdir video_depth_vis
@@ -33,6 +37,12 @@ if __name__ == '__main__':
     parser.add_argument('--grayscale', dest='grayscale', action='store_true', help='do not apply colorful palette')
     parser.add_argument('--precision', type=str, default='int8', choices=['fp32', 'int8'],
                         help='Choose checkpoint/flow: fp32 loads FP32; int8 loads *_q if present or quantizes from FP32.')
+    parser.add_argument('--use-pruned', action='store_true',
+                        help='load a structurally pruned checkpoint + meta')
+    parser.add_argument('--pruned-ckpt', type=str, default='',
+                        help='path to *_pruned.pth (weights saved after structural prune)')
+    parser.add_argument('--pruned-meta', type=str, default='',
+                        help='path to companion *.meta.json (contains drop_blocks & retapped indices)')
     args = parser.parse_args()
 
     DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
@@ -43,12 +53,14 @@ if __name__ == '__main__':
         'vitl': {'encoder': 'vitl', 'features': 256, 'out_channels': [256, 512, 1024, 1024]},
         'vitg': {'encoder': 'vitg', 'features': 384, 'out_channels': [1536, 1536, 1536, 1536]},
     }
+    # pick config for the chosen encoder
+    enc_cfg = model_configs[args.encoder]
 
     # Load checkpoint (supports quantized or normal)
-
-    # Paths for three cases
+    # Paths for these cases model
     CKPT = f'C:/Python/ObjectDetectRequireFile/put-in-depth-anything/checkpoints/depth_anything_v2_{args.encoder}.pth'
-    BASE_FP32 = f'C:/Python/ObjectDetectRequireFile/put-in-depth-anything/checkpoints/depth_anything_v2_{args.encoder}_q.pth'
+    BASE_FP32 = f'C:/Python/ObjectDetectRequireFile/put-in-depth-anything/checkpoints/depth_anything_v2_{args.encoder}_pruned.pth'
+    cfg = {'encoder': 'vits', 'features': 64, 'out_channels': [48, 96, 192, 384]}
 
     def _is_state_dict(x) -> bool:
         return isinstance(x, (dict, OrderedDict))
@@ -98,90 +110,197 @@ if __name__ == '__main__':
     name = os.path.basename(CKPT).lower()
     raw_obj, raw_sd = _load_raw(CKPT)
 
-    try:
-        # -------- Case A: FP32 (depth_anything_v2_<enc>.pth) --------
-        if name.endswith(f"depth_anything_v2_{args.encoder}.pth"):
-            if isinstance(raw_obj, torch.nn.Module):
-                model = raw_obj
-                print("Loaded full FP32 model object.")
-            elif _is_state_dict(raw_sd):
-                model = DepthAnythingV2(**model_configs[args.encoder])
-                model.load_state_dict(_strip_module(raw_sd), strict=True)
-                print("Loaded FP32 model from state_dict.")
-            else:
-                raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
+    # ======================= PRUNED LOADER (ADDED) =======================
+    def _rebuild_pruned_model_from_meta(pruned_ckpt: str,
+                                        meta_json: str,
+                                        cfg_local: dict,
+                                        device: str = 'cpu'):
+        """
+        Rebuild Depth Anything V2 with structurally-pruned ViT blocks and retapped decoder,
+        then load the pruned weights. Expects meta JSON produced by your prune script:
+        {
+          "drop_blocks": [ ... ],
+          "retapped_vits": [ ... ]
+        }
+        """
+        # fresh model skeleton for this encoder
+        m = DepthAnythingV2(**cfg_local)
 
-            # If user asked for int8 but we landed on FP32, quantize now
-            if args.precision == 'int8':
-                print("Converting FP32 → INT8-dynamic (Linear only).")
-                model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+        # read pruning metadata
+        with open(meta_json, 'r', encoding='utf-8') as f:
+            meta = json.load(f)
+        drop = set(meta.get('drop_blocks', []))
+        taps = meta.get('retapped_vits', [2, 5, 8, 11])  # safe fallback for vits
 
-        # -------- Case B: INT8 quantized (_q or _qv1) --------
-        elif name.endswith(f"depth_anything_v2_{args.encoder}_q.pth") or \
-             name.endswith(f"depth_anything_v2_{args.encoder}_qv1.pth"):
-            if args.precision == 'fp32':
-                # User explicitly requested FP32 but provided only INT8 file
-                raise RuntimeError("Requested --precision fp32, but selected checkpoint is INT8 (*.pth with _q/_qv1).")
+        # physically compact ViT encoder
+        vit = m.pretrained
+        total = len(vit.blocks)
+        kept_ids = [i for i in range(total) if i not in drop]
+        vit.blocks = torch.nn.ModuleList([vit.blocks[k] for k in kept_ids])
+        if hasattr(vit, 'n_blocks'):
+            vit.n_blocks = len(vit.blocks)
 
-            if isinstance(raw_obj, torch.nn.Module):
-                model = raw_obj
-                print("Loaded full quantized model object.")
-            elif _is_state_dict(raw_sd):
-                sd = _strip_module(raw_sd)
-                if _has_packed(sd):
-                    # Build quantized arch first, then load INT8 weights
-                    float_m = DepthAnythingV2(**model_configs[args.encoder])
-                    qmodel  = quantize_dynamic(float_m, {torch.nn.Linear}, dtype=torch.qint8)
-                    try:
-                        qmodel.load_state_dict(sd, strict=False)
-                        model = qmodel
-                        print("Loaded INT8-dynamic state_dict into quantized architecture.")
-                    except Exception as e:
-                        # Version-format mismatch: rebuild INT8 from FP32 base
-                        if os.path.exists(BASE_FP32):
-                            print(f"[warn] Failed to load INT8 state_dict: {e}\n→ Rebuild INT8 from FP32 base.")
-                            base = _load_fp32_model_from(BASE_FP32).eval()
-                            model = quantize_dynamic(base, {torch.nn.Linear}, dtype=torch.qint8)
-                        else:
-                            raise
-                else:
-                    # It was actually FP32 weights under a *_q* name
+        # retap decoder indices (very important after compaction)
+        if hasattr(m, 'intermediate_layer_idx'):
+            # make sure 'vits' key exists for all ViT sizes in DA-V2
+            m.intermediate_layer_idx['vits'] = taps
+
+        # load pruned state dict
+        sd_local = torch.load(pruned_ckpt, map_location='cpu')
+        if isinstance(sd_local, dict) and 'state_dict' in sd_local:
+            sd_local = sd_local['state_dict']
+        sd_local = { (k[7:] if isinstance(k, str) and k.startswith('module.') else k): v for k, v in sd_local.items() }
+        m.load_state_dict(sd_local, strict=True)
+
+        print(f"[PRUNED] kept {len(kept_ids)}/{total} ViT blocks | taps={taps}")
+        return m.to(device).eval()
+
+    # ----- PRUNED fast-path (ADDED) -----
+    loaded_via_pruned = False
+    if args.use_pruned or name.endswith(f"depth_anything_v2_{args.encoder}_pruned.pth"):
+        # resolve paths
+        pruned_ckpt = args.pruned_ckpt if args.pruned_ckpt else CKPT
+        if not os.path.exists(pruned_ckpt):
+            raise FileNotFoundError(f"Pruned checkpoint not found: {pruned_ckpt}")
+
+        # find companion meta.json (either provided or next to ckpt)
+        if args.pruned_meta:
+            meta_json = args.pruned_meta
+        else:
+            p = Path(pruned_ckpt)
+            guess = p.with_suffix('.meta.json')
+            alt   = p.with_name(f"depth_anything_v2_{args.encoder}_pruned.meta.json")
+            meta_json = str(guess if guess.exists() else alt)
+        if not os.path.exists(meta_json):
+            raise FileNotFoundError(f"Metadata JSON for pruned model not found: {meta_json}")
+
+        # rebuild pruned arch + load weights
+        model = _rebuild_pruned_model_from_meta(pruned_ckpt, meta_json, enc_cfg, device=DEVICE)
+
+        # optional: dynamic INT8 for Linear if user asked for int8
+        if args.precision == 'int8':
+            print("[PRUNED] Converting to INT8-dynamic (Linear only).")
+            model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+
+        depth_anything = model.to(DEVICE).eval()
+        loaded_via_pruned = True
+
+    if not loaded_via_pruned:
+        try:
+            # -------- Case A: FP32 (depth_anything_v2_<enc>.pth) --------
+            if name.endswith(f"depth_anything_v2_{args.encoder}.pth"):
+                if isinstance(raw_obj, torch.nn.Module):
+                    model = raw_obj
+                    print("Loaded full FP32 model object.")
+                elif _is_state_dict(raw_sd):
                     model = DepthAnythingV2(**model_configs[args.encoder])
-                    model.load_state_dict(sd, strict=True)
-                    print("Loaded FP32 state_dict (named like *_q*).")
-                    if args.precision == 'int8':
-                        print("Converting FP32 → INT8-dynamic (Linear only).")
-                        model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+                    model.load_state_dict(_strip_module(raw_sd), strict=True)
+                    print("Loaded FP32 model from state_dict.")
+                else:
+                    raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
+
+                # If user asked for int8 but we landed on FP32, quantize now
+                if args.precision == 'int8':
+                    print("Converting FP32 → INT8-dynamic (Linear only).")
+                    model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+
+            # -------- Case B: INT8 quantized (_q or _qv1) --------
+            elif name.endswith(f"depth_anything_v2_{args.encoder}_q.pth") or name.endswith(f"depth_anything_v2_{args.encoder}_qv1.pth"):
+                if args.precision == 'fp32':
+                    # User explicitly requested FP32 but provided only INT8 file
+                    raise RuntimeError("Requested --precision fp32, but selected checkpoint is INT8 (*.pth with _q/_qv1).")
+
+                if isinstance(raw_obj, torch.nn.Module):
+                    model = raw_obj
+                    print("Loaded full quantized model object.")
+                elif _is_state_dict(raw_sd):
+                    sd = _strip_module(raw_sd)
+                    if _has_packed(sd):
+                        # Build quantized arch first, then load INT8 weights
+                        float_m = DepthAnythingV2(**model_configs[args.encoder])
+                        qmodel  = quantize_dynamic(float_m, {torch.nn.Linear}, dtype=torch.qint8)
+                        try:
+                            qmodel.load_state_dict(sd, strict=False)
+                            model = qmodel
+                            print("Loaded INT8-dynamic state_dict into quantized architecture.")
+                        except Exception as e:
+                            # Version-format mismatch: rebuild INT8 from FP32 base
+                            if os.path.exists(BASE_FP32):
+                                print(f"[warn] Failed to load INT8 state_dict: {e}\n→ Rebuild INT8 from FP32 base.")
+                                base = _load_fp32_model_from(BASE_FP32).eval()
+                                model = quantize_dynamic(base, {torch.nn.Linear}, dtype=torch.qint8)
+                            else:
+                                raise
+                    else:
+                        # It was actually FP32 weights under a *_q* name
+                        model = DepthAnythingV2(**model_configs[args.encoder])
+                        model.load_state_dict(sd, strict=True)
+                        print("Loaded FP32 state_dict (named like *_q*).")
+                        if args.precision == 'int8':
+                            print("Converting FP32 → INT8-dynamic (Linear only).")
+                            model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+                else:
+                    raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
+                
+            # ---------- Case C: PRUNED ----------
+            elif 'depth_anything_v2_vits_pruned.pth' in name:
+                # Guess meta path next to the checkpoint, fallback to a standard name.
+                meta_guess = Path(CKPT).with_suffix('.meta.json')
+                meta_path = meta_guess if meta_guess.exists() else Path(CKPT).with_name('depth_anything_v2_vits_pruned.meta.json')
+                assert meta_path.exists(), f"Missing metadata JSON for pruned model: {meta_path}"
+
+                # Load meta (drop blocks + retapped indices)
+                with open(meta_path, 'r', encoding='utf-8') as f:
+                    meta = json.load(f)
+                drop = set(meta.get("drop_blocks", []))
+                taps = meta.get("retapped_vits", [2, 5, 8, 11])  # DA-V2 default for vits if absent
+
+                # Build fresh model, then physically compact ViT blocks and retap
+                model = DepthAnythingV2(**cfg)
+                vit = model.pretrained
+                total = len(vit.blocks)
+                kept_ids = [i for i in range(total) if i not in drop]
+                vit.blocks = torch.nn.ModuleList([vit.blocks[k] for k in kept_ids])
+                if hasattr(vit, "n_blocks"):
+                    vit.n_blocks = len(vit.blocks)
+                if hasattr(model, "intermediate_layer_idx"):
+                    model.intermediate_layer_idx['vits'] = taps
+
+                # Load pruned weights
+                sd = torch.load(str(CKPT), map_location='cpu')
+                if isinstance(sd, dict) and 'state_dict' in sd:
+                    sd = sd['state_dict']
+                sd = _strip_module(sd)
+                model.load_state_dict(sd, strict=True)
+                print(f"Loaded PRUNED model (kept {len(kept_ids)}/{total} ViT blocks).")
+
+            # -------- Fallback generic --------
             else:
-                raise TypeError(f"Unexpected checkpoint type: {type(raw_obj)}")
+                if isinstance(raw_obj, torch.nn.Module):
+                    model = raw_obj
+                    print("Loaded full model object (generic).")
+                elif _is_state_dict(raw_sd):
+                    model = DepthAnythingV2(**model_configs[args.encoder])
+                    model.load_state_dict(_strip_module(raw_sd), strict=False)
+                    print("Loaded generic state_dict into DepthAnythingV2.")
+                else:
+                    raise TypeError(f"Unknown checkpoint layout: {type(raw_obj)}")
 
-        # -------- Fallback generic --------
-        else:
-            if isinstance(raw_obj, torch.nn.Module):
-                model = raw_obj
-                print("Loaded full model object (generic).")
-            elif _is_state_dict(raw_sd):
-                model = DepthAnythingV2(**model_configs[args.encoder])
-                model.load_state_dict(_strip_module(raw_sd), strict=False)
-                print("Loaded generic state_dict into DepthAnythingV2.")
+                # Honor precision if we fell into a generic path
+                if args.precision == 'int8':
+                    print("Converting FP32 → INT8-dynamic (Linear only).")
+                    model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
+
+        except Exception as e:
+            # Final safety: always produce a runnable model
+            if os.path.exists(BASE_FP32):
+                print(f"[FATAL LOAD] {e}\n→ Final fallback: build INT8-dynamic from FP32 base.")
+                base = _load_fp32_model_from(BASE_FP32).eval()
+                model = quantize_dynamic(base, {torch.nn.Linear}, dtype=torch.qint8)
             else:
-                raise TypeError(f"Unknown checkpoint layout: {type(raw_obj)}")
+                raise
 
-            # Honor precision if we fell into a generic path
-            if args.precision == 'int8':
-                print("Converting FP32 → INT8-dynamic (Linear only).")
-                model = quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint8)
-
-    except Exception as e:
-        # Final safety: always produce a runnable model
-        if os.path.exists(BASE_FP32):
-            print(f"[FATAL LOAD] {e}\n→ Final fallback: build INT8-dynamic from FP32 base.")
-            base = _load_fp32_model_from(BASE_FP32).eval()
-            model = quantize_dynamic(base, {torch.nn.Linear}, dtype=torch.qint8)
-        else:
-            raise
-
-    depth_anything = model.to(DEVICE).eval()
+        depth_anything = model.to(DEVICE).eval()
 
     # === Load images ===
     if os.path.isfile(args.img_path):

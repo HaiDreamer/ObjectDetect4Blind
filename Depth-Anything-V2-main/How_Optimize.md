@@ -80,6 +80,39 @@ Run make_kitti_preds
    
 
 # How depth anything model is trained
+Original model
+   Encoder type      : vits (ViT-S/14)
+   Embedding dim     : 384
+   Number of blocks  : 12
+   Tap indices (DA-V2): [2, 5, 8, 11]
+
+What is tap indices?
+   tell vits encoder which transformer blocks to "tap" (extract) features form so the DPT-style decoder can fuse multi-scale information into a final depth map
+   NEED to retap after pruning model
+
+Which blocks are more important?
+   Higher MSE / lower PSNR / lower SSIM ⇒ bigger change ⇒ that block is more important.
+
+   Block remove each result
+      block_idx,MSE01,MAE01,PSNR,SSIM,alpha,beta
+      0,0.03052955,0.12560470,16.149,0.69851,1.135689,-0.677993
+      1,0.00392269,0.03979474,25.063,0.89014,1.182750,0.046374
+      2,0.00938331,0.06256544,21.388,0.84673,0.975481,-0.002830
+      3,0.01577090,0.09039485,18.992,0.71892,1.664848,-0.786184
+      4,0.01642881,0.08851652,19.033,0.75355,1.359850,-0.672919
+      5,0.03093622,0.12595510,16.065,0.71414,1.799772,-0.742489
+      6,0.00395356,0.04013912,25.583,0.85361,1.112795,-0.003922
+      7,0.01580263,0.08242129,19.748,0.74281,1.217867,-0.587689
+      8,0.01719892,0.09268131,18.030,0.73148,1.819362,-1.725465
+      9,0.01279062,0.08651063,19.224,0.71973,1.761943,-1.303174
+      10,0.00339999,0.04226129,25.057,0.82104,0.917169,-0.216517
+      11,0.00884184,0.06561439,21.011,0.82367,1.007369,0.406152
+
+   -> Based on MSE(Mean Square Error), we have
+      Most → least important (by MSE01)
+      Block 5 (most) -> 0 -> 8 -> 4 -> 7 -> 3 -> 9 -> 2 -> 11 -> 6 -> 1 -> 10 (least)
+
+
 
 # Pruning
 Reduce size of model while keep accuracy
@@ -87,3 +120,17 @@ Reduce size of model while keep accuracy
       Eliminate neurons(layers) that contribute less to the output
       Fine-tune (train for few epochs with small learning rate, for "surviving weight”)
       Re-do pruning (loops for several times until optimize both condition: battery use and model size)
+
+After pruning, consider a short fine-tune to recover a bit of quality (unfreeze top few encoder blocks + DPT head, small LR).
+
+Requirement (for depth anything model)
+
+Pruning keep 8/12 most important blocks
+
+Fine-tune model
+   Epoch 1/10 | train 4.5601 | val SILog 0.567 | 255.4s
+   [saved] C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned_rel_best.pth
+   Epoch 2/10 | train 4.5649 | val SILog 0.567 | 233.5s
+   Epoch 3/10 | train 4.5656 | val SILog 0.567 | 250.7s
+   Epoch 4/10 | train 4.5656 | val SILog 0.567 | 264.7s
+   Epoch 5/10 | train 4.5656 | val SILog 0.567 | 232.8s
