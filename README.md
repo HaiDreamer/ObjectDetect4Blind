@@ -30,12 +30,12 @@ C:/Python/
 │    │   └── main.py                     # Usage entrypoint for detection
 │    └── Segmentation/                   # Segmentation module
 │        └── test_model.py               # Usage entrypoint for segmentation
-├────ObjectDetectRequireFile/
-│    ├── put-in-depth-anything
-│    ├── put-in-obj-detect                   
-│    ├── put-in-segment                   
-│    └── output/ 
-└──
+└────ObjectDetectRequireFile/
+     ├── put-in-depth-anything
+     ├── put-in-obj-detect                   
+     ├── put-in-segment                   
+     └── output/ 
+
 ```
 
 ## Setup
