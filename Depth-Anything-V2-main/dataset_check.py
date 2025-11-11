@@ -7,8 +7,6 @@ Purpose: test train/val image kitti dataset(for depth estimation)
 How to run
 cd C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main
 python dataset_check.py --root "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\kitti_root\val_selection_cropped" --shuffle (has set as default)
-
-NEED TO CHECK FILE LOCATION AGAIN!!!!!!
 '''
 
 def is_img(p: Path):

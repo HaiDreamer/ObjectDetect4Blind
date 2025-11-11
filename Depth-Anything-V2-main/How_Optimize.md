@@ -128,9 +128,24 @@ Requirement (for depth anything model)
 Pruning keep 8/12 most important blocks
 
 Fine-tune model
-   Epoch 1/10 | train 4.5601 | val SILog 0.567 | 255.4s
+   Epoch 1/10 | train 4.5526 | val SILog 0.568 | 301.9s
+   [saved BEST] C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned_rel_best.pthEpoch 1/10 | train 4.5601 | val SILog 0.567 | 255.4s
    [saved] C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned_rel_best.pth
-   Epoch 2/10 | train 4.5649 | val SILog 0.567 | 233.5s
-   Epoch 3/10 | train 4.5656 | val SILog 0.567 | 250.7s
-   Epoch 4/10 | train 4.5656 | val SILog 0.567 | 264.7s
-   Epoch 5/10 | train 4.5656 | val SILog 0.567 | 232.8s
+   Epoch 2/10 | train 4.5645 | val SILog 0.568 | 301.2s
+   Epoch 3/10 | train 4.5645 | val SILog 0.568 | 286.9s
+   Epoch 4/10 | train 4.5645 | val SILog 0.568 | 266.4s
+   Epoch 5/10 | train 4.5645 | val SILog 0.568 | 237.0s
+   Epoch 9/10 | train 4.5645 | val SILog 0.568 | 259.8s
+
+"""
+Export DA-V2 (relative) predictions on KITTI val_selection_cropped with
+per-image affine alignment in inverse depth, then save KITTI-format uint16 PNGs.
+
+Relative monocular depth models (like depth_anything_v2_vits.pth) don't predict meters; their outputs are only accurate up to scale and shift.
+
+- Model: depth_anything_v2_vits.pth
+- Save: uint16 PNG, value = round(meters * 256.0), 0 = invalid
+
+Input: model
+Output: predicted images to compare with the labelled one (NEXT step: run eval_kitti_subset.py)
+"""

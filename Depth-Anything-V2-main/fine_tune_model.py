@@ -6,9 +6,18 @@ import re
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.optim import AdamW
 from torch.utils.data import Dataset, DataLoader
 from torch.cuda.amp import autocast, GradScaler
+
+'''
+Fine-tunes a pruned Depth Anything V2 model (ViT-S encoder) for relative monocular depth on a KITTI-style dataset (RGB + 16-bit PNG depth). 
+Depth Anything V2 is a recent, high-quality foundation model for monocular depth; its official implementations commonly run at an input size of 518 by default. 
+Rebuilds the encoder by dropping specified ViT blocks and retapping intermediate features per your pruning metadata, then loads a pruned checkpoint strictly.
+Trains with scale-invariant objectives: SILog + scale/shift - aligned L1 + gradient loss (edges). SILog originates from Eigen et al. (scale-invariant depth). 
+Evaluates with SILog on a held-out split and saves the best checkpoint when validation improves.
+'''
 
 # ---- DA-V2 ----
 from depth_anything_v2.dpt import DepthAnythingV2
@@ -44,6 +53,9 @@ def get_args():
 
     # output  (raw string to avoid Windows backslash escapes)
     p.add_argument("--outdir", type=str, default=r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints")
+    # saving behavior
+    p.add_argument("--save_last", action="store_true", help="also save last checkpoint every epoch")
+    p.add_argument("--best_delta", type=float, default=1e-4, help="minimum improvement to update best")
     return p.parse_args()
 
 # ----------------- Model rebuild (pruned) -----------------
@@ -172,7 +184,6 @@ class KittiLikeRelDataset(Dataset):
         gt_t   = torch.from_numpy(np.clip(gt_m, 1e-6, self.max_depth))
         mask_t = torch.from_numpy(mask.astype(np.uint8))
 
-        # Light warning if a pair has 0 valid pixels
         if mask_t.sum() == 0:
             print(f"[WARN] zero valid depth in {gt_p.name} (pairing?)")
 
@@ -188,6 +199,7 @@ def silog_loss(pred, gt, mask, eps=1e-8):
     g = torch.clamp(gt[m],   min=eps)
     d = (torch.log(p) - torch.log(g))
     return torch.sqrt(torch.mean(d**2) - torch.mean(d)**2 + 1e-8)
+
 
 def gradient_loss(pred, gt, mask):
     """
@@ -213,18 +225,30 @@ def gradient_loss(pred, gt, mask):
     return loss_x + loss_y
 
 def solve_scale_shift(y_rel, gt, mask, eps=1e-6):
+    """
+    Fit a and b (least squares) to minimize || a*y_rel + b - gt ||^2 on valid pixels.
+    This is the standard per-image scale+shift alignment used for relative depth.
+    """
     m = mask.bool()
-    if m.sum() < 10:
+    # If too few valid pixels, fall back to no alignment
+    if m.sum().item() < 10:
         return 1.0, 0.0
-    y = y_rel[m].view(-1)
-    g = gt[m].view(-1)
-    A = torch.stack([y, torch.ones_like(y)], dim=1)  # [N,2]
-    if hasattr(torch.linalg, "lstsq"):
-        x = torch.linalg.lstsq(A, g).solution
-    else:
+
+    y = y_rel[m].view(-1)   # predicted relative depth (vectorized over valid pixels)
+    g = gt[m].view(-1)      # ground-truth depth (vectorized over valid pixels)
+
+    # Build design matrix A = [y, 1]
+    A = torch.stack([y, torch.ones_like(y)], dim=1)  # shape [N, 2]
+
+    # Solve least squares A [a b]^T ≈ g
+    if hasattr(torch.linalg, "lstsq"):  # PyTorch ≥ 1.9
+        x = torch.linalg.lstsq(A, g).solution  # shape [2]
+    else:  # fallback (deprecated API kept for older versions)
         x, _ = torch.lstsq(g.unsqueeze(1), A)
         x = x[:2, 0]
-    return x[0].item(), x[1].item()
+
+    a, b = x[0].item(), x[1].item()
+    return a, b
 
 # ----------------- Forward helper -----------------
 def forward_relative_depth(model, rgb_batch):
@@ -301,33 +325,30 @@ def main():
             mask  = mask_u8.to(device, non_blocking=True).bool()
 
             with autocast(enabled=args.mixed_precision):
-                rel = forward_relative_depth(model, rgb_t)            # (B,H',W')
-                # Keep gradients alive for SI (avoid upper clamp); avoid log(0) only
-                rel_for_si = torch.clamp(rel, min=1e-6)
-                # For alignment/L1/grad, keep within physical range
-                rel_for_l1 = torch.clamp(rel, 1e-6, args.max_depth)
+                rel_raw = forward_relative_depth(model, rgb_t)       # (B,H',W') raw logits
+                # Smooth positivity to avoid gradient death at the lower clamp
+                rel_pos = F.softplus(rel_raw)                         # >0 with nonzero gradient
+
+                rel_for_si = rel_pos + 1e-6                           # avoid log(0) only
+                rel_for_l1 = torch.clamp(rel_pos, 1e-6, args.max_depth)
 
                 # per-image scale+shift alignment
-                ssi_l1 = 0.0
-                grad_l = 0.0
-                aligned = torch.zeros_like(rel_for_l1)
+                ssi_l1 = rel_for_l1.new_tensor(0.0)
+                grad_l = rel_for_l1.new_tensor(0.0)
                 valid_imgs = 0
-                for b in range(rel.size(0)):
+                for b in range(rel_for_l1.size(0)):
                     if mask[b].any():
                         a, b0 = solve_scale_shift(rel_for_l1[b], gt_m[b], mask[b])
                         y = a * rel_for_l1[b] + b0
-                        aligned[b] = torch.clamp(y, 1e-6, args.max_depth)
+                        y = torch.clamp(y, 1e-6, args.max_depth)
                         m = mask[b]
-                        ssi_l1 += (aligned[b][m] - gt_m[b][m]).abs().mean()
-                        grad_l += gradient_loss(aligned[b], gt_m[b], m)
+                        ssi_l1 = ssi_l1 + (y[m] - gt_m[b][m]).abs().mean()
+                        grad_l = grad_l + gradient_loss(y, gt_m[b], m)
                         valid_imgs += 1
 
                 if valid_imgs > 0:
-                    ssi_l1 /= valid_imgs
-                    grad_l /= valid_imgs
-                else:
-                    ssi_l1 = rel.new_tensor(0.0)
-                    grad_l = rel.new_tensor(0.0)
+                    ssi_l1 = ssi_l1 / valid_imgs
+                    grad_l = grad_l / valid_imgs
 
                 si = silog_loss(rel_for_si, gt_m, mask)
 
@@ -364,14 +385,15 @@ def main():
                 gt_m  = gt_m.to(device, non_blocking=True)
                 mask  = mask_u8.to(device, non_blocking=True).bool()
                 rel   = forward_relative_depth(model, rgb_t)
-                rel   = torch.clamp(rel, min=1e-6)  # only avoid log(0)
+                rel   = F.softplus(rel) + 1e-6  # positivity + avoid log(0)
                 vals.append(silog_loss(rel, gt_m, mask).item())
         val_silog = float(np.mean(vals)) if vals else 0.0
 
         print(f"Epoch {epoch}/{args.epochs} | train {run_loss/len(dl):.4f} | val SILog {val_silog:.3f} | {time.time()-t0:.1f}s")
 
-        # save best
-        if val_silog < best_val:
+        # ---- saving ----
+        improved = (val_silog < best_val - args.best_delta)
+        if improved:
             best_val = val_silog
             out_ckpt = os.path.join(args.outdir, "depth_anything_v2_vits_pruned_rel_best.pth")
             os.makedirs(args.outdir, exist_ok=True)
@@ -380,9 +402,15 @@ def main():
                 json.dump({
                     "img_size": args.img_size, "max_depth": args.max_depth,
                     "lr_enc": args.lr_enc, "lr_head": args.lr_head,
-                    "w_silog": args.w_silog, "w_grad": args.w_grad
+                    "w_silog": args.w_silog, "w_grad": args.w_grad,
+                    "max_long": args.max_long
                 }, f, indent=2)
-            print(f"[saved] {out_ckpt}")
+            print(f"[saved BEST] {out_ckpt}")
+
+        if args.save_last:
+            last_ckpt = os.path.join(args.outdir, f"last_epoch{epoch:03d}.pth")
+            torch.save(model.state_dict(), last_ckpt)
+            print(f"[saved LAST] {last_ckpt}")
 
 if __name__ == "__main__":
     main()

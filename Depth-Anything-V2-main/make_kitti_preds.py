@@ -5,6 +5,10 @@ from depth_anything_v2.dpt import DepthAnythingV2
 from collections import OrderedDict
 import json  
 
+import onnxruntime as ort  
+import numpy as np
+import cv2
+
 """
 Export DA-V2 (relative) predictions on KITTI val_selection_cropped with
 per-image affine alignment in inverse depth, then save KITTI-format uint16 PNGs.
@@ -34,7 +38,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 from collections import OrderedDict
 from torch.ao.quantization import quantize_dynamic  # dynamic INT8 Linear  (weights-only)
 
-CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_pruned.pth")
+CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_fp16.onnx")
 BASE_FP32 = CKPT.with_name("depth_anything_v2_vits.pth")  
 assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
 
@@ -66,8 +70,155 @@ def _load_fp32_model_from(path: Path):
     # hiếm khi lưu nguyên model dưới tên FP32
     return sd if isinstance(sd, torch.nn.Module) else m
 
-raw_obj, raw_sd = _load_raw(CKPT)
+class ONNXDepthAnything:
+    """
+    Minimal adapter to mirror DepthAnythingV2.infer_image() using ONNX Runtime.
+
+    This fixes static-shape ONNX exports that hard-code a ViT token sequence length
+    (e.g., 127x127 patches + 1 class token = 16130). We detect/try the expected
+    token grid and letterbox the input to (tokens_side*14, tokens_side*14) so all
+    internal Reshape/Add ops see the baked sequence length.
+    """
+
+    def __init__(self, onnx_path: str, input_size: int = 518, providers=None):
+        import onnxruntime as ort
+        self.input_size = int(input_size)
+        self.onnx_path = onnx_path
+        self._tokens_side = None  # will cache detected/validated tokens per side
+        self._tried_autodetect = False
+
+        if providers is None:
+            providers = ["CUDAExecutionProvider", "DmlExecutionProvider", "CPUExecutionProvider"]
+        avail = [p for p in providers if p in ort.get_available_providers()]
+        if not avail:
+            avail = ["CPUExecutionProvider"]
+
+        self.sess = ort.InferenceSession(onnx_path, providers=avail)
+        self.inp = self.sess.get_inputs()[0]
+        self.out = self.sess.get_outputs()[0]
+        self.input_name = self.inp.name
+        self.output_name = self.out.name
+
+    # no-op so you can call .to().eval() like a torch.nn.Module
+    def to(self, device):
+        self._device = device
+        return self
+    def eval(self):
+        return self
+
+    @staticmethod
+    def _normalize_rgb01(img_rgb01: np.ndarray) -> np.ndarray:
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)[None, None, :]
+        std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)[None, None, :]
+        return (img_rgb01 - mean) / std
+
+    def _resize_letterbox_square_multiple14(self, img: np.ndarray, tokens_side: int):
+        """
+        Letterbox to a square target = tokens_side*14, keeping AR via padding.
+        Returns (padded_img, (top,bottom,left,right), (inner_h,inner_w)).
+        """
+        target = 14 * int(tokens_side)
+        h, w = img.shape[:2]
+        scale = target / max(h, w)
+        new_h = int(np.floor((h * scale) / 14.0) * 14)
+        new_w = int(np.floor((w * scale) / 14.0) * 14)
+        new_h = max(14, min(target, new_h))
+        new_w = max(14, min(target, new_w))
+        resized = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_CUBIC)
+
+        pad_h, pad_w = target - new_h, target - new_w
+        top = pad_h // 2; bottom = pad_h - top
+        left = pad_w // 2; right = pad_w - left
+        padded = cv2.copyMakeBorder(resized, top, bottom, left, right, cv2.BORDER_REFLECT_101)
+        return padded, (top, bottom, left, right), (new_h, new_w)
+
+    def _maybe_autodetect_tokens_side(self):
+        """
+        Try to read the expected sequence length from ONNX (positional embeddings),
+        else leave None and we'll probe with a few common grids.
+        """
+        if self._tried_autodetect:
+            return
+        self._tried_autodetect = True
+        try:
+            import onnx, math
+            m = onnx.load(self.onnx_path)
+            seq_lens = []
+            for init in m.graph.initializer:
+                # look for [1, L, C] tensors (pos_embed etc.)
+                if len(init.dims) == 3 and init.dims[0] == 1 and init.dims[1] > 1000:
+                    seq_lens.append(int(init.dims[1]))
+            if seq_lens:
+                L = max(seq_lens)  # pick the largest candidate
+                # Common ViT cases: L = (t*t) + 1 (cls), or (t*t) (+maybe +4 registers)
+                for off in (0, 1, 4, 5):
+                    t2 = L - off
+                    t = int(round(math.sqrt(t2)))
+                    if t * t == t2 and t % 1 == 0 and t >= 16:
+                        self._tokens_side = t
+                        break
+        except Exception:
+            pass  # best-effort; will fall back to probing
+
+    def _choose_tokens_side_by_probe(self, bgr: np.ndarray):
+        """
+        If autodetect failed, try a few common token grids once and cache the one that runs.
+        """
+        for t in ([self._tokens_side] if self._tokens_side else []) + [127, 55, 37]:
+            try:
+                rgb01 = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+                padded, _, _ = self._resize_letterbox_square_multiple14(rgb01, t)
+                x = np.transpose(self._normalize_rgb01(padded), (2, 0, 1))[None]
+                # one dry run; if it doesn't throw, we lock this tokens_side
+                _ = self.sess.run([self.output_name], {self.input_name: x})[0]
+                self._tokens_side = t
+                return
+            except Exception:
+                continue
+        # If nothing worked, last resort: keep 37 (518px) to fail consistently with a clear error
+        self._tokens_side = 37
+
+    def infer_image(self, bgr: np.ndarray) -> np.ndarray:
+        assert bgr.ndim == 3 and bgr.shape[2] == 3, "Expected HxWx3 BGR image"
+        h0, w0 = bgr.shape[:2]
+
+        # Detect once
+        self._maybe_autodetect_tokens_side()
+        if self._tokens_side is None:
+            self._choose_tokens_side_by_probe(bgr)
+
+        # BGR -> RGB -> [0,1]
+        rgb01 = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+
+        # Letterbox to fixed square so ONNX static shapes (Reshape/Add) match
+        rgb01, (top, bottom, left, right), (inner_h, inner_w) = \
+            self._resize_letterbox_square_multiple14(rgb01, tokens_side=self._tokens_side)
+
+        # normalize + NCHW
+        chw = np.transpose(self._normalize_rgb01(rgb01), (2, 0, 1))[None]  # (1,3,H,W) float32
+
+        out = self.sess.run([self.output_name], {self.input_name: chw})[0]
+        if out.ndim == 4:
+            out = out[0]
+        if out.ndim == 3:
+            out = out[0] if out.shape[0] == 1 else out.mean(axis=0)
+        elif out.ndim != 2:
+            raise RuntimeError(f"Unexpected ONNX output shape: {out.shape}")
+        out = out.astype(np.float32, copy=False)
+
+        # remove padding then resize back to the original image size
+        out = out[top: top + inner_h, left: left + inner_w]
+        if out.shape != (h0, w0):
+            out = cv2.resize(out.astype(np.float32), (w0, h0), interpolation=cv2.INTER_LINEAR)
+        return out.astype(np.float32)
+
 name = CKPT.name.lower()
+if CKPT.suffix.lower() == ".onnx":
+    model = ONNXDepthAnything(str(CKPT), input_size=518)
+    print(f"Loaded ONNX FP16 model: {CKPT}")
+    raw_obj = raw_sd = None
+else:
+    raw_obj, raw_sd = _load_raw(CKPT)
 
 try:
     # ---------- Case 1: FP32 ----------
@@ -169,6 +320,11 @@ try:
         model.load_state_dict(sd, strict=True)
         print(f"Loaded PRUNED model (kept {len(kept_ids)}/{total} ViT blocks).")
 
+    # ---------- Case 5:  ONNX FP16 file ----------
+    elif CKPT.suffix.lower() == ".onnx":
+        model = ONNXDepthAnything(str(CKPT), input_size=518)
+        print(f"Loaded ONNX FP16 model: {CKPT}\nProviders: {model.sess.get_providers()}")
+
     # ---------- Fallback generic ----------
     else:
         if isinstance(raw_obj, torch.nn.Module):
@@ -190,6 +346,7 @@ except Exception as e:
     else:
         raise
 
+# This now works for both PyTorch models (real .to/.eval) and ONNX adapter (no-op chain).
 model = model.to(DEVICE).eval()
 
 def read_gt_meters(p: Path):
