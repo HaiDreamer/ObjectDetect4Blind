@@ -18,7 +18,9 @@ PY_SEG    = PY_YOLO
 ORIG_IMG   = ROOT / "assets" / "demo01.jpg"                                          
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels" 
 DEPTH_OUT_PNG   = DEPTH_SCRIPT.parent / "depth_vis" / f"{ORIG_IMG.stem}.png"
-SEG_BORDER_TXT  = ROOT / "Segmentation" / "output" / "mask_border.txt"                   
+# SEG_BORDER_TXT  = ROOT / "Segmentation" / "output" / "mask_border.txt"
+# Use per-image border file so it matches test_model.py --out-border
+SEG_BORDER_TXT  = ROOT / "Segmentation" / "output" / f"{ORIG_IMG.stem}_border.txt"
 FINAL_OUT       = ROOT / "output" / f"{ORIG_IMG.stem}_depth_boxes_borders.png"
 
 
@@ -112,7 +114,7 @@ def run_parallel_and_overlay(class_names: dict | None = None, seg_args: list[str
         cwd=str(YOLO_SCRIPT.parent)
     )
     # Depth estimation
-    image_path = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
+    image_path = ORIG_IMG  # Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
     p_depth = subprocess.Popen(
         [
             PY_DEPTH, "-u", str(DEPTH_SCRIPT),
@@ -125,7 +127,18 @@ def run_parallel_and_overlay(class_names: dict | None = None, seg_args: list[str
         cwd=str(DEPTH_SCRIPT.parent)
     )
     # Image segmentation
-    seg_cmd = [PY_SEG, str(SEG_SCRIPT)]
+    # seg_cmd = [PY_SEG, str(SEG_SCRIPT)]
+    # if seg_args:
+    #     seg_cmd.extend(seg_args)
+    # p_seg = subprocess.Popen(seg_cmd, cwd=str(ROOT))
+    seg_cmd = [
+        PY_SEG,
+        str(SEG_SCRIPT),
+        "--image",
+        str(ORIG_IMG),
+        "--out-border",
+        str(SEG_BORDER_TXT),
+    ]
     if seg_args:
         seg_cmd.extend(seg_args)
     p_seg = subprocess.Popen(seg_cmd, cwd=str(ROOT))

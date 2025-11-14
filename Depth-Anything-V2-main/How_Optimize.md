@@ -114,7 +114,7 @@ Which blocks are more important?
 
 
 
-# Pruning
+# Pruning (DONT DO THIS, BECAUSE QUAITIZATION FOR MOBILE APP HURT ACCURACY A LOT!)
 Reduce size of model while keep accuracy
    General Technique:
       Eliminate neurons(layers) that contribute less to the output

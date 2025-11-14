@@ -15,10 +15,10 @@ import onnxruntime as ort
 '''
 Run locally:
     python app.py
-Running:
+Run origin model:
     python run.py --encoder vits --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis --pred-only
     -> save only depth predictions
-Running:
+    OR
     python run.py --encoder vitl --precision int8 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir depth_vis
     -> save side-by-side comparison of input and depth prediction
 Run prunned model
