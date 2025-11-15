@@ -6,6 +6,9 @@ import cv2
 import numpy as np
 import time
 
+# ---------------------
+# PATH & ENVIRONMENT
+# ---------------------
 ROOT = Path(r"C:\Python\ObjectDetect4Blind")
 
 YOLO_SCRIPT   = ROOT / "Object detection" / "main.py"
@@ -14,22 +17,24 @@ SEG_SCRIPT    = ROOT / "Segmentation" / "test_model.py"
 
 PY_YOLO   = r"C:\Python\miniconda\envs\tensor_test\python.exe"
 PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
-PY_SEG    = PY_YOLO   # use same env as YOLO for segmentation
+PY_SEG    = PY_YOLO   
 
 
 def _watch(name: str, proc: subprocess.Popen):
+    '''observe child process, print message'''
     rc = proc.wait()
     print(f"[{name}] finished with exit code {rc}")
 
 
 def _ensure_depth_size(depth_bgr, H, W):
+    '''resize image if depth img size != original img size'''
     if (depth_bgr.shape[0], depth_bgr.shape[1]) != (H, W):
         depth_bgr = cv2.resize(depth_bgr, (W, H), interpolation=cv2.INTER_NEAREST)
     return depth_bgr
 
 
-def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int,
-                        class_names: dict | None = None):
+def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int, class_names: dict | None = None):
+    '''Draw yolo bounding box into output img, using bounding box txt file has created by yolo model'''
     label_file = labels_dir / f"{stem}.txt"
     if not label_file.exists():
         print(f"[YOLO] label file not found: {label_file}")
@@ -59,14 +64,14 @@ def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int,
         if conf is not None:
             label = f"{label} {conf:.2f}"
 
-        cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), (255, 255, 255), 2)
+        cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), (0, 0, 0), 2)
         cv2.putText(
             depth_bgr,
             label,
             (x1, max(0, y1 - 6)),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
-            (255, 255, 255),
+            (0, 0, 0),
             1,
             cv2.LINE_AA,
         )
@@ -74,8 +79,8 @@ def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int,
     return depth_bgr
 
 
-def _draw_seg_borders_on(depth_bgr, border_txt_path: Path, W: int, H: int,
-                         *, normalized=False, color=(255, 255, 255), thickness=2):
+def _draw_seg_borders_on(depth_bgr, border_txt_path: Path, W: int, H: int, *, normalized=False, color=(255, 255, 255), thickness=2):
+    '''draw segmentation border to output img, using border text file has created by segmentation model'''
     if not border_txt_path.exists():
         print(f"[SEG] border file not found: {border_txt_path}")
         return depth_bgr
@@ -115,11 +120,8 @@ def _draw_seg_borders_on(depth_bgr, border_txt_path: Path, W: int, H: int,
     return depth_bgr
 
 
-def run_full_pipeline_for_image(
-    image_path: Path,
-    class_names: dict | None = None,
-    seg_args: list[str] | None = None,
-) -> Path:
+def run_full_pipeline_for_image(image_path: Path, class_names: dict | None = None, seg_args: list[str] | None = None) -> Path:
+    '''run parallel 3 models depth + seg + obj detect'''
     image_path = Path(image_path).resolve()
     stem = image_path.stem
 

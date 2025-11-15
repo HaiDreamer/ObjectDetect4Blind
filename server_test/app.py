@@ -13,13 +13,16 @@ HOW TO RUN (WEB APP)
   cd C:\Python\ObjectDetect4Blind\server_test
   uvicorn app:app --reload --host 0.0.0.0 --port 8000
 
-Then open in browser: http://127.0.0.1:8000/
+Then open in browser: http://127.0.0.1:8000/    
 
-FOR MOBILE: http://192.168.1.1:8000
+FOR MOBILE: http://192.168.1.68:8000  (my own ivp4 internet -> ipconfig in terminal)
 
 NEXT: 
-assume that depth anything model is inside server student5@ict14:~$, where models in 
-/storage/student5/models/depth_anything_v2_vits.pth how can i still run like this
+  assume that depth anything model is inside server student5@ict14:~$, where models in 
+    /storage/student5/models/depth_anything_v2_vits.pth how can i still run like this
+
+  Performance: If many images are processed, reusing model servers or processes instead of 
+    spawning Python interpreters per image would reduce overhead.
 """
 
 # =========================
@@ -29,7 +32,7 @@ assume that depth anything model is inside server student5@ict14:~$, where model
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(CURRENT_DIR)  # so we can import pipeline.py from same folder
 
-from pipeline import run_full_pipeline_for_image  # your big YOLO+depth+seg pipeline
+from pipeline import run_full_pipeline_for_image  # YOLO+depth+seg pipeline
 
 # =========================
 # FASTAPI APP
@@ -37,6 +40,7 @@ from pipeline import run_full_pipeline_for_image  # your big YOLO+depth+seg pipe
 
 app = FastAPI()
 
+# allow cross-origin calls, need explain further
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -44,11 +48,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# for user upload img from their device
 UPLOAD_DIR = Path(CURRENT_DIR) / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
+'''Return html page (simple version)
+- A file input and submit button.
+- A small client-side script that:
+- Reads the selected file, posts it to /predict using fetch (FormData).
+- Measures client-side elapsed time.
+- If the response is OK, converts the returned blob to an object URL and sets it as the src of an <img> to show the result.
+- Shows server error text in a <pre> if the response fails.
+'''
 @app.get("/", response_class=HTMLResponse)
-def index():
+def index():        
     return """
     <html>
     <head><title>Full pipeline demo</title></head>
@@ -101,6 +114,16 @@ def index():
     </html>
     """
 
+'''POST
+- Read uploaded bytes: await file.read().
+- Decode image into OpenCV array: np.frombuffer -> cv2.imdecode. If decoding fails, return 400.
+- Save the uploaded image to UPLOAD_DIR as <stem>.jpg with cv2.imwrite. If write fails, return 500.
+- Call your pipeline:
+- final_path = run_full_pipeline_for_image(upload_path, class_names=None, seg_args=None)
+- This function launches YOLO, depth, and segmentation tools, waits for them and writes the final overlay PNG. Any exception raised inside is caught and returned as 500 with the error message.
+- Read the final PNG with cv2.imread, encode it as PNG with cv2.imencode, and return its bytes with media_type="image/png".
+- There is an outer try/except that catches unexpected crashes and returns a 500.
+'''
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
     try:
@@ -145,7 +168,7 @@ async def predict(file: UploadFile = File(...)):
         return Response(content=encoded_image.tobytes(), media_type="image/png")
 
     except Exception as e:
-        # total fallback, just in case
+        # fallback
         msg = f"Server crash: {repr(e)}"
         print("[PREDICT]", msg)
         return Response(content=msg.encode("utf-8"), status_code=500)
