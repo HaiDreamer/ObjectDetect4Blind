@@ -1,49 +1,58 @@
 from pathlib import Path
-import cv2, numpy as np
+import argparse
+import cv2
+import numpy as np
 
-'''
-Why "output become strange" happens ?
-Wrong model type for metric evaluation.
-depth_anything_v2_vits.pth is a foundation (relative) depth model — it does not predict meters. 
-DA-V2 only predicts absolute depth after metric fine-tuning (e.g., Hypersim/VKITTI2 checkpoints under metric_depth/). If you want “real meters, no GT fitting,” use those metric weights. 
+r"""
+Default config is for the metric Depth Anything V2 model:
+  GT_DIR   = C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100
+  PRED_DIR = C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits
 
-Using only “median scale” on a relative map.
-Relative models are typically scale- & shift-ambiguous (often closer to inverse depth). A simple median scale in depth space won't 
-fix the shift term (and may be applied in the wrong domain), which explodes AbsRel/δ metrics. A standard fix is affine calibration in
-inverse depth (fit a, b such that a*pred + b ≈ 1/gt, then invert). This kind of scale+shift correction is widely used with monocular 
-relative depth.
+Run code
+  # metric model: Evaluate KITTI-style depth predictions (uint16 PNG, depth[m] = value/256).
+  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits"
 
-Output (depth anything v2 small model(original version))
-d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
-0.943, 0.988, 0.996, 0.084, 0.452, 3.581, 0.124, 12.326, 0.036
+  # relative predictions model
+  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\mini_gt_100" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100"
 
-'''
+Output (depth anything v2 small model(original relative version))
+    Original model
+		 - Avg speed: 3.524 s/img
+		 - Memory: 97 MB
+    d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
+    0.943, 0.988, 0.996, 0.084, 0.452, 3.581, 0.124, 12.326, 0.036
 
-# config
-GT_DIR   = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\mini_gt_100")                # folder of GT uint16 PNGs (subset)
-PRED_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100")    # folder of prediction uint16 PNGs
+Output (depth anything v2 small model(original metric depth version))
+    Original model
+		 - Avg speed: 3.313 s/img
+		 - Memory: 94.6 MB 
+    d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
+    0.854, 0.969, 0.991, 0.119, 0.679, 4.668, 0.176, 16.453, 0.053
+
+Algorithm
+    INPUT: ground truth depth and RGB image
+    OUTPUT: accuracy...
+"""
 
 def load_u16_as_meters(p: Path) -> np.ndarray:
     """
     Read a KITTI-format depth PNG and convert to meters.
 
-    Parameters
-    ----------
-    p : Path
-        Full path to a single-channel uint16 PNG where KITTI encodes depth as:
-        meters = uint16_value / 256.0 (0 means invalid pixel).
-
-    Returns
-    -------
-    np.ndarray (float32, HxW)
-        Depth in meters for each pixel.
+    KITTI convention:
+        depth_meters = uint16_value / 256.0
+        0 means invalid pixel.
     """
     x = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)  # x: raw uint16 image from disk
     if x is None:
         raise FileNotFoundError(p)
-    return x.astype(np.float32) / 256.0           # convert KITTI units -> meters  (meters = value / 256.0)
+    if x.ndim != 2:
+        # Ensure single-channel depth
+        x = x[..., 0]
+    return x.astype(np.float32) / 256.0
 
-def metrics(pred: np.ndarray, gt: np.ndarray, dmin: float = 1e-3, dmax: float = 80.0):
+
+def metrics(pred: np.ndarray, gt: np.ndarray,
+            dmin: float = 1e-3, dmax: float = 80.0):
     """
     Compute common monocular depth metrics on valid pixels.
 
@@ -66,69 +75,121 @@ def metrics(pred: np.ndarray, gt: np.ndarray, dmin: float = 1e-3, dmax: float = 
         SqRel: mean squared relative error
         RMSE: root mean squared error (meters)
         RMSElog: RMSE in log space
-        SILog: scale-invariant log error x 100 (lower is better; KITTI ranks by √SILog)
+        SILog: scale-invariant log error x 100 (lower is better)
         log10: mean absolute log10 error
     """
 
     # pred, gt: local working copies (both in meters)
     pred = np.clip(pred, dmin, dmax)  # clamp predictions to [dmin, dmax]
-    gt   = gt.copy()
-    gt[np.isinf(gt)] = 0         
-    gt[np.isnan(gt)] = 0              
+    gt = gt.copy()
+    gt[np.isinf(gt)] = 0
+    gt[np.isnan(gt)] = 0
 
-    # valid : boolean mask where GT is in-range (what we will score on)
+    # valid: boolean mask where GT is in-range (what we will score on)
     valid = (gt > dmin) & (gt < dmax)
     if valid.sum() == 0:
         # If no valid pixels, return NaNs so caller can handle gracefully.
         return tuple([float("nan")] * 9)
 
-    # p, g : 1D arrays of predicted/GT depths over valid pixels
+    # p, g: 1D arrays of predicted/GT depths over valid pixels
     p, g = pred[valid], gt[valid]
 
-    # thresh : elementwise max(p/g, g/p) used for δ accuracies (classic BTS/KITTI eval)
+    # thresh: elementwise max(p/g, g/p) used for δ accuracies
     thresh = np.maximum(p / g, g / p)
 
-    # d1, d2, d3 : accuracy under multiplicative thresholds (higher is better)
+    # d1, d2, d3: accuracy under multiplicative thresholds (higher is better)
     d1 = (thresh < 1.25).mean()          # δ < 1.25
     d2 = (thresh < 1.25 ** 2).mean()     # δ < 1.25^2
     d3 = (thresh < 1.25 ** 3).mean()     # δ < 1.25^3
 
-    # AbsRel : mean absolute relative error |p - g| / g
+    # AbsRel: mean absolute relative error |p - g| / g
     absrel = np.mean(np.abs(p - g) / g)
 
-    # SqRel : mean squared relative error (p - g)^2 / g
-    sqrel  = np.mean(((p - g) ** 2) / g)
+    # SqRel: mean squared relative error (p - g)^2 / g
+    sqrel = np.mean(((p - g) ** 2) / g)
 
-    # RMSE : sqrt(mean((p - g)^2)) in meters
-    rmse   = np.sqrt(np.mean((p - g) ** 2))
+    # RMSE: sqrt(mean((p - g)^2)) in meters
+    rmse = np.sqrt(np.mean((p - g) ** 2))
 
-    # RMSElog : sqrt(mean((log p - log g)^2))
+    # RMSElog: sqrt(mean((log p - log g)^2))
     rmselog = np.sqrt(np.mean((np.log(p) - np.log(g)) ** 2))
 
-    # e : per-pixel log difference used for SILog
+    # e: per-pixel log difference used for SILog
     e = np.log(p) - np.log(g)
 
-    # SILog : scale-invariant log error = sqrt(E[e^2] - (E[e])^2) × 100
-    silog  = np.sqrt(np.mean(e ** 2) - (np.mean(e) ** 2)) * 100.0
+    # SILog: scale-invariant log error = sqrt(E[e^2] - (E[e])^2) × 100
+    silog = np.sqrt(np.mean(e ** 2) - (np.mean(e) ** 2)) * 100.0
 
-    # log10 : mean absolute log10 error
-    log10  = np.mean(np.abs(np.log10(p) - np.log10(g)))
+    # log10: mean absolute log10 error
+    log10 = np.mean(np.abs(np.log10(p) - np.log10(g)))
 
     return d1, d2, d3, absrel, sqrel, rmse, rmselog, silog, log10
 
 
-# Driver code (unchanged; reads all pairs and prints averaged metrics)
-gts = sorted(GT_DIR.glob("*.png"))
-assert gts, f"No GT PNGs found in {GT_DIR}"
+def main():
+    parser = argparse.ArgumentParser(
+        description="Evaluate KITTI-style depth predictions (metric or relative+affine)."
+    )
+    parser.add_argument(
+        "--gt-dir",
+        type=Path,
+        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100"),
+        help="Directory containing GT uint16 KITTI depth PNGs (default: mini_gt_100).",
+    )
+    parser.add_argument(
+        "--pred-dir",
+        type=Path,
+        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits"),
+        help=("Directory containing prediction uint16 KITTI depth PNGs. "
+              "Default: metric model outputs (pred_metric_kitti_vkitti_vits)."),
+    )
+    args = parser.parse_args()
 
-accs = []
-for gt_path in gts:
-    pred_path = PRED_DIR / gt_path.name  # prediction must share the same basename
-    gt_m   = load_u16_as_meters(gt_path)
-    pred_m = load_u16_as_meters(pred_path)
-    accs.append(metrics(pred_m, gt_m))
+    GT_DIR = args.gt_dir
+    PRED_DIR = args.pred_dir
 
-accs = np.array(accs, dtype=np.float64)
-labels = ["d1","d2","d3","AbsRel","SqRel","RMSE","RMSElog","SILog","log10"]
-print(", ".join(labels))
-print(", ".join(f"{accs[:, i].mean():.3f}" for i in range(accs.shape[1])))
+    print(f"GT_DIR   = {GT_DIR}")
+    print(f"PRED_DIR = {PRED_DIR}")
+
+    gts = sorted(GT_DIR.glob("*.png"))
+    assert gts, f"No GT PNGs found in {GT_DIR}"
+
+    accs = []
+    missing = 0
+
+    for gt_path in gts:
+        pred_path = PRED_DIR / gt_path.name  # prediction must share the same basename
+        if not pred_path.exists():
+            print(f"[WARN] Missing prediction for {gt_path.name} → {pred_path}")
+            missing += 1
+            continue
+
+        gt_m = load_u16_as_meters(gt_path)
+        pred_m = load_u16_as_meters(pred_path)
+
+        # If shapes differ (shouldn't happen if you resized properly), resize pred to GT
+        if pred_m.shape != gt_m.shape:
+            pred_m = cv2.resize(
+                pred_m,
+                (gt_m.shape[1], gt_m.shape[0]),
+                interpolation=cv2.INTER_LINEAR,
+            )
+
+        accs.append(metrics(pred_m, gt_m))
+
+    if not accs:
+        raise RuntimeError("No valid GT/prediction pairs found. Check directories and filenames.")
+
+    accs = np.array(accs, dtype=np.float64)
+    labels = ["d1", "d2", "d3", "AbsRel", "SqRel", "RMSE", "RMSElog", "SILog", "log10"]
+
+    print("\n# Images evaluated:", accs.shape[0])
+    if missing > 0:
+        print("# Images missing predictions:", missing)
+
+    print(", ".join(labels))
+    print(", ".join(f"{accs[:, i].mean():.3f}" for i in range(accs.shape[1])))
+
+
+if __name__ == "__main__":
+    main()

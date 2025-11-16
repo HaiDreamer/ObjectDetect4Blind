@@ -5,20 +5,13 @@ import cv2
 import numpy as np
 import time
 import json
-import os
-
-try:
-    import onnxruntime as ort  # used only if we run metric depth via ONNX
-except ImportError:
-    ort = None
 
 '''Fully run metric depth model + object detection model + image segmentation model
 FOR WHAT?
     Input: RGB image
     Output: Combines all results on one depth image, computes distances, and save a PNG overlay and a JSON file with distances
 
-HOW TO USE? change file path img input(recommend)       -> run
-            change main model u want to use(optional)
+HOW TO USE? change file path img input(recommend) -> run
 '''
 
 # =========================
@@ -37,18 +30,14 @@ PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
 PY_SEG    = PY_YOLO
 
 # Metric-depth weights
-# NOTE:
-#   - If this points to *.pth  → use original metric_depth/run.py (PyTorch backend)
-#   - If this points to *.onnx or *.ort → use ONNX Runtime backend defined below
 METRIC_DEPTH_WEIGHTS = (
-    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
-    #r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
-    # r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.with_runtime_opt.ort"
+    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints"
+    r"\depth_anything_v2_metric_vkitti_vits.pth"
 )
 
 # =========================
 # Inputs / Outputs
-# alt: 2011_09_26_drive_0013_sync_image_0000000077_image_03.png or demo01.jpg (12.260s)
+# alt: 2011_09_26_drive_0013_sync_image_0000000077_image_03.png or demo01.jpg (5.281s)
 # =========================
 ORIG_IMG = ROOT / "assets" / "demo01.jpg"
 
@@ -102,18 +91,39 @@ def _draw_seg_borders_on(depth_bgr, polys, *, color=(255, 255, 255), thickness=2
     return depth_bgr
 
 
-def _compute_box_distance(depth_map_m: np.ndarray,
-                          x1: int, y1: int, x2: int, y2: int) -> float | None:
-    '''Distance to bounding box'''
+def _compute_box_distance(depth_map_m: np.ndarray, x1: int, y1: int, x2: int, y2: int, frac: float = 0.5) -> float | None:
+    """
+    Distance to bounding box, using only the central region and a robust statistic (median).
+    """
     H, W = depth_map_m.shape[:2]
     x1 = max(0, min(W - 1, x1))
     y1 = max(0, min(H - 1, y1))
-    x2 = max(0, min(W - 1, x2))
-    y2 = max(0, min(H - 1, y2))
+    x2 = max(0, min(W, x2))
+    y2 = max(0, min(H, y2))
     if x2 <= x1 or y2 <= y1:
         return None
 
-    patch = depth_map_m[y1:y2, x1:x2]
+    w = x2 - x1
+    h = y2 - y1
+
+    # central frac of the box
+    cw = int(w * frac)
+    ch = int(h * frac)
+    if cw <= 0 or ch <= 0:
+        return None
+
+    cx = (x1 + x2) // 2
+    cy = (y1 + y2) // 2
+
+    cx1 = max(0, cx - cw // 2)
+    cy1 = max(0, cy - ch // 2)
+    cx2 = min(W, cx1 + cw)
+    cy2 = min(H, cy1 + ch)
+
+    if cx2 <= cx1 or cy2 <= cy1:
+        return None
+
+    patch = depth_map_m[cy1:cy2, cx1:cx2]
     if patch.size == 0:
         return None
 
@@ -121,7 +131,9 @@ def _compute_box_distance(depth_map_m: np.ndarray,
     if valid.size == 0:
         return None
 
-    return float(valid.mean())
+    # median distance instead of mean
+    return float(np.median(valid))
+
 
 
 def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float | None:
@@ -136,22 +148,57 @@ def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float |
     return float(valid.mean())
 
 
-def _nearest_sidewalk_distance(depth_map_m: np.ndarray, sidewalk_mask: np.ndarray, max_depth: float = 80.0):
-    '''Finds the pixel with smallest depth = closest point on the sidewalk.'''
+def _nearest_sidewalk_distance(
+    depth_map_m: np.ndarray,
+    sidewalk_mask: np.ndarray,
+    max_depth: float = 80.0,
+    band_start_frac: float = 0.5,
+    percentile: float = 5.0
+):
+    """
+    Find the nearest sidewalk point using:
+      - only a lower vertical band of the image
+      - a low percentile (e.g. 5th) instead of raw min for robustness
+
+    band_start_frac: fraction of height from which to start (0..1).
+                     0.5 -> bottom half of the image only.
+    percentile: percentile of depths to use (e.g. 5.0 = 5th percentile).
+    """
     assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
 
-    cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
-    if not np.any(cond):
+    H, W = depth_map_m.shape
+
+    # base condition: mask == 1, valid depth, within max_depth
+    base_cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
+    if not np.any(base_cond):
         return None, None, None
+
+    # restrict to lower band
+    y_band_start = int(H * band_start_frac)
+    band_mask = np.zeros_like(sidewalk_mask, dtype=bool)
+    band_mask[y_band_start:H, :] = True
+
+    cond = base_cond & band_mask
+    if not np.any(cond):
+        # fallback: if nothing in the band, use full mask as before
+        cond = base_cond
 
     ys, xs = np.where(cond)
     vals = depth_map_m[ys, xs]
+    if vals.size == 0:
+        return None, None, None
 
-    idx = np.argmin(vals)
+    # use low percentile instead of raw min for robustness
+    d_target = float(np.percentile(vals, percentile))
+
+    # pick pixel whose depth is closest to that percentile value
+    idx = np.argmin(np.abs(vals - d_target))
     y_min = int(ys[idx])
     x_min = int(xs[idx])
-    d_min = float(vals[idx])
-    return d_min, x_min, y_min
+
+    return d_target, x_min, y_min
+
+
 
 
 def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):
@@ -180,82 +227,6 @@ def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):
 
 
 # =========================
-# Metric depth via ONNX Runtime (optional backend)
-# =========================
-def _run_metric_depth_onnx():
-    '''
-    Runs metric depth model via ONNX Runtime instead of metric_depth/run.py, and
-    writes the same outputs this pipeline expects:
-        - METRIC_DEPTH_VIS_PNG : colored depth visualization
-        - METRIC_DEPTH_RAW_NPY : raw float32 depth in meters
-    '''
-    if ort is None:
-        raise RuntimeError("onnxruntime is not installed, cannot run ONNX metric depth backend.")
-
-    # Choose ONNX / ORT model based on METRIC_DEPTH_WEIGHTS
-    onnx_path = METRIC_DEPTH_WEIGHTS
-    if not os.path.isfile(onnx_path):
-        raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] ONNX model not found: {onnx_path}")
-
-    print(f"[METRIC_DEPTH_ONNX] loading model: {onnx_path}")
-    providers = ort.get_available_providers()
-    print(f"[METRIC_DEPTH_ONNX] providers: {providers}")
-    sess = ort.InferenceSession(onnx_path, providers=providers)
-
-    input_name  = sess.get_inputs()[0].name
-    output_name = sess.get_outputs()[0].name
-
-    # Load original image
-    img_bgr = cv2.imread(str(ORIG_IMG))
-    if img_bgr is None:
-        raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] Original image not found: {ORIG_IMG}")
-    H0, W0 = img_bgr.shape[:2]
-
-    # ONNX export for DepthAnythingV2 usually uses a fixed input size (e.g. 518x518)
-    # so we resize to that resolution, then resize depth back to original size.
-    EXPORT_SIZE = 518
-    bgr_resized = cv2.resize(img_bgr, (EXPORT_SIZE, EXPORT_SIZE), interpolation=cv2.INTER_LINEAR)
-
-    # Preprocess BGR -> RGB, normalize
-    rgb = cv2.cvtColor(bgr_resized, cv2.COLOR_BGR2RGB)
-    x = rgb.astype(np.float32) / 255.0
-    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
-    std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
-    x = (x - mean) / std
-    x = x.transpose(2, 0, 1)[None, ...]  # (1, 3, H, W)
-
-    # Run inference
-    out = sess.run([output_name], {input_name: x})[0]
-    depth_small = np.squeeze(out).astype(np.float32)  # (EXPORT_SIZE, EXPORT_SIZE)
-
-    # Resize depth back to original image resolution
-    depth_map_m = cv2.resize(
-        depth_small,
-        (W0, H0),
-        interpolation=cv2.INTER_LINEAR
-    )
-
-    # Clamp to valid metric range
-    depth_map_m = np.clip(depth_map_m, 1e-3, 80.0)
-
-    # Save raw depth (meters) as .npy
-    METRIC_DEPTH_OUT_DIR.mkdir(parents=True, exist_ok=True)
-    np.save(str(METRIC_DEPTH_RAW_NPY), depth_map_m)
-    print(f"[METRIC_DEPTH_ONNX] saved raw depth: {METRIC_DEPTH_RAW_NPY}")
-
-    # Create a simple colored visualization (similar idea to metric_depth/run.py)
-    # Normalize to [0,1] using max depth 80m, then to 0..255 and apply a colormap.
-    depth_norm = depth_map_m / 80.0
-    depth_norm = np.clip(depth_norm, 0.0, 1.0)
-    depth_8u = (depth_norm * 255.0).astype(np.uint8)
-    depth_bgr = cv2.applyColorMap(depth_8u, cv2.COLORMAP_INFERNO)
-
-    if not cv2.imwrite(str(METRIC_DEPTH_VIS_PNG), depth_bgr):
-        raise RuntimeError(f"[METRIC_DEPTH_ONNX] Failed to save depth PNG: {METRIC_DEPTH_VIS_PNG}")
-    print(f"[METRIC_DEPTH_ONNX] saved vis PNG: {METRIC_DEPTH_VIS_PNG}")
-
-
-# =========================
 # Main pipeline
 # =========================
 def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: list[str] | None = None):
@@ -267,32 +238,17 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
     )
 
     # 2) Metric depth
-    # Decide backend based on METRIC_DEPTH_WEIGHTS extension:
-    #   - *.pth  -> call metric_depth/run.py (PyTorch)
-    #   - *.onnx / *.ort -> run _run_metric_depth_onnx() in a thread
-    depth_ext = os.path.splitext(METRIC_DEPTH_WEIGHTS)[1].lower()
-
-    if depth_ext == ".pth":
-        metric_cmd = [
-            PY_DEPTH, str(METRIC_DEPTH_SCRIPT),
-            "--encoder", "vits",
-            "--load-from", METRIC_DEPTH_WEIGHTS,
-            "--max-depth", "80",
-            "--img-path", str(ORIG_IMG),
-            "--outdir", str(METRIC_DEPTH_OUT_DIR),
-            "--pred-only",
-            "--save-numpy",
-        ]
-        p_depth = subprocess.Popen(metric_cmd, cwd=str(METRIC_DEPTH_SCRIPT.parent))
-        t2 = threading.Thread(target=_watch, args=("METRIC_DEPTH", p_depth), daemon=True)
-    else:
-        # ONNX/ORT backend
-        def _depth_worker():
-            print("[METRIC_DEPTH_ONNX] starting...")
-            _run_metric_depth_onnx()
-            print("[METRIC_DEPTH_ONNX] finished.")
-
-        t2 = threading.Thread(target=_depth_worker, daemon=True)
+    metric_cmd = [
+        PY_DEPTH, str(METRIC_DEPTH_SCRIPT),
+        "--encoder", "vits",
+        "--load-from", METRIC_DEPTH_WEIGHTS,
+        "--max-depth", "80",
+        "--img-path", str(ORIG_IMG),
+        "--outdir", str(METRIC_DEPTH_OUT_DIR),
+        "--pred-only",
+        "--save-numpy",
+    ]
+    p_depth = subprocess.Popen(metric_cmd, cwd=str(METRIC_DEPTH_SCRIPT.parent))
 
     # 3) Segmentation (note the required args)
     seg_cmd = [
@@ -306,14 +262,10 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
 
     # 4) Wait for all
     t1 = threading.Thread(target=_watch, args=("YOLO", p_yolo), daemon=True)
+    t2 = threading.Thread(target=_watch, args=("METRIC_DEPTH", p_depth), daemon=True)
     t3 = threading.Thread(target=_watch, args=("SEG", p_seg), daemon=True)
-
-    # Start threads
-    t1.start()
-    t2.start()
-    t3.start()
-
-    # Join threads
+    for t in (t1, t2, t3):
+        t.start()
     for t in (t1, t2, t3):
         t.join()
 
@@ -420,7 +372,11 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
         cv2.fillPoly(sidewalk_mask, seg_polys, 1)
 
         d_min, x_min, y_min = _nearest_sidewalk_distance(
-            depth_map_m, sidewalk_mask, max_depth=80.0
+            depth_map_m,
+            sidewalk_mask,
+            max_depth=80.0,
+            band_start_frac=0.5,   # bottom half
+            percentile=5.0         # 5th percentile depth
         )
 
         if d_min is not None:

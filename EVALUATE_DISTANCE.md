@@ -18,13 +18,28 @@ So, which one ?
     If need actual distance from the camera/user in meters (e.g., “how far is this car?”), use a Metric VKITTI model (for outdoor)
 
 # Need to do
-- Quantize metric depth model to mobile app -> compare accuracy?
-- How can i check +- distance wrongly approximate ? -> need to know how to calculate error of model (like relative model has done!)
+- Quantize metric depth model to mobile app 
 - Improvement possibilities
     accuracy of distance (from camera to sidewalk != from feet to sidewalk)
     use the median instead of mean (less sensitive to background/occlusion), or average only a central region of the box (to avoid including background at the edges).
 - Danger message ?
     Evaluate speed/ predict movement (of movable object ?)
+- Accuracy?
+    The only reliable way: calibrate on your own data (OR like what we calculate eval_kitti_subset?)
+    Take 10-50 picture with true distance of object -> calculate wrongly 
+    -> Check +- distance wrongly approximation
+
+# Optimization
+- Problems: Metric depth models are full-image networks, not per pixel estimate distance -> cannot depth only around boxes/borders
+                and Metric depth models rely on global context to recover scale correctly 
+- Segmentation
+    Focus on the lower image band. Why?
+        For sidewalk / ground, the relevant “nearest” danger is usually in the bottom part of the image (closer to the camera). Restrict the search to, say, the bottom 1/3 or 1/2 of the frame
+    
+- Object detection (improve accuracy?)
+    Human/Traffic light/Tree/Electric Pole: middle of bb
+    Car/Bicycle/Truck/Motorbike: lower bounding box 
+
 
 # For android mobile app -> How this connects to your mobile app idea
 

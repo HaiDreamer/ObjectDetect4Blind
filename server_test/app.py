@@ -40,7 +40,7 @@ from pipeline import run_full_pipeline_for_image  # YOLO+depth+seg pipeline
 
 app = FastAPI()
 
-# allow cross-origin calls, need explain further
+# allow any device origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
