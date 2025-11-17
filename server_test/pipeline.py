@@ -1,4 +1,3 @@
-# pipeline.py
 from pathlib import Path
 import subprocess
 import threading

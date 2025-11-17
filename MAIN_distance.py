@@ -12,7 +12,10 @@ try:
 except ImportError:
     ort = None
 
-'''Fully run metric depth model + object detection model + image segmentation model
+'''
+WHITE RAT EXPERIMENT
+
+Fully run metric depth model + object detection model + image segmentation model
 FOR WHAT?
     Input: RGB image
     Output: Combines all results on one depth image, computes distances, and save a PNG overlay and a JSON file with distances
