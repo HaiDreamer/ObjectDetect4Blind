@@ -10,10 +10,18 @@ from fastapi.middleware.cors import CORSMiddleware
 """
 HOW TO RUN (WEB APP)
 
-  cd C:\Python\ObjectDetect4Blind\server_test
+  cd C:\Python\ObjectDetect4Blind\server_metric
   uvicorn app:app --reload --host 0.0.0.0 --port 8000
 
 Then open in browser: http://127.0.0.1:8000/    
+
+My own pc:
+  demo01.jpg: 6.130, 6.226, 5.607 -> 5.988
+  demo02.jpg: 6.997, 5.611, 5.470 -> 6.026
+
+Mobile:
+  demo01.jpg: 5.899, 6.204, 6.008 -> 6.037
+  demo02.jpg: 5.965, 5.805, 6.014 -> 5.928
 
 FOR MOBILE: http://192.168.1.68:8000  (my own ivp4 address -> ipconfig in terminal)
 
@@ -32,7 +40,7 @@ NEXT:
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(CURRENT_DIR)  # so we can import pipeline.py from same folder
 
-from pipeline import run_full_pipeline_for_image  # YOLO+depth+seg pipeline
+from pipeline import run_full_pipeline_for_image  # YOLO+depth+seg pipeline (now metric depth)
 
 # =========================
 # FASTAPI APP
@@ -64,9 +72,9 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 def index():        
     return """
     <html>
-    <head><title>Full pipeline demo</title></head>
+    <head><title>Full pipeline demo (metric depth)</title></head>
     <body>
-      <h1>Upload image to run YOLO + Depth + Segmentation overlay</h1>
+      <h1>Upload image to run YOLO + Metric Depth + Segmentation overlay</h1>
       <form id="form">
         <input type="file" id="file" name="file" accept="image/*" />
         <button type="submit">Submit</button>
@@ -144,7 +152,7 @@ async def predict(file: UploadFile = File(...)):
             return Response(content=b"Failed to save upload", status_code=500)
         print(f"[PREDICT] saved upload to: {upload_path}")
 
-        # 3) run full pipeline
+        # 3) run full pipeline (metric depth version)
         t0 = time.perf_counter()
         try:
             final_path = run_full_pipeline_for_image(upload_path, class_names=None, seg_args=None)

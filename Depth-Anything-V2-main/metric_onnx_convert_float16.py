@@ -137,8 +137,8 @@ def main():
     os.makedirs(CKPT_DIR, exist_ok=True)
     model = build_metric_model()
     export_fp32(model)
-    convert_to_fp16()
-    optional_to_ort()
+    #convert_to_fp16()
+    # optional_to_ort()
 
 if __name__ == "__main__":
     main()

@@ -11,6 +11,8 @@ INPUT
 - Model: outdoor VKITTI small depth_anything_v2_metric_vkitti_vits (PyTorch or ONNX)
 OUTPUT
 - Folder location: C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits*
+- KITTI-style uint16 PNG (depth = value / 256) for compatibility with existing evaluation code and benchmarks, 
+    and raw float32 arrays (.npy) in meters for precise, efficient analysis of per-object distances.
 
 ALGORITHM
 - model setup
@@ -36,7 +38,7 @@ Encode predictions as KITTI-style uint16 PNGs
 # =========================================================
 # CHOOSE BACKEND: "torch" (original .pth) or "onnx"
 # =========================================================
-MODE = "onnx"   # change to "onnx" to use ONNX / ORT model instead
+MODE = "torch"   # change to "onnx" to use ONNX / ORT model instead // or "torch" for original model
 
 # ================== KITTI paths & output ==================
 # Adjust these to your setup
@@ -49,7 +51,7 @@ OUT_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metr
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Number of images to export (None = all)
-N = 100   
+N = 1000   
 
 MAX_DEPTH = 80.0          # VKITTI outdoor metric model
 
@@ -77,8 +79,7 @@ if MODE == "torch":
     ENCODER = "vits"          # using depth_anything_v2_metric_vkitti_vits.pth
 
     CKPT = Path(
-        r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints"
-        r"\depth_anything_v2_metric_vkitti_vits.pth"
+        r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
     )
 
     assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
@@ -237,6 +238,10 @@ for i, gt_path in enumerate(gts, 1):
 
     # Clamp to valid metric range for this model (0..MAX_DEPTH)
     pred_m = np.clip(pred_m, 1e-3, MAX_DEPTH)
+
+    # OPTIONAL: save raw float32 depth map (meters)
+    npy_path = OUT_DIR / (gt_path.stem + "_pred_m.npy")
+    np.save(str(npy_path), pred_m.astype(np.float32))
 
     # Save KITTI uint16 PNG: value = round(meters * 256.0), 0 = invalid
     pred_u16 = np.clip(
