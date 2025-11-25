@@ -8,20 +8,28 @@ import json
 import os
 
 try:
-    import onnxruntime as ort  # used only if we run metric depth via ONNX
+    import onnxruntime as ort  
 except ImportError:
     ort = None
 
-'''
-WHITE RAT EXPERIMENT
-
-Fully run metric depth model + object detection model + image segmentation model
+'''Fully run metric depth model + object detection model + image segmentation model
 FOR WHAT?
     Input: RGB image
     Output: Combines all results on one depth image, computes distances, and save a PNG overlay and a JSON file with distances
 
-HOW TO USE? change file path img input(recommend)       -> run
-            change main model u want to use(optional)
+HOW TO USE? change file path img input(recommend) -> run
+
+MAIN PIPELINE:
+    run multithreading 3 models: depth, object detection, segmentation
+    load original image and depth output
+    process object detection result(bounding box coordinate) + compute distance(mainly focus on main danger region)
+    process segmentation + sidewalk distance(nearest distance)
+    save final overlay + distance, time counting total run
+
+NOTE: 
+Why first time run take much more time than 2 or more time run after
+    The first run is “cold”, so a bunch of one-time setup work happens (disk, Python, PyTorch, CUDA/cuDNN, etc.). 
+    The second run is “warm”, so it reuses caches and is much faster, even though your code not change.
 '''
 
 # =========================
@@ -50,10 +58,15 @@ METRIC_DEPTH_WEIGHTS = (
 )
 
 # =========================
-# Inputs / Outputs
-# alt: 2011_09_26_drive_0013_sync_image_0000000077_image_03.png or demo01.jpg (12.260s)
+# Inputs / Outputs                                                  Avg time(s) original model
+#      2011_09_26_drive_0013_sync_image_0000000077_image_03.png
+#      2011_09_26_drive_0023_sync_image_0000000101_image_03.png
+#      2011_09_26_drive_0023_sync_image_0000000305_image_03.png
+#      2011_09_26_drive_0036_sync_image_0000000386_image_02.png
+#      demo02.jpg                                                   5.284, 5.245, 5.247, 5.294, 5.326 -> 5.2792
+#      demo01.jpg                                                   5.797, 5.508, 5.279, 5.400, 5.279 -> 5.4526
 # =========================
-ORIG_IMG = ROOT / "assets" / "demo01.jpg"
+ORIG_IMG = ROOT / "assets" / "demo02.jpg"
 
 # YOLO labels
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels"
@@ -70,7 +83,7 @@ SEG_BORDER_TXT = ROOT / "Segmentation" / "output" / "mask_border.txt"
 FINAL_OUT = ROOT / "output" / f"{ORIG_IMG.stem}_metric_depth_boxes_borders.png"
 JSON_OUT  = ROOT / "output" / f"{ORIG_IMG.stem}_objects_distance.json"
 
-# Colors (BGR) – all black as requested
+# Colors (BGR)
 COLOR_YOLO_BOX       = (0, 0, 0)   # bounding boxes
 COLOR_YOLO_TEXT      = (0, 0, 0)   # object labels
 COLOR_SEG_BORDER     = (0, 0, 0)   # segmentation outlines
@@ -96,7 +109,7 @@ def _ensure_depth_size(depth_bgr, H, W):
     return depth_bgr
 
 
-def _draw_seg_borders_on(depth_bgr, polys, *, color=(255, 255, 255), thickness=2):
+def _draw_seg_borders_on(depth_bgr, polys, *, color=(0, 0, 0), thickness=2):
     '''Draws segmentation boundaries'''
     if not polys:
         return depth_bgr
@@ -105,26 +118,86 @@ def _draw_seg_borders_on(depth_bgr, polys, *, color=(255, 255, 255), thickness=2
     return depth_bgr
 
 
-def _compute_box_distance(depth_map_m: np.ndarray,
-                          x1: int, y1: int, x2: int, y2: int) -> float | None:
-    '''Distance to bounding box'''
+def _compute_box_distance(
+    depth_map_m: np.ndarray,
+    x1: int, y1: int, x2: int, y2: int,
+    frac: float = 0.5,
+    mode: str = "center",   # "center" or "bottom"
+) -> float | None:
+    """
+    Compute distance to a bounding box using only a danger-relevant region and
+    a robust statistic (median).
+
+    mode:
+      - "center": central frac of the box (for tall objects: human, traffic light, tree, pole)
+      - "bottom": central 50% of the width in the bottom frac of the box
+                  (i.e. 50% of the bottom area's total area)
+    """
+    
     H, W = depth_map_m.shape[:2]
-    x1 = max(0, min(W - 1, x1))
+
+    #avoid go outside the img
+    x1 = max(0, min(W - 1, x1))     
     y1 = max(0, min(H - 1, y1))
-    x2 = max(0, min(W - 1, x2))
-    y2 = max(0, min(H - 1, y2))
+    x2 = max(0, min(W, x2))
+    y2 = max(0, min(H, y2))
     if x2 <= x1 or y2 <= y1:
         return None
 
-    patch = depth_map_m[y1:y2, x1:x2]
+    #height and width of bb
+    w = x2 - x1
+    h = y2 - y1
+    if w <= 0 or h <= 0:
+        return None
+
+    if mode == "bottom":
+        # Bottom band: height = frac * h
+        ch = int(h * frac)
+        if ch <= 0:
+            return None
+
+        # Vertical range: bottom frac of the box
+        y_start = max(y1, y2 - ch)
+
+        # We want 50% of the bottom band's area, so keep same height ch
+        # and use only central 50% of the box width.
+        center_band_width = int(w * 0.5)
+        if center_band_width <= 0:
+            return None
+
+        cx = (x1 + x2) // 2
+        x_start = max(x1, cx - center_band_width // 2)
+        x_end = min(x2, x_start + center_band_width)
+        if x_end <= x_start:
+            return None
+
+        patch = depth_map_m[y_start:y2, x_start:x_end]
+
+    else:  # "center" (default)
+        # Use central frac of the box (both width and height).
+        cw = int(w * frac)
+        ch = int(h * frac)
+        if cw <= 0 or ch <= 0:
+            return None
+
+        cx = (x1 + x2) // 2
+        cy = (y1 + y2) // 2
+
+        cx1 = max(0, cx - cw // 2)
+        cy1 = max(0, cy - ch // 2)
+        cx2 = min(W, cx1 + cw)
+        cy2 = min(H, cy1 + ch)
+        if cx2 <= cx1 or cy2 <= cy1:
+            return None
+
+        patch = depth_map_m[cy1:cy2, cx1:cx2]
+
     if patch.size == 0:
         return None
 
     valid = patch[patch > 0]
-    if valid.size == 0:
-        return None
 
-    return float(valid.mean())
+    return float(np.median(valid))
 
 
 def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float | None:
@@ -139,22 +212,55 @@ def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float |
     return float(valid.mean())
 
 
-def _nearest_sidewalk_distance(depth_map_m: np.ndarray, sidewalk_mask: np.ndarray, max_depth: float = 80.0):
-    '''Finds the pixel with smallest depth = closest point on the sidewalk.'''
+def _nearest_sidewalk_distance(
+    depth_map_m: np.ndarray,
+    sidewalk_mask: np.ndarray,
+    max_depth: float = 80.0,
+    band_start_frac: float = 0.5,
+    percentile: float = 5.0
+):
+    """
+    Find the nearest sidewalk point using:
+      - only a lower vertical band of the image
+      - a low percentile (e.g. 5th) instead of raw min for robustness
+
+    band_start_frac: fraction of height from which to start (0..1).
+                     0.5 -> bottom half of the image only.
+    percentile: percentile of depths to use (e.g. 5.0 = 5th percentile).
+    """
     assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
 
-    cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
-    if not np.any(cond):
+    H, W = depth_map_m.shape
+
+    # base condition: mask == 1, valid depth, within max_depth
+    base_cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
+    if not np.any(base_cond):
         return None, None, None
+
+    # restrict to lower band
+    y_band_start = int(H * band_start_frac)
+    band_mask = np.zeros_like(sidewalk_mask, dtype=bool)
+    band_mask[y_band_start:H, :] = True
+
+    cond = base_cond & band_mask
+    if not np.any(cond):
+        # fallback: if nothing in the band, use full mask as before
+        cond = base_cond
 
     ys, xs = np.where(cond)
     vals = depth_map_m[ys, xs]
+    if vals.size == 0:
+        return None, None, None
 
-    idx = np.argmin(vals)
+    # use low percentile instead of raw min for robustness
+    d_target = float(np.percentile(vals, percentile))
+
+    # pick pixel whose depth is closest to that percentile value
+    idx = np.argmin(np.abs(vals - d_target))
     y_min = int(ys[idx])
     x_min = int(xs[idx])
-    d_min = float(vals[idx])
-    return d_min, x_min, y_min
+
+    return d_target, x_min, y_min
 
 
 def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):
@@ -310,13 +416,8 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
     # 4) Wait for all
     t1 = threading.Thread(target=_watch, args=("YOLO", p_yolo), daemon=True)
     t3 = threading.Thread(target=_watch, args=("SEG", p_seg), daemon=True)
-
-    # Start threads
-    t1.start()
-    t2.start()
-    t3.start()
-
-    # Join threads
+    for t in (t1, t2, t3):
+        t.start()
     for t in (t1, t2, t3):
         t.join()
 
@@ -382,9 +483,23 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
 
             dist = None
             if depth_map_m is not None:
-                dist = _compute_box_distance(depth_map_m, x1, y1, x2, y2)
+                name_l = cls_name.lower()
+
+                # Objects where the dangerous part is at the bottom of the box
+                is_bottom_region = any(
+                    k in name_l
+                    for k in ("car", "bicycle", "truck", "motorbike")
+                )
+
+                # Human / traffic light / tree / electric pole: use middle (center) of bbox
+                mode = "bottom" if is_bottom_region else "center"
+
+                # frac controls how tall the sampled region is (0.5 = half the bbox height)
+                dist = _compute_box_distance(depth_map_m, x1, y1, x2, y2, frac=0.3, mode=mode)
+
                 if dist is not None:
                     label_txt += f" {dist:.2f}m"
+
 
             cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), COLOR_YOLO_BOX, 2)
             cv2.putText(depth_bgr, label_txt, (x1, max(0, y1 - 6)),
@@ -423,7 +538,11 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
         cv2.fillPoly(sidewalk_mask, seg_polys, 1)
 
         d_min, x_min, y_min = _nearest_sidewalk_distance(
-            depth_map_m, sidewalk_mask, max_depth=80.0
+            depth_map_m,
+            sidewalk_mask,
+            max_depth=80.0,
+            band_start_frac=0.5,   # bottom half
+            percentile=5.0         # 5th percentile depth
         )
 
         if d_min is not None:
