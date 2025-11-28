@@ -14,16 +14,6 @@ OUTPUT
 - KITTI-style uint16 PNG (depth = value / 256) for compatibility with existing evaluation code and benchmarks, 
     and raw float32 arrays (.npy) in meters for precise, efficient analysis of per-object distances.
 
-ALGORITHM
-- model setup
-- per-img processing loop
-    Locate corresponding RGB image
-    Run metric depth prediction
-    Match ground-truth resolution
-    Ensure depth to valid range
-    Encode prediction as KITTI uint16 PNG
-- 
-
 EXPLAINATION
 Encode predictions as KITTI-style uint16 PNGs 
     mainly for compatibility, consistency, and practicality. 
@@ -38,7 +28,7 @@ Encode predictions as KITTI-style uint16 PNGs
 # =========================================================
 # CHOOSE BACKEND: "torch" (original .pth) or "onnx"
 # =========================================================
-MODE = "torch"   # change to "onnx" to use ONNX / ORT model instead // or "torch" for original model
+MODE = "onnx"   # change to "onnx" to use ONNX / ORT model instead // or "torch" for original model
 
 # ================== KITTI paths & output ==================
 # Adjust these to your setup

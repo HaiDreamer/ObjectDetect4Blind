@@ -4,11 +4,14 @@ import numpy as np
 from collections import defaultdict
 
 """
+INPUT: obj_depth_with_pred.json
+
 Per-distance error analysis for obj_depth_with_pred.json
 
 Distance bins (based on GT distance in meters):
     [0, 10), [10, 20), [20, 40), [40, 80]
 
+OUTPUT
 For each bin we compute:
     - N (number of objects)
     - mean / median absolute error |gt - pred|     [m]

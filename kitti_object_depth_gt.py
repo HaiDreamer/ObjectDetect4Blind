@@ -5,6 +5,13 @@ import numpy as np
 from ultralytics import YOLO
 
 '''
+INPUT
+    kitti_root img and groundtruth_depth image
+    yolo weights model
+
+OUTPUT
+    img bb for object detection and depth gt
+
 HOW TO RUN
 - just press run ?!
 

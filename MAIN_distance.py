@@ -17,6 +17,11 @@ FOR WHAT?
     Input: RGB image
     Output: Combines all results on one depth image, computes distances, and save a PNG overlay and a JSON file with distances
 
+INPUT: 1 rgb image
+
+OUTPUT:
+    fully depth estimate + object detect + segmentation + evaluate distance per bb and region from segmentation
+
 HOW TO USE? change file path img input(recommend) -> run
 
 MAIN PIPELINE:

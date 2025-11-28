@@ -4,6 +4,10 @@ import cv2
 import numpy as np
 import time
 
+'''
+Run demo 1 image fully object detect + segment + evaluate distance per bb and region from segment
+'''
+
 # Paths and Python environments
 ROOT = Path(__file__).resolve().parent
 YOLO_SCRIPT   = ROOT / "Object detection" / "main.py"

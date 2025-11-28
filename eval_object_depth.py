@@ -5,11 +5,11 @@ import numpy as np
 
 """
 Compare per-object distance between:
-- GT object distance (from KITTI GT depth)   -> gt_distance_m
+- GT object distance (from KITTI GT depth)      -> gt_distance_m
 - Predicted object distance (from metric model) -> pred_distance_m
 
 INPUT:
-  - obj_depth_gt.json   (created by your GT script)
+  - obj_depth_gt.json   (created by kitti_object_depth_gt.py code)
   - predicted depth maps in:
         pred_metric_kitti_vkitti_vits/
         * uint16 KITTI PNGs:   <gt_name>.png

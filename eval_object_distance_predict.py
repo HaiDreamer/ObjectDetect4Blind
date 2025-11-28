@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 """
-Compute per-object distance error: in 935 images that have at least one object entry in obj_depth_gt.json. (NOT 1000)
+Compute per-object distance error: in 935 images that have at least one object entry in obj_depth_gt.json
 - There are 65 image that does not contain any object has been detected by yolo model
 
 INPUT
