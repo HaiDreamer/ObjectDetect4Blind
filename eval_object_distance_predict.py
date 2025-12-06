@@ -155,7 +155,6 @@ def mode_for_category(eval_category: str) -> str:
 
 
 # ========= MAIN =========
-
 def main():
     assert OBJ_GT_JSON.exists(), f"Missing GT JSON: {OBJ_GT_JSON}"
 

@@ -9,7 +9,8 @@ INPUT
 - RGB images: C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image\*.png
 - Ground truth depth map in KITTI format (uint16): C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth\*.png
 - Model: outdoor VKITTI small depth_anything_v2_metric_vkitti_vits (PyTorch or ONNX)
-OUTPUT
+OUTPUT: 
+- images with metric depth
 - Folder location: C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits*
 - KITTI-style uint16 PNG (depth = value / 256) for compatibility with existing evaluation code and benchmarks, 
     and raw float32 arrays (.npy) in meters for precise, efficient analysis of per-object distances.

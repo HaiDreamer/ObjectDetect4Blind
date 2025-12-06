@@ -85,6 +85,6 @@ OBJECT DETECTION -> bounding box of each object
     Perspective: For large objects extending in depth (e.g., a long car at an angle), one depth number can’t capture the entire shape
 
 SEGMENTATION
-- Labelled include: crossroad, tree line, sidewalk, stairs
+- Labelled include: crosswalk, tree line, sidewalk, stairs
 - Per-object distance algorithm = sample depth map in the object region (box or mask) → clean invalid pixels → aggregate (mean/median)
 - Evaluate nearest sidewalk distance 
