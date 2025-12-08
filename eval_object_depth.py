@@ -28,7 +28,7 @@ ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 OBJ_GT_JSON = ROOT / "obj_depth_gt.json"
 
 # where make_kitti_preds_metric.py wrote its outputs
-PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits"
+PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_onnx_azure" #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
 
 OUT_ERR_JSON = ROOT / "obj_depth_err.json"
 

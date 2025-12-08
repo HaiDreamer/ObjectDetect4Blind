@@ -29,26 +29,21 @@ Encode predictions as KITTI-style uint16 PNGs
 # =========================================================
 # CHOOSE BACKEND: "torch" (original .pth) or "onnx"
 # =========================================================
-MODE = "onnx"   # change to "onnx" to use ONNX / ORT model instead // or "torch" for original model
+MODE = "onnx"   # "torch" or "onnx"
 
 # ================== KITTI paths & output ==================
-# Adjust these to your setup
 KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root")
 IMG_DIR = KITTI_ROOT / "val_selection_cropped" / "image"
 GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
 
-OUT_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits")
-
-OUT_DIR.mkdir(parents=True, exist_ok=True)
+# Base; final OUT_DIR is chosen per-backend below
+OUT_BASE = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits")     #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
 
 # Number of images to export (None = all)
-N = 1000   
-
+N = 1000
 MAX_DEPTH = 80.0          # VKITTI outdoor metric model
 
-# =========================================================
-# TORCH BACKEND (original metric .pth)
-# =========================================================
+# ------------------ backend-specific setup ------------------
 if MODE == "torch":
     import torch
 
@@ -58,8 +53,6 @@ if MODE == "torch":
 
     from depth_anything_v2.dpt import DepthAnythingV2
 
-    # As in the official metric_depth README:
-    # encoder='vits', dataset='vkitti', max_depth=80 for outdoor model 
     model_configs = {
         "vits": {"encoder": "vits", "features": 64, "out_channels": [48, 96, 192, 384]},
         "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96, 192, 384, 768]},
@@ -67,30 +60,25 @@ if MODE == "torch":
         "vitg": {"encoder": "vitg", "features": 384, "out_channels": [1536, 1536, 1536, 1536]},
     }
 
-    ENCODER = "vits"          # using depth_anything_v2_metric_vkitti_vits.pth
-
-    CKPT = Path(
-        r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
-    )
-
+    ENCODER = "vits"
+    CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth")
     assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
 
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-    def _strip_module(sd: dict):
-        """Remove 'module.' prefix from DataParallel checkpoints, if present."""
-        out = {}
-        for k, v in sd.items():
-            if isinstance(k, str) and k.startswith("module."):
-                out[k[7:]] = v
-            else:
-                out[k] = v
-        return out
+    # per-mode output directory
+    OUT_DIR = OUT_BASE.with_name(f"{OUT_BASE.name}_torch_{DEVICE.lower()}")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Build model
+    # Build & load model
     model = DepthAnythingV2(**{**model_configs[ENCODER], "max_depth": MAX_DEPTH})
 
-    # Load state dict
+    def _strip_module(sd: dict):
+        out = {}
+        for k, v in sd.items():
+            out[k[7:]] = v if k.startswith("module.") else v
+        return out
+
     state = torch.load(str(CKPT), map_location="cpu")
     if isinstance(state, dict) and "state_dict" in state:
         state = state["state_dict"]
@@ -98,38 +86,34 @@ if MODE == "torch":
         state = _strip_module(state)
         model.load_state_dict(state, strict=True)
     else:
-        # Rare case: checkpoint already a nn.Module
         model = state
 
     model.to(DEVICE).eval()
 
     @torch.inference_mode()
     def infer_metric_depth(bgr: np.ndarray) -> np.ndarray:
-        """
-        Run metric Depth Anything V2 on a BGR image (PyTorch).
-        Returns HxW float32 depth map in meters.
-        """
-        # DepthAnythingV2.infer_image expects an OpenCV-style BGR image,
-        # as in the official examples.
-        depth = model.infer_image(bgr)
+        depth = model.infer_image(bgr)  # returns meters
         return depth.astype(np.float32, copy=False)
 
-# =========================================================
-# ONNX BACKEND (FP16 .onnx / .ort)
-# =========================================================
+    mode_str = f"PyTorch ({DEVICE})"
+
 else:  # MODE == "onnx"
     import onnxruntime as ort
 
     # ONNX model path (FP16)
     ONNX_MODEL = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
-    # If you want to use ORT-optimized model instead, change to:
-    # ONNX_MODEL = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.with_runtime_opt.ort"
-
     assert Path(ONNX_MODEL).exists(), f"Missing ONNX model: {ONNX_MODEL}"
 
-    # Create ONNX Runtime inference session
     providers = ort.get_available_providers()
     print("ONNXRuntime providers:", providers)
+
+    # tag directory with first EP if present (e.g., cuda, tensorrt, cpu...)
+    ep = (providers[0] if providers else "CPUExecutionProvider")
+    ep_tag = ep.replace("ExecutionProvider", "").lower()
+
+    OUT_DIR = OUT_BASE.with_name(f"{OUT_BASE.name}_onnx_{ep_tag}")
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+
     sess = ort.InferenceSession(ONNX_MODEL, providers=providers)
 
     # Get input/output names
@@ -166,13 +150,7 @@ else:  # MODE == "onnx"
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         img = (img - mean) / std
-
-        # 4) HWC -> CHW
-        img = img.transpose(2, 0, 1)  # (3, H, W)
-
-        # 5) add batch dimension (N, C, H, W)
-        img = np.expand_dims(img, axis=0)
-
+        img = img.transpose(2, 0, 1)[None, ...]
         return img.astype(np.float32, copy=False)
 
     def infer_metric_depth(bgr: np.ndarray) -> np.ndarray:
@@ -182,12 +160,12 @@ else:  # MODE == "onnx"
         """
         inp = preprocess_bgr_for_depth_anything(bgr)
         out = sess.run([output_name], {input_name: inp})[0]
-        depth = np.squeeze(out).astype(np.float32)  # (EXPORT_SIZE, EXPORT_SIZE)
+        depth = np.squeeze(out).astype(np.float32)  # (EXPORT_SIZE, EXPORT_SIZE), meters
         return depth
 
-# =========================================================
-# Common helpers
-# =========================================================
+    mode_str = f"ONNX/ORT ({ep_tag})"
+
+# ================== helpers ==================
 
 def read_gt_shape(p: Path):
     """Just read the GT file to get (H, W) for resizing."""
@@ -196,51 +174,42 @@ def read_gt_shape(p: Path):
         raise FileNotFoundError(p)
     return im.shape[:2]  # (H, W)
 
-# ================== Export loop ==================
+# ================== export loop ==================
+
 gts_all = sorted(GT_DIR.glob("*.png"))
 gts = gts_all if N is None else gts_all[:N]
 assert gts, f"No GT PNGs found in {GT_DIR}"
 
-mode_str = "PyTorch" if MODE == "torch" else "ONNX/ORT"
 print(f"Backend: {mode_str}")
 print(f"Exporting {len(gts)} images → {OUT_DIR}")
 
 t0 = time.perf_counter()
 
 for i, gt_path in enumerate(gts, 1):
-    # Map GT filename to corresponding RGB filename in val_selection_cropped
+    # Map GT filename to corresponding RGB filename
     img_name = gt_path.name.replace("_groundtruth_depth_", "_image_")
     img_path = IMG_DIR / img_name
     img_bgr = cv2.imread(str(img_path))
     if img_bgr is None:
         raise FileNotFoundError(f"Missing RGB for {gt_path.name}\nExpected: {img_path}")
 
-    # Metric depth prediction (HxW, meters) via selected backend
+    # Predict metric depth (meters)
     pred_m = infer_metric_depth(img_bgr)
 
-    # Resize to KITTI GT crop size if necessary
+    # Resize to GT crop size if necessary
     gt_h, gt_w = read_gt_shape(gt_path)
     if pred_m.shape != (gt_h, gt_w):
-        pred_m = cv2.resize(
-            pred_m,
-            (gt_w, gt_h),
-            interpolation=cv2.INTER_LINEAR
-        )
+        pred_m = cv2.resize(pred_m, (gt_w, gt_h), interpolation=cv2.INTER_LINEAR)
 
-    # Clamp to valid metric range for this model (0..MAX_DEPTH)
+    # Clamp to valid range
     pred_m = np.clip(pred_m, 1e-3, MAX_DEPTH)
 
-    # OPTIONAL: save raw float32 depth map (meters)
+    # Save raw float32 meters
     npy_path = OUT_DIR / (gt_path.stem + "_pred_m.npy")
     np.save(str(npy_path), pred_m.astype(np.float32))
 
     # Save KITTI uint16 PNG: value = round(meters * 256.0), 0 = invalid
-    pred_u16 = np.clip(
-        np.rint(pred_m * 256.0),
-        0,
-        65535
-    ).astype(np.uint16)
-
+    pred_u16 = np.clip(np.rint(pred_m * 256.0), 0, 65535).astype(np.uint16)
     ok = cv2.imwrite(str(OUT_DIR / gt_path.name), pred_u16)
     if not ok:
         raise RuntimeError(f"Failed to write: {OUT_DIR / gt_path.name}")

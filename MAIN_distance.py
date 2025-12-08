@@ -35,6 +35,10 @@ NOTE:
 Why first time run take much more time than 2 or more time run after
     The first run is “cold”, so a bunch of one-time setup work happens (disk, Python, PyTorch, CUDA/cuDNN, etc.). 
     The second run is “warm”, so it reuses caches and is much faster, even though your code not change.
+
+TODO:
+    Update voice notification and alert
+    Check algorithm in mobile app, optimize as we do here
 '''
 
 # =========================
@@ -57,8 +61,8 @@ PY_SEG    = PY_YOLO
 #   - If this points to *.pth  → use original metric_depth/run.py (PyTorch backend)
 #   - If this points to *.onnx or *.ort → use ONNX Runtime backend defined below
 METRIC_DEPTH_WEIGHTS = (
-    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
-    #r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
+    #r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
+    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
     # r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.with_runtime_opt.ort"
 )
 

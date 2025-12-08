@@ -2,5 +2,3 @@
 Pls dont care this, thanks u
 This is for simulate result 
 
-# Constraints
-Dont have real model object segmentation

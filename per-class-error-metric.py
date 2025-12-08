@@ -4,12 +4,12 @@ import numpy as np
 from collections import defaultdict
 
 """
-Per-class distance error analysis for obj_depth_with_pred.json
-
-Each object in JSON is expected to have at least:
-    - eval_category
-    - gt_distance_m
-    - ground_distance_predict
+INPUT
+    - Per-class distance error analysis for obj_depth_with_pred.json
+    - Each object in JSON is expected to have at least:
+        - eval_category
+        - gt_distance_m
+        - ground_distance_predict
 
 For each eval_category, we compute:
     - N (number of objects)

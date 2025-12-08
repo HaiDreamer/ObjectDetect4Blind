@@ -15,6 +15,12 @@ Run code
   # relative predictions model
   python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\mini_gt_100" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100"
 
+TODO
+    Chcek output of this
+
+    Done → C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits
+    Total time: 2968.76 s | Avg: 2.969 s/img | Throughput: 0.34 img/s
+
 Output (depth anything v2 small model(original relative version))
     Original model
 		 - Avg speed: 3.524 s/img
@@ -24,7 +30,7 @@ Output (depth anything v2 small model(original relative version))
 
 Output (depth anything v2 small model(original metric depth version))
     Original model
-		 - Avg speed: 3.313 s/img
+		 - Avg speed: 3.2.969 s/img
 		 - Memory: 94.6 MB 
     d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
     0.854, 0.969, 0.991, 0.119, 0.679, 4.668, 0.176, 16.453, 0.053
@@ -166,13 +172,13 @@ def main():
     parser.add_argument(
         "--gt-dir",
         type=Path,
-        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100"),
+        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"),
         help="Directory containing GT uint16 KITTI depth PNGs (default: mini_gt_100).",
     )
     parser.add_argument(
         "--pred-dir",
         type=Path,
-        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits"),
+        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_azure"), #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
         help=("Directory containing prediction uint16 KITTI depth PNGs. "
               "Default: metric model outputs (pred_metric_kitti_vkitti_vits)."),
     )
@@ -214,7 +220,7 @@ def main():
         raise RuntimeError("No valid GT/prediction pairs found. Check directories and filenames.")
 
     accs = np.array(accs, dtype=np.float64)
-    labels = ["d1", "d2", "d3", "AbsRel", "SqRel", "RMSE", "RMSElog", "SILog", "log10"]
+    labels = ["d1","d2","d3","AbsRel","SqRel","RMSE","MAE","RMSElog","SILog","log10"]
 
     print("\n# Images evaluated:", accs.shape[0])
     if missing > 0:
