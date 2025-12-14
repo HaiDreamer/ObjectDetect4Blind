@@ -115,8 +115,8 @@ def box_distance_from_gt(depth_map_m: np.ndarray,
     if valid.size == 0:
         return None
 
-    # robust against outliers: median depth
-    dist = float(np.median(valid))
+    # min depth for most safety situation
+    dist = float(np.min(valid))
     return dist
 
 

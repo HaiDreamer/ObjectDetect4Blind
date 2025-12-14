@@ -206,7 +206,7 @@ def _compute_box_distance(
 
     valid = patch[patch > 0]
 
-    return float(np.median(valid))
+    return float(np.min(valid))
 
 
 def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float | None:

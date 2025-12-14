@@ -139,7 +139,7 @@ def box_distance(depth_map_m: np.ndarray,
     if valid.size == 0:
         return None
 
-    return float(np.median(valid))
+    return float(np.min(valid))
 
 
 def mode_for_category(eval_category: str) -> str:

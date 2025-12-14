@@ -34,8 +34,19 @@ Model depth anything v2 metric kitti outdoor (1e-3m - 80m) -> for monocular came
         Depth-Anything-V2-Metric-VKITTI-Large README, Hugging Face.
 
  
-# “Best” warning / decision algorithm based on your code MAIN_distance.py
+# “Best” warning / decision algorithm 
 TODO: need teammate/teacher consider this!
+      ALL of these need experiment for each exact number
+NOTE:
+    Need to self-design and experiment to adjust coeff
+    All of these coefficient i can not find in any paper, in their paper
+        They customly set the value
+        Self-design risk formula 
+    For more exact coeff
+        Reason to consider what is more dangerous -> initial design coefficient (done)
+        Need to fine tune(adjust coeff) more
+            Need to improve priority of each type(now we have 4 types in total) ??
+            
 
 Problem
     Given these objects + distances, which ones should I warn about, how strongly, and how often?
@@ -50,7 +61,12 @@ Define danger zone in the image
             FAR:        7.0  – 15.0 m  (context only, low-priority info)
             >15 m:      ignore or map to "FAR_INFO"
 
-        In camera
+            Reason: based on
+                Walking speed ~1.2–1.4 m/s.
+                Smart cane preview 1.5–2.5 m; Sonic Pathsounder preview 3.5 m tăng tốc độ 18%.
+                TTC thấp (≈1–1.5 s) = vùng nguy hiểm cao trong các hệ thống AEB.
+
+        In camera(define)
             left: left 1/3 image
             right: right 1/3 image
             center: the left image
@@ -63,9 +79,17 @@ Risk scoring (need to know why we choose these number!)
             bicycle/human: 0.9x
         (non-movable object)
             electric pole, traffic light, tree, tree line, sidewalk, stairs, pedestrian_crossing_sign: 0.4x
+        Lý do (có trích dẫn):
+            Va chạm xe–người gây tỉ lệ chấn thương nặng và tử vong cao hơn nhiều so với ngã đơn thuần.
+            Nhưng gãy xương do ngã, vấp phải chướng ngại trên vỉa hè lại là nguyên nhân cực kỳ phổ biến khiến người lớn tuổi nhập viện.
+            Hệ thống hỗ trợ người khiếm thị gần đây (smart cane, wearable ETA, stereo camera aid, v.v.) đều nhấn mạnh vai trò của đối tượng chuyển động và chướng ngại trong đường đi như mối nguy chính.
+        Con số cụ thể do team đề xuất.
+
     direction_weight: Center object are dangerous
         If center: 1.0x 
-        Others: 0.7x            
+        Others: 0.7x         
+        Reason: 
+
     dist_weight: Closer -> more dangerous (need distance band)
         Near: 1.0x      # TTC ~ 1–3.5 s
         Mid: 0.5x       # TTC ~ 3.5–7 s
@@ -79,6 +103,9 @@ Risk scoring (need to know why we choose these number!)
             small  = 0.7x
             medium = 1.0x
             large  = 1.3x
+        Fact:
+            Lý thuyết tau/looming: TTC ~ size / size_dot; nghĩa là vật càng lớn trên võng mạc + tăng kích thước nhanh → va chạm sớm.
+            Trong ETA sử dụng camera stereo, tác giả nhấn mạnh ưu tiên đối tượng gần chiếm nhiều diện tích trong vùng quan sát khi chọn chướng ngại nguy hiểm.
 
 FORMULA: risk_score = type_weight * direction_weight * dist_weight * size_weight (higher value is more dangerous)
 
