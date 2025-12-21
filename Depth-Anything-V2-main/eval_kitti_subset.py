@@ -4,16 +4,12 @@ import cv2
 import numpy as np
 
 r"""
-Default config is for the metric Depth Anything V2 model:
-  GT_DIR   = C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100
-  PRED_DIR = C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits
-
 Run code
   # metric model: Evaluate KITTI-style depth predictions (uint16 PNG, depth[m] = value/256).
-  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\mini_gt_100" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits"
+  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx"
 
   # relative predictions model
-  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\mini_gt_100" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100"
+  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100"
 
 TODO
     Chcek output of this
@@ -178,7 +174,8 @@ def main():
     parser.add_argument(
         "--pred-dir",
         type=Path,
-        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_azure"), #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
+        #pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
+        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_int8_cpu"), 
         help=("Directory containing prediction uint16 KITTI depth PNGs. "
               "Default: metric model outputs (pred_metric_kitti_vkitti_vits)."),
     )

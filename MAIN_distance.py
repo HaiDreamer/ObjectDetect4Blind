@@ -225,23 +225,21 @@ def _nearest_sidewalk_distance(
     depth_map_m: np.ndarray,
     sidewalk_mask: np.ndarray,
     max_depth: float = 80.0,
-    band_start_frac: float = 0.5,
-    percentile: float = 5.0
+    band_start_frac: float = 0.3,
 ):
     """
     Find the nearest sidewalk point using:
       - only a lower vertical band of the image
-      - a low percentile (e.g. 5th) instead of raw min for robustness
+      - the true minimum depth (robustly computed after removing invalid values)
 
     band_start_frac: fraction of height from which to start (0..1).
                      0.5 -> bottom half of the image only.
-    percentile: percentile of depths to use (e.g. 5.0 = 5th percentile).
     """
     assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
 
     H, W = depth_map_m.shape
 
-    # base condition: mask == 1, valid depth, within max_depth
+    # base condition: sidewalk pixels AND valid depth range
     base_cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
     if not np.any(base_cond):
         return None, None, None
@@ -258,18 +256,23 @@ def _nearest_sidewalk_distance(
 
     ys, xs = np.where(cond)
     vals = depth_map_m[ys, xs]
+
+    # ---- eliminate invalid distances: NaN, inf, etc. ----
+    finite_mask = np.isfinite(vals)
+    vals = vals[finite_mask]
+    ys = ys[finite_mask]
+    xs = xs[finite_mask]
+
     if vals.size == 0:
         return None, None, None
 
-    # use low percentile instead of raw min for robustness
-    d_target = float(np.percentile(vals, percentile))
-
-    # pick pixel whose depth is closest to that percentile value
-    idx = np.argmin(np.abs(vals - d_target))
+    # ---- use true minimum instead of percentile ----
+    idx = int(np.argmin(vals))
+    d_min = float(vals[idx])
     y_min = int(ys[idx])
     x_min = int(xs[idx])
 
-    return d_target, x_min, y_min
+    return d_min, x_min, y_min
 
 
 def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):

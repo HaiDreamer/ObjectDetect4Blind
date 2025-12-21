@@ -31,7 +31,8 @@ TO DO
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")   
 
 OBJ_GT_JSON      = ROOT / "obj_depth_gt.json"
-PRED_DEPTH_DIR   = ROOT / "pred_metric_kitti_vkitti_vits_onnx_azure"     #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
+# pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
+PRED_DEPTH_DIR   = ROOT / "pred_metric_kitti_vkitti_vits_onnx_int8_cpu"    
 OUT_ERR_JSON     = ROOT / "obj_depth_with_pred.json"
 
 MAX_DEPTH_M = 80.0

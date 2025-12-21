@@ -27,9 +27,11 @@ Encode predictions as KITTI-style uint16 PNGs
 """
 
 # =========================================================
-# CHOOSE BACKEND: "torch" (original .pth) or "onnx"
+# Mode: torch: original model
+# output: mode onnx_int8 -> C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_int8_cpu
+
 # =========================================================
-MODE = "onnx"   # "torch" or "onnx"
+MODE = "onnx_int8"   #"torch", "onnx_fp16", "onnx_int8"
 
 # ================== KITTI paths & output ==================
 KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root")
@@ -97,21 +99,36 @@ if MODE == "torch":
 
     mode_str = f"PyTorch ({DEVICE})"
 
-else:  # MODE == "onnx"
+else:  # MODE starts with "onnx"
     import onnxruntime as ort
 
-    # ONNX model path (FP16)
-    ONNX_MODEL = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
+    ONNX_FP16 = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
+    ONNX_INT8 = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_int8.onnx"
+
+    if MODE == "onnx_fp16":
+        ONNX_MODEL = ONNX_FP16
+        model_tag = "fp16"
+    elif MODE == "onnx_int8":
+        ONNX_MODEL = ONNX_INT8
+        model_tag = "int8"
+    else:
+        raise ValueError(f"Unknown MODE: {MODE}")
+
     assert Path(ONNX_MODEL).exists(), f"Missing ONNX model: {ONNX_MODEL}"
 
-    providers = ort.get_available_providers()
-    print("ONNXRuntime providers:", providers)
+    # Pick providers explicitly (ORT recommends passing providers list)
+    avail = ort.get_available_providers()
+    if "CUDAExecutionProvider" in avail:
+        providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
+    else:
+        providers = ["CPUExecutionProvider"]
 
-    # tag directory with first EP if present (e.g., cuda, tensorrt, cpu...)
-    ep = (providers[0] if providers else "CPUExecutionProvider")
-    ep_tag = ep.replace("ExecutionProvider", "").lower()
+    print("ONNXRuntime available:", avail)
+    print("Using providers:", providers)
 
-    OUT_DIR = OUT_BASE.with_name(f"{OUT_BASE.name}_onnx_{ep_tag}")
+    ep_tag = providers[0].replace("ExecutionProvider", "").lower()
+
+    OUT_DIR = OUT_BASE.with_name(f"{OUT_BASE.name}_onnx_{model_tag}_{ep_tag}")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     sess = ort.InferenceSession(ONNX_MODEL, providers=providers)
@@ -120,11 +137,7 @@ else:  # MODE == "onnx"
     input_name  = sess.get_inputs()[0].name   # e.g. "input"
     output_name = sess.get_outputs()[0].name  # e.g. "depth"
 
-    # IMPORTANT: the ONNX was exported at a fixed input size (e.g. 518x518).
-    # If we feed arbitrary HxW, an internal Reshape will break with:
-    #   input shape {1,384,25,86}, requested shape {1,384,7396}
-    # So we must resize input to the export resolution (e.g. 518x518) before inference.
-    EXPORT_SIZE = 518  # same H=W used during ONNX export
+    EXPORT_SIZE = 518
 
     def preprocess_bgr_for_depth_anything(bgr: np.ndarray) -> np.ndarray:
         """
@@ -160,10 +173,10 @@ else:  # MODE == "onnx"
         """
         inp = preprocess_bgr_for_depth_anything(bgr)
         out = sess.run([output_name], {input_name: inp})[0]
-        depth = np.squeeze(out).astype(np.float32)  # (EXPORT_SIZE, EXPORT_SIZE), meters
+        depth = np.squeeze(out).astype(np.float32, copy=False)  # (EXPORT_SIZE, EXPORT_SIZE), meters
         return depth
 
-    mode_str = f"ONNX/ORT ({ep_tag})"
+    mode_str = f"ONNX/ORT {model_tag} ({ep_tag})"
 
 # ================== helpers ==================
 

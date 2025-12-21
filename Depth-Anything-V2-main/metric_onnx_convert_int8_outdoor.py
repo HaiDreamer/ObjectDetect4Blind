@@ -12,6 +12,10 @@ INPUT:
 
 OUTPUT:
     depth_anything_v2_metric_vkitti_vits_int8.onnx  (int8 weights)
+
+Bug (has solved)
+    hit ORT_NOT_IMPLEMENTED and explicitly state onnxruntime does not support ConvInteger, so dynamic quantization fails for CNNs unless you exclude conv nodes.
+    
 """
 
 # -------------------
@@ -35,12 +39,15 @@ def quantize_to_int8():
     print("       input :", MODEL_FP32)
     print("       output:", MODEL_INT8)
 
+    m = onnx.load(MODEL_FP32)
+    nodes = [n.name for n in m.graph.node if n.op_type in ("MatMul", "Gemm")]
+    print("Quantizing nodes:", len(nodes))
+    
     quantize_dynamic(
         model_input=MODEL_FP32,
         model_output=MODEL_INT8,
         weight_type=QuantType.QInt8,  # or QuantType.QUInt8
-        # op_types_to_quantize=["Conv", "MatMul"],  # optional
-        # per_channel=True,                         # optional
+        nodes_to_quantize=nodes,
     )
 
     # Optional: sanity check the resulting model

@@ -11,7 +11,7 @@ Compare per-object distance between:
 INPUT:
   - obj_depth_gt.json   (created by kitti_object_depth_gt.py code)
   - predicted depth maps in:
-        pred_metric_kitti_vkitti_vits/
+        pred_metric_kitti_vkitti_vits/ (or something else from another model)
         * uint16 KITTI PNGs:   <gt_name>.png
         * (optional) float32:  <gt_name>_pred_m.npy
 
@@ -28,7 +28,8 @@ ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 OBJ_GT_JSON = ROOT / "obj_depth_gt.json"
 
 # where make_kitti_preds_metric.py wrote its outputs
-PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_onnx_azure" #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
+# pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
+PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_onnx_int8_cpu" 
 
 OUT_ERR_JSON = ROOT / "obj_depth_err.json"
 
