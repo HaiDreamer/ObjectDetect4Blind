@@ -11,7 +11,7 @@
       "x2": 123,
       "y2": 189
     },
-    "distance_m": 16.152183532714844
+    "distance_m": 15.775193214416504
   },
   {
     "id": "yolo_1",
@@ -25,7 +25,7 @@
       "x2": 599,
       "y2": 217
     },
-    "distance_m": 21.761680603027344
+    "distance_m": 20.676584243774414
   },
   {
     "id": "yolo_2",
@@ -39,7 +39,91 @@
       "x2": 302,
       "y2": 174
     },
-    "distance_m": 33.17848205566406
+    "distance_m": 30.179080963134766
+  },
+  {
+    "id": "yolo_3",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.851685,
+    "bbox": {
+      "x1": 26,
+      "y1": 154,
+      "x2": 123,
+      "y2": 189
+    },
+    "distance_m": 15.775193214416504
+  },
+  {
+    "id": "yolo_4",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.817806,
+    "bbox": {
+      "x1": 530,
+      "y1": 156,
+      "x2": 599,
+      "y2": 217
+    },
+    "distance_m": 20.676584243774414
+  },
+  {
+    "id": "yolo_5",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.655139,
+    "bbox": {
+      "x1": 245,
+      "y1": 137,
+      "x2": 302,
+      "y2": 174
+    },
+    "distance_m": 30.179080963134766
+  },
+  {
+    "id": "yolo_6",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.851685,
+    "bbox": {
+      "x1": 26,
+      "y1": 154,
+      "x2": 123,
+      "y2": 189
+    },
+    "distance_m": 15.775193214416504
+  },
+  {
+    "id": "yolo_7",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.817806,
+    "bbox": {
+      "x1": 530,
+      "y1": 156,
+      "x2": 599,
+      "y2": 217
+    },
+    "distance_m": 20.676584243774414
+  },
+  {
+    "id": "yolo_8",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "2",
+    "confidence": 0.655139,
+    "bbox": {
+      "x1": 245,
+      "y1": 137,
+      "x2": 302,
+      "y2": 174
+    },
+    "distance_m": 30.179080963134766
   },
   {
     "id": "seg_0",
@@ -86,7 +170,11 @@
         202
       ]
     ],
-    "distance_m": 6.173832416534424
+    "distance_m": 6.0017595291137695,
+    "nearest_pixel": {
+      "x": 1210,
+      "y": 202
+    }
   },
   {
     "id": "seg_1",
@@ -233,15 +321,10 @@
         202
       ]
     ],
-    "distance_m": 8.914255142211914
-  },
-  {
-    "id": "sidewalk_nearest_point",
-    "source": "sidewalk",
-    "pixel": {
-      "x": 584,
-      "y": 350
-    },
-    "distance_m": 6.168007850646973
+    "distance_m": 5.479702472686768,
+    "nearest_pixel": {
+      "x": 1203,
+      "y": 351
+    }
   }
 ]

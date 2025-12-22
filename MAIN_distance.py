@@ -208,19 +208,6 @@ def _compute_box_distance(
 
     return float(np.min(valid))
 
-
-def _compute_poly_distance(depth_map_m: np.ndarray, poly: np.ndarray) -> float | None:
-    '''Distance for segmentation mask'''
-    H, W = depth_map_m.shape[:2]
-    mask = np.zeros((H, W), dtype=np.uint8)
-    cv2.fillPoly(mask, [poly], 1)
-
-    valid = depth_map_m[(mask == 1) & (depth_map_m > 0)]
-    if valid.size == 0:
-        return None
-    return float(valid.mean())
-
-
 def _nearest_sidewalk_distance(
     depth_map_m: np.ndarray,
     sidewalk_mask: np.ndarray,
@@ -532,54 +519,34 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
     seg_polys = _load_seg_polys_from_border_txt(SEG_BORDER_TXT, W, H)
 
     depth_bgr = _draw_seg_borders_on(depth_bgr, seg_polys,
-                                     color=COLOR_SEG_BORDER, thickness=2)
+                                    color=COLOR_SEG_BORDER, thickness=2)
 
     if depth_map_m is not None and seg_polys:
-        # per-polygon distances
+        # Evaluate each segmentation region using nearest_sidewalk_distance
         for idx, poly in enumerate(seg_polys):
-            dist = _compute_poly_distance(depth_map_m, poly)
+            poly_mask = np.zeros((H, W), dtype=np.uint8)
+            cv2.fillPoly(poly_mask, [poly], 1)
+
+            d_min, x_min, y_min = _nearest_sidewalk_distance(
+                depth_map_m,
+                poly_mask,
+                max_depth=80.0,
+                band_start_frac=0.3,   # bottom 70% of region
+            )
+
+            # Optionally draw the nearest point for that region
+            if d_min is not None:
+                cv2.circle(depth_bgr, (x_min, y_min), 4, COLOR_SIDEWALK_PT, -1)
+
             results.append({
                 "id": f"seg_{idx}",
                 "source": "segmentation",
                 "polygon": poly.reshape(-1, 2).tolist(),
-                "distance_m": dist,
-            })
-
-        # build sidewalk mask and get nearest sidewalk distance
-        sidewalk_mask = np.zeros((H, W), dtype=np.uint8)
-        cv2.fillPoly(sidewalk_mask, seg_polys, 1)
-
-        d_min, x_min, y_min = _nearest_sidewalk_distance(
-            depth_map_m,
-            sidewalk_mask,
-            max_depth=80.0,
-            band_start_frac=0.5,   # bottom half
-            percentile=5.0         # 5th percentile depth
-        )
-
-        if d_min is not None:
-            print(f"[SIDEWALK] nearest sidewalk: {d_min:.2f} m at ({x_min}, {y_min})")
-
-            # mark nearest sidewalk point
-            cv2.circle(depth_bgr, (x_min, y_min), 5, COLOR_SIDEWALK_PT, -1)
-
-            # put distance text above sidewalk mask (above nearest point)
-            text = f"{d_min:.2f} m"
-            text_x = max(0, x_min - 40)
-            text_y = max(10, y_min - 10)
-
-            cv2.putText(depth_bgr, text, (text_x, text_y),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7,
-                        COLOR_SIDEWALK_TEXT, 2, cv2.LINE_AA)
-
-            results.append({
-                "id": "sidewalk_nearest_point",
-                "source": "sidewalk",
-                "pixel": {"x": x_min, "y": y_min},
                 "distance_m": d_min,
+                "nearest_pixel": None if d_min is None else {"x": x_min, "y": y_min},
             })
-        else:
-            print("[SIDEWALK] no valid sidewalk point found")
+
+
 
     # 10) Save overlay
     FINAL_OUT.parent.mkdir(parents=True, exist_ok=True)
