@@ -3,6 +3,7 @@ import cv2, numpy as np
 import torch, torch.nn as nn
 
 '''
+TODO: change this for metric depth model!!!
 How it is does ?
     running the full model once to get a “teacher” depth map for each image,
     skipping one encoder block at a time (replacing it with Identity()), re-inferencing to get a “student”,

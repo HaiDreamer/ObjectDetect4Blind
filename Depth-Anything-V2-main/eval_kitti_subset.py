@@ -11,20 +11,20 @@ Run code
   # relative predictions model
   python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100"
 
-TODO
-    Chcek output of this
+  # Pruned model (torch)
+  python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu"
+  
+NOTE
+    missing predictions are omitted (skipped)
 
-    Done → C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits
-    Total time: 2968.76 s | Avg: 2.969 s/img | Throughput: 0.34 img/s
-
-Output (depth anything v2 small model(original relative version))
+OUTPUT (depth anything v2 small model(original relative version))
     Original model
 		 - Avg speed: 3.524 s/img
 		 - Memory: 97 MB
     d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
     0.943, 0.988, 0.996, 0.084, 0.452, 3.581, 0.124, 12.326, 0.036
 
-Output (depth anything v2 small model(original metric depth version))
+OUTPUT (depth anything v2 small model(original metric depth version))
     Original model
 		 - Avg speed: 3.2.969 s/img
 		 - Memory: 94.6 MB 

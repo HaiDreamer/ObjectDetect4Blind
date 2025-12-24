@@ -22,8 +22,8 @@ OUTPUT
     - ground_distance_predict
     - wrongly_distance_m = gt_distance_m - ground_distance_predict
 
-TO DO
-- check .npy vs .png img in input predict depth maps from metric model in pred_metric_kitti_vkitti_vits/
+TODO
+NEXT STEP: per-class-error-metric.py and per-object-error-metric.py
 
 """
 
@@ -32,7 +32,9 @@ ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 
 OBJ_GT_JSON      = ROOT / "obj_depth_gt.json"
 # pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
-PRED_DEPTH_DIR   = ROOT / "pred_metric_kitti_vkitti_vits_onnx_int8_cpu"    
+#   pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu for pruned 1 layer model
+
+PRED_DEPTH_DIR   = ROOT / "pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu"    
 OUT_ERR_JSON     = ROOT / "obj_depth_with_pred.json"
 
 MAX_DEPTH_M = 80.0

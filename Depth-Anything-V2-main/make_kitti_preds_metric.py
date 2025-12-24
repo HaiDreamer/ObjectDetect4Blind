@@ -31,30 +31,36 @@ Encode predictions as KITTI-style uint16 PNGs
 # output: mode onnx_int8 -> C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_int8_cpu
 
 # =========================================================
-MODE = "onnx_int8"   #"torch", "onnx_fp16", "onnx_int8"
+MODE = "torch"   #"torch", "onnx_fp16", "onnx_int8"
+EXPORT_VARIANT = "pruned1layer"
+PRUNED_BLOCK_FALLBACK = 10
 
 # ================== KITTI paths & output ==================
 KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root")
 IMG_DIR = KITTI_ROOT / "val_selection_cropped" / "image"
 GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
+PRUNED1LAYER_CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_pruned_block10.pth")
 
 # Base; final OUT_DIR is chosen per-backend below
-OUT_BASE = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits")     #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model
+#"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_pruned1layer for pruned 1 layer model
+OUT_BASE = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_pruned1layer")     
 
 # Number of images to export (None = all)
-N = 1000
+N = 100
 MAX_DEPTH = 80.0          # VKITTI outdoor metric model
 
 # ------------------ backend-specific setup ------------------
 if MODE == "torch":
     import torch
+    import torch.nn as nn
 
+    # Make sure we import the METRIC DepthAnythingV2 (supports max_depth)
     ROOT = Path(__file__).resolve().parent
     METRIC_DIR = ROOT / "metric_depth"
     sys.path.insert(0, str(METRIC_DIR))
-
     from depth_anything_v2.dpt import DepthAnythingV2
-
+    
+    ENCODER = "vits"
     model_configs = {
         "vits": {"encoder": "vits", "features": 64, "out_channels": [48, 96, 192, 384]},
         "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96, 192, 384, 768]},
@@ -62,42 +68,70 @@ if MODE == "torch":
         "vitg": {"encoder": "vitg", "features": 384, "out_channels": [1536, 1536, 1536, 1536]},
     }
 
-    ENCODER = "vits"
-    CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth")
-    assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
+    if EXPORT_VARIANT == "pruned1layer":
+        CKPT = PRUNED1LAYER_CKPT
+    else:
+        CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth")
 
+    assert CKPT.exists(), f"Missing checkpoint: {CKPT}"
+    
     DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
     # per-mode output directory
     OUT_DIR = OUT_BASE.with_name(f"{OUT_BASE.name}_torch_{DEVICE.lower()}")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Build & load model
+    # Build model
     model = DepthAnythingV2(**{**model_configs[ENCODER], "max_depth": MAX_DEPTH})
 
     def _strip_module(sd: dict):
         out = {}
         for k, v in sd.items():
-            out[k[7:]] = v if k.startswith("module.") else v
+            if k.startswith("module."):
+                out[k[len("module."):]] = v
+            else:
+                out[k] = v
         return out
 
     state = torch.load(str(CKPT), map_location="cpu")
-    if isinstance(state, dict) and "state_dict" in state:
-        state = state["state_dict"]
-    if isinstance(state, dict):
-        state = _strip_module(state)
-        model.load_state_dict(state, strict=True)
-    else:
-        model = state
 
+    # Extract state_dict robustly + (optional) pruned_block metadata
+    pruned_block = None
+    if isinstance(state, dict):
+        if "pruned_block" in state:
+            pruned_block = int(state["pruned_block"])
+        if "model" in state:
+            sd = state["model"]
+        elif "state_dict" in state:
+            sd = state["state_dict"]
+        else:
+            # could already be a raw state_dict-like dict
+            sd = state
+    else:
+        raise ValueError("Checkpoint format not supported; expected dict/state_dict.")
+
+    sd = _strip_module(sd)
+
+    # If pruned variant: ensure we prune the same block BEFORE loading weights
+    if EXPORT_VARIANT == "pruned1layer":
+        if pruned_block is None:
+            pruned_block = PRUNED_BLOCK_FALLBACK
+
+        vit = model.pretrained
+        nblocks = len(vit.blocks)
+        assert 0 <= pruned_block < nblocks, f"pruned_block must be in [0, {nblocks-1}]"
+        vit.blocks[pruned_block] = nn.Identity()
+
+    model.load_state_dict(sd, strict=True)
     model.to(DEVICE).eval()
 
     @torch.inference_mode()
     def infer_metric_depth(bgr: np.ndarray) -> np.ndarray:
-        depth = model.infer_image(bgr)  # returns meters
+        depth = model.infer_image(bgr, input_size=518)  # returns meters
         return depth.astype(np.float32, copy=False)
 
-    mode_str = f"PyTorch ({DEVICE})"
+    mode_str = f"PyTorch ({DEVICE}) [{EXPORT_VARIANT}]"
+
 
 else:  # MODE starts with "onnx"
     import onnxruntime as ort

@@ -8,6 +8,9 @@ Compare per-object distance between:
 - GT object distance (from KITTI GT depth)      -> gt_distance_m
 - Predicted object distance (from metric model) -> pred_distance_m
 
+TODO: case 100 first image only (done)
+    Next step: none
+
 INPUT:
   - obj_depth_gt.json   (created by kitti_object_depth_gt.py code)
   - predicted depth maps in:
@@ -29,7 +32,8 @@ OBJ_GT_JSON = ROOT / "obj_depth_gt.json"
 
 # where make_kitti_preds_metric.py wrote its outputs
 # pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
-PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_onnx_int8_cpu" 
+#   pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu for pruned 1 layer model
+PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu" 
 
 OUT_ERR_JSON = ROOT / "obj_depth_err.json"
 
