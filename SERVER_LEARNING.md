@@ -1,8 +1,9 @@
 # Open terminal -> login by these first steps
     ssh -p 22222 student5@ictlab.usth.edu.vn
     ssh ict14
-    cd /storage/student5/depth_server
-    micromamba activate da2
+    cd blind
+    cd yolo_training
+    ls          -> show all file train and file model
 
 
 # Last time
