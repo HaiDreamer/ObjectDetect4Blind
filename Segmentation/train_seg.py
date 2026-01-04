@@ -3,10 +3,6 @@ import subprocess
 from pathlib import Path
 import shutil
 
-'''
-1) Phần chuyển label: bbox → polygon hình chữ nhật      abs need this 
-'''
-
 # setup bb 
 DATASET_PATH = "/storage/student5/blind/GroupProject_Seg"
 def clamp01(x: float) -> float:

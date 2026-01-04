@@ -1,8 +1,30 @@
 [
   {
-    "model": "C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_fp32.onnx",
-    "ok": false,
-    "error": "The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0",
-    "traceback": "Traceback (most recent call last):\n  File \"c:\\Python\\ObjectDetect4Blind\\Segmentation\\evaluation.py\", line 121, in main\n    val_result = model.val(\n        data=str(DATA_YAML),\n    ...<5 lines>...\n        verbose=True,\n    )\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\model.py\", line 635, in val\n    validator(model=self.model)\n    ~~~~~~~~~^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\torch\\utils\\_contextlib.py\", line 120, in decorate_context\n    return func(*args, **kwargs)\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\validator.py\", line 225, in __call__\n    self.update_metrics(preds, batch)\n    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\models\\yolo\\detect\\val.py\", line 184, in update_metrics\n    pbatch = self._prepare_batch(si, batch)\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\models\\yolo\\segment\\val.py\", line 135, in _prepare_batch\n    prepared_batch = super()._prepare_batch(si, batch)\n  File \"C:\\Users\\Admin\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\models\\yolo\\detect\\val.py\", line 144, in _prepare_batch\n    cls = batch[\"cls\"][idx].squeeze(-1)\n          ~~~~~~~~~~~~^^^^^\nIndexError: The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0\n"
+    "model": "C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_fp16.onnx",
+    "ok": true,
+    "metrics/precision(B)": 0.8403163766443402,
+    "metrics/recall(B)": 0.7159383076756011,
+    "metrics/mAP50(B)": 0.776737314311576,
+    "metrics/mAP50-95(B)": 0.6459245180093143,
+    "metrics/precision(M)": 0.8437167157016282,
+    "metrics/recall(M)": 0.7234782494017277,
+    "metrics/mAP50(M)": 0.7796687426334827,
+    "metrics/mAP50-95(M)": 0.6016985264901915,
+    "fitness": 1.2476230444995058,
+    "speed.preprocess": 0.4703517500900264,
+    "speed.inference": 215.12999946128045,
+    "speed.loss": 0.0014069302428719333,
+    "speed.postprocess": 1.1346235524732644,
+    "box.mp": 0.8403163766443402,
+    "box.mr": 0.7159383076756011,
+    "box.map50": 0.776737314311576,
+    "box.map75": 0.6625565320515399,
+    "box.map": 0.6459245180093143,
+    "mask.mp": 0.8437167157016282,
+    "mask.mr": 0.7234782494017277,
+    "mask.map50": 0.7796687426334827,
+    "mask.map75": 0.6221291772174977,
+    "mask.map": 0.6016985264901915,
+    "val_time_sec": 343.508
   }
 ]

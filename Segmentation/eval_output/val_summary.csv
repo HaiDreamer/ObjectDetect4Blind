@@ -1,25 +1,2 @@
-model,ok,error,traceback
-C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg_fp32.onnx,False,"The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0","Traceback (most recent call last):
-  File ""c:\Python\ObjectDetect4Blind\Segmentation\evaluation.py"", line 121, in main
-    val_result = model.val(
-        data=str(DATA_YAML),
-    ...<5 lines>...
-        verbose=True,
-    )
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\engine\model.py"", line 635, in val
-    validator(model=self.model)
-    ~~~~~~~~~^^^^^^^^^^^^^^^^^^
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\utils\_contextlib.py"", line 120, in decorate_context
-    return func(*args, **kwargs)
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\engine\validator.py"", line 225, in __call__
-    self.update_metrics(preds, batch)
-    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\detect\val.py"", line 184, in update_metrics
-    pbatch = self._prepare_batch(si, batch)
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\segment\val.py"", line 135, in _prepare_batch
-    prepared_batch = super()._prepare_batch(si, batch)
-  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\detect\val.py"", line 144, in _prepare_batch
-    cls = batch[""cls""][idx].squeeze(-1)
-          ~~~~~~~~~~~~^^^^^
-IndexError: The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0
-"
+model,ok,box.map,box.map50,box.map75,box.mp,box.mr,fitness,mask.map,mask.map50,mask.map75,mask.mp,mask.mr,metrics/mAP50(B),metrics/mAP50(M),metrics/mAP50-95(B),metrics/mAP50-95(M),metrics/precision(B),metrics/precision(M),metrics/recall(B),metrics/recall(M),speed.inference,speed.loss,speed.postprocess,speed.preprocess,val_time_sec
+C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg_fp16.onnx,True,0.6459245180093143,0.776737314311576,0.6625565320515399,0.8403163766443402,0.7159383076756011,1.2476230444995058,0.6016985264901915,0.7796687426334827,0.6221291772174977,0.8437167157016282,0.7234782494017277,0.776737314311576,0.7796687426334827,0.6459245180093143,0.6016985264901915,0.8403163766443402,0.8437167157016282,0.7159383076756011,0.7234782494017277,215.12999946128045,0.0014069302428719333,1.1346235524732644,0.4703517500900264,343.508
