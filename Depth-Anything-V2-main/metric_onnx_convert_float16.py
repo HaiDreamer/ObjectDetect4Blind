@@ -8,6 +8,9 @@ import onnx
 from onnxconverter_common import float16
 
 '''
+EXPLAIN
+    Graph inputs are the tensors the model expects you to provide when you run inference.
+
 ALGORITHM
     Take a DepthAnythingV2 metric-depth PyTorch checkpoint → export it to ONNX FP32 → convert to ONNX FP16 → optionally convert to ORT format.
 
@@ -93,13 +96,13 @@ def export_fp32(model, H=518, W=518):
     print(f"Exported FP32 ONNX: {ONNX_FP32}")
 
 def convert_to_fp16():
-    """Convert FP32 ONNX -> FP16 ONNX, silencing tiny truncation warnings."""
+    """Convert FP32 ONNX -> FP16 ONNX, silence tiny truncation warnings."""
     print("[2/3] Converting ONNX to FP16 ...")
 
-    # Load the freshly exported FP32 ONNX
+    # Load freshly exported FP32 ONNX
     m = onnx.load(ONNX_FP32)
 
-    # Silence the specific truncation warning during this conversion
+    # Silence specific truncation warning during this conversion
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore",
@@ -137,7 +140,7 @@ def main():
     os.makedirs(CKPT_DIR, exist_ok=True)
     model = build_metric_model()
     export_fp32(model)
-    #convert_to_fp16()
+    convert_to_fp16()
     # optional_to_ort()
 
 if __name__ == "__main__":

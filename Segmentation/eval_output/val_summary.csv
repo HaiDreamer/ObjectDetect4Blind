@@ -1,0 +1,25 @@
+model,ok,error,traceback
+C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg_fp32.onnx,False,"The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0","Traceback (most recent call last):
+  File ""c:\Python\ObjectDetect4Blind\Segmentation\evaluation.py"", line 121, in main
+    val_result = model.val(
+        data=str(DATA_YAML),
+    ...<5 lines>...
+        verbose=True,
+    )
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\engine\model.py"", line 635, in val
+    validator(model=self.model)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\torch\utils\_contextlib.py"", line 120, in decorate_context
+    return func(*args, **kwargs)
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\engine\validator.py"", line 225, in __call__
+    self.update_metrics(preds, batch)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\detect\val.py"", line 184, in update_metrics
+    pbatch = self._prepare_batch(si, batch)
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\segment\val.py"", line 135, in _prepare_batch
+    prepared_batch = super()._prepare_batch(si, batch)
+  File ""C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\ultralytics\models\yolo\detect\val.py"", line 144, in _prepare_batch
+    cls = batch[""cls""][idx].squeeze(-1)
+          ~~~~~~~~~~~~^^^^^
+IndexError: The shape of the mask [1] at index 0 does not match the shape of the indexed tensor [0, 1] at index 0
+"

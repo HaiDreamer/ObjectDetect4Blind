@@ -1,0 +1,1 @@
+python inspect_model.py "C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2_fp16.onnx" --show-cast

@@ -1,0 +1,2 @@
+model,ok,fitness,metrics/mAP50(B),metrics/mAP50-95(B),metrics/precision(B),metrics/recall(B),val_time_sec
+C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2_int8_static_qdq.onnx,True,0.5282700182398764,0.7174108489562182,0.5282700182398764,0.7553369369091274,0.6769108482947699,366.637

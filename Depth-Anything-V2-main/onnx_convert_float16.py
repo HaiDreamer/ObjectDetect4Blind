@@ -35,13 +35,13 @@ def export_fp32(model, H=518, W=518):
     print("[1/3] Exporting ONNX (dynamo) ...")
     dummy = torch.randn(1, 3, H, W, dtype=torch.float32)
 
-    # ✅ FIX: use the list form of dynamic_shapes (no arg names needed)
+    # use the list form of dynamic_shapes (no arg names needed)
     torch.onnx.export(
         model, (dummy,), ONNX_FP32,
         opset_version=OPSET, do_constant_folding=True,
         input_names=["input"], output_names=["depth"],
         dynamo=True,
-        dynamic_shapes=[{0: "batch", 2: "h", 3: "w"}],  # <-- only INPUTS here
+        dynamic_shapes=[{0: "batch", 2: "h", 3: "w"}],  # only INPUTS here
     )
     onnx.checker.check_model(onnx.load(ONNX_FP32))
     print(f"Exported FP32 ONNX: {ONNX_FP32}")
@@ -52,7 +52,7 @@ def convert_to_fp16():
     m_fp16 = float16.convert_float_to_float16(
         m,
         keep_io_types=True,                       # I/O stays FP32 for app simplicity
-        op_block_list=["Resize","LayerNormalization","Softmax"],  # conservative
+        op_block_list=["Resize","LayerNormalization","Softmax"],  
     )
     onnx.save(m_fp16, ONNX_FP16)
     onnx.checker.check_model(onnx.load(ONNX_FP16))
@@ -69,10 +69,7 @@ def optional_to_ort():
     # make sure the module is invokable as a CLI
     module = "onnxruntime.tools.convert_onnx_models_to_ort"
     cmd = [sys.executable, "-m", module, ONNX_FP16, "--optimization_style", "Runtime"]
-
-    # optional: write outputs next to ONNX (default) or choose an output dir:
-    # cmd += ["--output_dir", os.path.dirname(ONNX_FP16)]
-
+    
     print("[3/3] Converting ONNX -> ORT format ...")
     try:
         subprocess.run(cmd, check=True)

@@ -1,0 +1,12 @@
+[
+  {
+    "model": "C:\\Python\\ObjectDetectRequireFile\\put-in-obj-detect\\models\\best-lan2_int8_static_qdq.onnx",
+    "ok": true,
+    "metrics/precision(B)": 0.7553369369091274,
+    "metrics/recall(B)": 0.6769108482947699,
+    "metrics/mAP50(B)": 0.7174108489562182,
+    "metrics/mAP50-95(B)": 0.5282700182398764,
+    "fitness": 0.5282700182398764,
+    "val_time_sec": 366.637
+  }
+]
