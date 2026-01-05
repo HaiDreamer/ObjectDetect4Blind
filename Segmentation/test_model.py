@@ -7,7 +7,7 @@ import torch
 from ultralytics import YOLO
 
 ROOT = Path(__file__).resolve().parent
-MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\segment_best.pt")
+MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg.pt")
 OUT_IMG_DIR = ROOT / "output"
 
 

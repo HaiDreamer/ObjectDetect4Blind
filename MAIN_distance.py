@@ -47,7 +47,7 @@ TODO:
 ROOT = Path(__file__).resolve().parent
 
 # Scripts
-YOLO_SCRIPT          = ROOT / "Object detection" / "main.py"
+YOLO_SCRIPT          = ROOT / "Object_detection" / "main.py"
 METRIC_DEPTH_SCRIPT  = ROOT / "Depth-Anything-V2-main" / "metric_depth" / "run.py"
 SEG_SCRIPT           = ROOT / "Segmentation" / "test_model.py"
 
@@ -126,50 +126,64 @@ def _draw_seg_borders_on(depth_bgr, polys, *, color=(0, 0, 0), thickness=2):
                   color=color, thickness=thickness, lineType=cv2.LINE_AA)
     return depth_bgr
 
+def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
+    """
+    Fast q-th percentile for 1D array using np.partition (partial sort).
+    - Ignores NaN/Inf automatically (keeps only finite).
+    - Returns None if empty.
+    """
+    if vals is None:
+        return None
+    vals = vals[np.isfinite(vals)]
+    if vals.size == 0:
+        return None
+
+    # index for q-th percentile (0..n-1)
+    k = int(round((q / 100.0) * (vals.size - 1)))
+    k = max(0, min(vals.size - 1, k))
+
+    # O(n) average partial selection
+    return float(np.partition(vals, k)[k])
+
 
 def _compute_box_distance(
     depth_map_m: np.ndarray,
     x1: int, y1: int, x2: int, y2: int,
     frac: float = 0.5,
-    mode: str = "center",   # "center" or "bottom"
+    mode: str = "center",      # "center" or "bottom"
+    q: float = 10.0,           # <-- p10 mặc định (đổi 5.0 nếu muốn “bảo thủ” hơn)
+    subsample: int = 1,        # <-- 2 hoặc 4 để nhanh hơn (trade-off)
 ) -> float | None:
     """
-    Compute distance to a bounding box using only a danger-relevant region and
-    a robust statistic (median).
+    Robust distance for bbox ROI:
+      - Use p10 (or p5) instead of min() to reduce outliers.
+      - Keep mode constant for clean ablation.
 
     mode:
-      - "center": central frac of the box (for tall objects: human, traffic light, tree, pole)
-      - "bottom": central 50% of the width in the bottom frac of the box
-                  (i.e. 50% of the bottom area's total area)
+      - "center": central frac of bbox (both width & height)
+      - "bottom": bottom frac of bbox height + central 50% bbox width
     """
-    
     H, W = depth_map_m.shape[:2]
 
-    #avoid go outside the img
-    x1 = max(0, min(W - 1, x1))     
+    # clamp bbox
+    x1 = max(0, min(W - 1, x1))
     y1 = max(0, min(H - 1, y1))
     x2 = max(0, min(W, x2))
     y2 = max(0, min(H, y2))
     if x2 <= x1 or y2 <= y1:
         return None
 
-    #height and width of bb
     w = x2 - x1
     h = y2 - y1
     if w <= 0 or h <= 0:
         return None
 
     if mode == "bottom":
-        # Bottom band: height = frac * h
         ch = int(h * frac)
         if ch <= 0:
             return None
-
-        # Vertical range: bottom frac of the box
         y_start = max(y1, y2 - ch)
 
-        # We want 50% of the bottom band's area, so keep same height ch
-        # and use only central 50% of the box width.
         center_band_width = int(w * 0.5)
         if center_band_width <= 0:
             return None
@@ -182,8 +196,7 @@ def _compute_box_distance(
 
         patch = depth_map_m[y_start:y2, x_start:x_end]
 
-    else:  # "center" (default)
-        # Use central frac of the box (both width and height).
+    else:  # "center"
         cw = int(w * frac)
         ch = int(h * frac)
         if cw <= 0 or ch <= 0:
@@ -204,62 +217,75 @@ def _compute_box_distance(
     if patch.size == 0:
         return None
 
-    valid = patch[patch > 0]
+    # optional subsample for speed
+    if subsample > 1:
+        patch = patch[::subsample, ::subsample]
 
-    return float(np.min(valid))
+    # valid pixels: >0 and finite
+    valid = patch[(patch > 0) & np.isfinite(patch)].reshape(-1)
+
+    d = _fast_percentile_1d(valid, q=q)
+    return d
+
 
 def _nearest_sidewalk_distance(
     depth_map_m: np.ndarray,
     sidewalk_mask: np.ndarray,
     max_depth: float = 80.0,
     band_start_frac: float = 0.3,
+    q: float = 5.0,            # <-- sidewalk: p5 thường “an toàn” hơn
+    min_valid_px: int = 50,
+    subsample: int = 1,
 ):
     """
-    Find the nearest sidewalk point using:
-      - only a lower vertical band of the image
-      - the true minimum depth (robustly computed after removing invalid values)
-
-    band_start_frac: fraction of height from which to start (0..1).
-                     0.5 -> bottom half of the image only.
+    Robust nearest sidewalk distance:
+      - Use low percentile (p5/p10) instead of true min to avoid 1-pixel noise.
+      - Return a pixel whose depth is closest to that percentile value.
     """
     assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
-
     H, W = depth_map_m.shape
 
-    # base condition: sidewalk pixels AND valid depth range
-    base_cond = (sidewalk_mask == 1) & (depth_map_m > 0) & (depth_map_m < max_depth)
+    base_cond = (
+        (sidewalk_mask == 1) &
+        (depth_map_m > 0) &
+        (depth_map_m < max_depth) &
+        np.isfinite(depth_map_m)
+    )
     if not np.any(base_cond):
         return None, None, None
 
-    # restrict to lower band
     y_band_start = int(H * band_start_frac)
     band_mask = np.zeros_like(sidewalk_mask, dtype=bool)
     band_mask[y_band_start:H, :] = True
 
     cond = base_cond & band_mask
     if not np.any(cond):
-        # fallback: if nothing in the band, use full mask as before
-        cond = base_cond
+        cond = base_cond  # fallback full region
 
     ys, xs = np.where(cond)
-    vals = depth_map_m[ys, xs]
 
-    # ---- eliminate invalid distances: NaN, inf, etc. ----
-    finite_mask = np.isfinite(vals)
-    vals = vals[finite_mask]
-    ys = ys[finite_mask]
-    xs = xs[finite_mask]
+    # subsample indices for speed (optional)
+    if subsample > 1 and ys.size > 0:
+        take = np.arange(0, ys.size, subsample, dtype=np.int64)
+        ys = ys[take]
+        xs = xs[take]
 
-    if vals.size == 0:
+    vals = depth_map_m[ys, xs].astype(np.float32)
+    finite = np.isfinite(vals)
+    vals = vals[finite]
+    ys = ys[finite]
+    xs = xs[finite]
+
+    if vals.size < min_valid_px:
         return None, None, None
 
-    # ---- use true minimum instead of percentile ----
-    idx = int(np.argmin(vals))
-    d_min = float(vals[idx])
-    y_min = int(ys[idx])
-    x_min = int(xs[idx])
+    d_q = _fast_percentile_1d(vals, q=q)
+    if d_q is None:
+        return None, None, None
 
-    return d_min, x_min, y_min
+    # pick a representative pixel closest to d_q
+    idx = int(np.argmin(np.abs(vals - d_q)))
+    return float(d_q), int(xs[idx]), int(ys[idx])
 
 
 def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):
@@ -306,8 +332,7 @@ def _run_metric_depth_onnx():
         raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] ONNX model not found: {onnx_path}")
 
     print(f"[METRIC_DEPTH_ONNX] loading model: {onnx_path}")
-    providers = ort.get_available_providers()
-    print(f"[METRIC_DEPTH_ONNX] providers: {providers}")
+    providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
     sess = ort.InferenceSession(onnx_path, providers=providers)
 
     input_name  = sess.get_inputs()[0].name

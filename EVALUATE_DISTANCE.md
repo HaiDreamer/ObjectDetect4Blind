@@ -59,7 +59,7 @@ App UI
 # Algorithm for evaluate distance
 
 OBJECT DETECTION -> bounding box of each object
-- Labelled include: "person","bicycle","car","motorcycle","bus","truck", (("traffic light" "tree" "perdestrian_crossing" "electric_pole"))
+- Labelled include: "person","bicycle","car","motorcycle","bus","truck", "traffic light", "tree", "perdestrian_crossing_sign", "electric_pole"
     traffic light for user knows when able to go cross over (but not have distinguish color yet)
 - Metric depth model: depth_map_m[y, x] ≈ distance (in meters) from camera to the visible surface at pixel (x, y)
     -> each pixel has its own distance estimation
