@@ -12,6 +12,9 @@ DET_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_json_K
 DEPTH_GT_DIR = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"
 OUT_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_distance_json_KITTI_val_GT.json"
 
+'''
+TODO: need to re-do it all!
+'''
 
 # =========================
 # DISTANCE PARAMS

@@ -9,7 +9,7 @@ from PIL import Image
 import cv2
 
 '''
-TODO: need to re-do it all !
+TODO: need to re-do it all!
 '''
 
 # =========================

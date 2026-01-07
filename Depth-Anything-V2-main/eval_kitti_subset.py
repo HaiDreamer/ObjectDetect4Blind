@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 
 r"""
+PER PIXEL accuracy comparation
+
 Run code
   # metric model: Evaluate KITTI-style depth predictions (uint16 PNG, depth[m] = value/256).
   python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx"

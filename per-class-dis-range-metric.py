@@ -18,7 +18,7 @@ For each (eval_category, distance bin) we compute:
 
 # ====== CONFIG ======
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
-JSON_PATH = ROOT / "obj_depth_with_pred.json"
+JSON_PATH = ROOT / "obj_depth_with_pred_pruned1layer.json"
 
 # GT-distance bins: 0–10, 10–20, 20–40, 40–80
 BINS = [0.0, 10.0, 20.0, 40.0, 80.0]

@@ -17,7 +17,7 @@ def quantize_to_int8_matmul_only():
         model_input=MODEL_FP32,
         model_output=MODEL_INT8,
         weight_type=QuantType.QInt8,
-        nodes_to_quantize=nodes,  # allow-list: ONLY these nodes are quantized :contentReference[oaicite:3]{index=3}
+        nodes_to_quantize=nodes,  # allow-list: ONLY these nodes are quantized
     )
 
     # sanity: ensure ConvInteger doesn't exist

@@ -9,6 +9,7 @@ INPUT
 - RGB images: C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image\*.png
 - Ground truth depth map in KITTI format (uint16): C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth\*.png
 - Model: outdoor VKITTI small depth_anything_v2_metric_vkitti_vits (PyTorch or ONNX)
+
 OUTPUT: 
 - images with metric depth
 - Folder location: C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits*
@@ -46,7 +47,7 @@ PRUNED1LAYER_CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth
 OUT_BASE = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_pruned1layer")     
 
 # Number of images to export (None = all)
-N = 100
+N = 10
 MAX_DEPTH = 80.0          # VKITTI outdoor metric model
 
 # ------------------ backend-specific setup ------------------
@@ -54,11 +55,18 @@ if MODE == "torch":
     import torch
     import torch.nn as nn
 
-    # Make sure we import the METRIC DepthAnythingV2 (supports max_depth)
-    ROOT = Path(__file__).resolve().parent
-    METRIC_DIR = ROOT / "metric_depth"
-    sys.path.insert(0, str(METRIC_DIR))
+    # --- instead of ROOT = Path(__file__).resolve().parent ---
+    DEPTH_ANYTHING_REPO = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main").resolve()
+    METRIC_DIR = DEPTH_ANYTHING_REPO / "metric_depth"
+    assert METRIC_DIR.exists(), f"metric_depth not found at: {METRIC_DIR}"
+
+    # Make metric_depth importable (this is what 'cd Depth-Anything-V2/metric_depth' effectively does)
+    if str(METRIC_DIR) not in sys.path:
+        sys.path.insert(0, str(METRIC_DIR))
+
+    # Now this should work:
     from depth_anything_v2.dpt import DepthAnythingV2
+
     
     ENCODER = "vits"
     model_configs = {
