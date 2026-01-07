@@ -35,16 +35,36 @@ def xyxy_to_xywh(x1, y1, x2, y2):
     return [x1, y1, (x2 - x1), (y2 - y1)]
 
 
-def to_list_2d(arr, decimals=2):
-    """arr: (M,2) -> list[[x,y],...] with rounding to reduce JSON size"""
-    if arr is None:
+def to_flat_polygon(poly, decimals=2):
+    """
+    Convert polygon points to COCO-like flat list:
+      Nx2  -> [x1,y1,x2,y2,...]
+    Also handles the case poly is a list of contours by picking the longest contour.
+    """
+    if poly is None:
         return []
-    a = np.asarray(arr, dtype=float)
+
+    # If poly is a list of contours (rare), pick the one with most points
+    if isinstance(poly, (list, tuple)) and len(poly) > 0:
+        first = poly[0]
+        if isinstance(first, (list, tuple, np.ndarray)):
+            arr_first = np.asarray(first)
+            # contour-like: (N,2)
+            if arr_first.ndim == 2 and arr_first.shape[1] == 2:
+                # choose the longest contour
+                poly = max(poly, key=lambda c: np.asarray(c).shape[0])
+
+    a = np.asarray(poly, dtype=float)
     if a.size == 0:
         return []
+
+    # Ensure shape Nx2, then flatten
+    a = a.reshape(-1, 2)
+
     if decimals is not None:
         a = np.round(a, decimals)
-    return a.tolist()
+
+    return a.reshape(-1).tolist()
 
 
 def main():
@@ -123,8 +143,8 @@ def main():
                     "bbox_xyxy": [x1, y1, x2, y2],
                     "bbox_xywh": xyxy_to_xywh(x1, y1, x2, y2),
                     # region polygons (mask boundary)
-                    "segmentation_xy":  to_list_2d(polys_xy[i], decimals=2),   # pixel coords
-                    "segmentation_xyn": to_list_2d(polys_xyn[i], decimals=4),  # normalized coords
+                    "segmentation_xy":  to_flat_polygon(polys_xy[i], decimals=2), 
+                    "segmentation_xyn": to_flat_polygon(polys_xyn[i], decimals=4),  
                 })
 
         out["images"].append({
