@@ -233,7 +233,7 @@ def _nearest_sidewalk_distance(
     sidewalk_mask: np.ndarray,
     max_depth: float = 80.0,
     band_start_frac: float = 0.3,
-    q: float = 5.0,            # <-- sidewalk: p5 thường “an toàn” hơn
+    q: float = 10.0,            # p10 as default
     min_valid_px: int = 50,
     subsample: int = 1,
 ):

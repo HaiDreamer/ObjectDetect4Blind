@@ -10,6 +10,8 @@ from ultralytics import YOLO
 
 '''
 OUTPUT: json file with ground truth depth distance + object detection for our label
+
+TODO: based on 4 open code, for segmentation is also relative the same 
 '''
 
 # --- USER PATHS ---
@@ -35,7 +37,7 @@ USE_OVERRIDE_NAMES = False
 CONF_THRES = 0.25
 IOU_THRES  = 0.7
 IMGSZ      = 640
-DEVICE     = None  # e.g. "cpu" or 0 for GPU; None = auto
+DEVICE     = None  # "cpu" or 0 for GPU; None = auto
 
 # Distance settings (sync with your main pipeline)
 MAX_DEPTH_M = 80.0
