@@ -10,8 +10,8 @@ ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 OBJ_GT_JSON    = Path(r"C:\Python\ObjectDetect4Blind\model_eva_object_detect\bb_json_KITTI_val_with_gt_dist.json")
 # pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu, pred_metric_kitti_vkitti_vits_onnx_int8_cpu, 
 #   pred_metric_kitti_vkitti_vits_onnx_azure (fp16 model), pred_metric_kitti_vkitti_vits_torch (original model)
-PRED_DEPTH_DIR = ROOT / "pred_metric_kitti_vkitti_vits_torch"
-OUT_ERR_JSON   = ROOT / "obj_depth_with_pred.json"
+PRED_DEPTH_DIR = ROOT / "pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu"
+OUT_ERR_JSON   = ROOT / "obj_depth_with_pred_pruned1layer.json"
 
 MAX_DEPTH_M  = 80.0
 BOX_FRAC     = 0.3

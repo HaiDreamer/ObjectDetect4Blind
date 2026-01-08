@@ -9,12 +9,13 @@ Distance bins are based on GT distance (meters):
   [0,10), [10,20), [20,40), [40,80]  (last bin includes 80)
 
 RESULT (pruned1layer)
+========== PER-DISTANCE ERROR STATS ==========
 GT bin (m)        N    mean|e|     med|e|  mean(gt-p)   med(gt-p)        MSE       RMSE   meanRel%    medRel%
 -------------------------------------------------------------------------------------------------------------
-[0, 10)          85      2.729      2.015      -2.729      -2.015     11.215      3.349      40.68      31.21
-[10, 20)         88      3.104      3.045      -2.936      -3.045     12.416      3.524      23.87      22.05
-[20, 40)         28      2.875      2.532       1.437       1.067     15.178      3.896      10.72      10.23
-[40, 80]          4     18.603     18.934      18.603      18.934    361.943     19.025      40.22      42.37
+[0, 10)        1000      1.992      1.571      -1.979      -1.571      6.828      2.613      32.93      25.10
+[10, 20)       1130      3.047      2.650      -2.742      -2.552     13.775      3.711      21.82      18.78
+[20, 40)        944      2.957      2.249      -0.497      -0.959     15.933      3.992      11.06       8.23
+[40, 80]        131      9.790      7.461       9.413       7.445    170.915     13.073      18.32      15.90
 
 RESULT (int8 onnx model)
 ========== PER-DISTANCE ERROR STATS ==========
@@ -47,7 +48,7 @@ GT bin (m)        N    mean|e|     med|e|  mean(gt-p)   med(gt-p)        MSE    
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 # obj_depth_with_pred_pruned1layer.json, obj_depth_with_pred_onnx_int8_cpu.json, 
 #   obj_depth_with_pred_onnx_fp16_cpu.json, obj_depth_with_pred_origin.json
-JSON_PATH = ROOT / "obj_depth_with_pred_origin.json"
+JSON_PATH = ROOT / "obj_depth_with_pred_pruned1layer.json"
 
 BINS = [0.0, 10.0, 20.0, 40.0, 80.0]  # last bin includes 80
 

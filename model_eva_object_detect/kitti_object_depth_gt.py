@@ -31,7 +31,7 @@ OVERRIDE_CLASS_NAMES = [
     "person", "bicycle", "car", "motorcycle", "bus", "truck",
     "traffic light", "tree", "perdestrian_crossing_sign", "electric_pole"
 ]
-USE_OVERRIDE_NAMES = False
+USE_OVERRIDE_NAMES = True
 
 # Inference settings
 CONF_THRES = 0.25

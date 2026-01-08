@@ -17,7 +17,7 @@ SEG_GT_JSON = Path(r"C:\Python\ObjectDetect4Blind\seg_eva_detect\seg_distance_js
 
 # pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu, pred_metric_kitti_vkitti_vits_onnx_int8_cpu, 
 #   pred_metric_kitti_vkitti_vits_onnx_azure (fp16 model), pred_metric_kitti_vkitti_vits_torch (original model)
-PRED_DEPTH_DIR = ROOT / "pred_metric_kitti_vkitti_vits_onnx_azure"
+PRED_DEPTH_DIR = ROOT / "pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu"
 
 # OUTPUT
 OUT_JSON = ROOT / "seg_depth_with_pred.json"

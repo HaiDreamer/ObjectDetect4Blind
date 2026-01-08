@@ -8,21 +8,13 @@ import numpy as np
 from PIL import Image
 import cv2
 
-'''
-TODO: need to re-do it all!
-'''
-
-# =========================
 # PATHS
-# =========================
 SEG_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\segment_json_KITTI_val.json"
 DEPTH_GT_DIR = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"
 OUT_JSON = r"C:\Python\ObjectDetect4Blind\seg_eva_detect\seg_distance_json_KITTI_val_GT.json"
 
 
-# =========================
-# MODE SWITCHES (edit these)
-# =========================
+# MODE SWITCHES 
 # Distance method:
 #   "quantile_band" -> Option B: pick 1 pixel by quantile in bottom band (stable)
 #   "single_pixel"  -> pick exactly 1 fixed pixel (bottom band, median-x)
@@ -31,10 +23,7 @@ DISTANCE_MODE = "quantile_band"   # "quantile_band" or "single_pixel"
 # If single_pixel lands on invalid depth, optionally fallback:
 SINGLE_PIXEL_FALLBACK = "quantile_band"  # "none" or "quantile_band"
 
-
-# =========================
-# PARAMS (easy to adjust)
-# =========================
+# PARAMS 
 MAX_DEPTH = 80.0
 Q = 10.0                     # percentile (p5 nearer / more conservative than p10, but may lower accuracy)
 SUBSAMPLE = 1                # >1 for speed (less accurate)
@@ -45,9 +34,7 @@ CONF_THR = 0.25              # None to disable
 EXCLUDE_LOW_CONF = False     # False: keep region but distance=None; True: drop region
 
 
-# =========================
 # Helpers
-# =========================
 def read_kitti_depth_png_to_meters(depth_png_path: Path) -> np.ndarray:
     """
     KITTI GT depth:
@@ -79,19 +66,19 @@ def find_depth_path(depth_dir: Path, file_name: str) -> Optional[Path]:
     if not file_name:
         return None
 
-    # 1) exact match (in case file_name already is GT)
+    # exact match (in case file_name already is GT)
     p = depth_dir / file_name
     if p.exists():
         return p
 
-    # 2) KITTI cropped mapping
+    # KITTI cropped mapping
     if "_sync_image_" in file_name:
         depth_name = file_name.replace("_sync_image_", "_sync_groundtruth_depth_")
         p = depth_dir / depth_name
         if p.exists():
             return p
 
-    # 3) jpg/jpeg -> png (rare but safe)
+    # jpg/jpeg -> png 
     stem = Path(file_name).stem
     if "_sync_image_" in stem:
         depth_stem = stem.replace("_sync_image_", "_sync_groundtruth_depth_")
@@ -132,7 +119,7 @@ def polygon_to_mask(poly_xy, H: int, W: int) -> np.ndarray:
             return mask
         pts = np.array(poly_xy, dtype=np.float32).reshape(-1, 2)
 
-    pts_i32 = np.round(pts).astype(np.int32).reshape(-1, 1, 2)  # OpenCV polygon format :contentReference[oaicite:3]{index=3}
+    pts_i32 = np.round(pts).astype(np.int32).reshape(-1, 1, 2)  # OpenCV polygon format
     cv2.fillPoly(mask, [pts_i32], 1)
     return mask
 
@@ -280,10 +267,7 @@ def single_pixel_pick(
 
     return None, None, {"reason": "no_pixels_in_band_rows"}
 
-
-# =========================
 # Main
-# =========================
 def main():
     seg_path = Path(SEG_JSON)
     depth_dir = Path(DEPTH_GT_DIR)

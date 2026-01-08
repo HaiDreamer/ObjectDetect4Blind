@@ -27,44 +27,40 @@ Encode predictions as KITTI-style uint16 PNGs
     Quantization step (≈4 mm) is tiny compared to typical model errors -> negligible impact on accuracy.
 """
 
-# =========================================================
+
 # Mode: torch: original model
 # output: mode onnx_int8 -> C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx_int8_cpu
-
-# =========================================================
 MODE = "torch"   #"torch", "onnx_fp16", "onnx_int8"
 EXPORT_VARIANT = "pruned1layer"
 PRUNED_BLOCK_FALLBACK = 10
 
-# ================== KITTI paths & output ==================
+# KITTI paths & output 
 KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root")
 IMG_DIR = KITTI_ROOT / "val_selection_cropped" / "image"
 GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
 PRUNED1LAYER_CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_pruned_block10.pth")
 
-# Base; final OUT_DIR is chosen per-backend below
+# Base; final OUT_DIR is chosen per-backend
 #"pred_metric_kitti_vkitti_vits_torch" for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_pruned1layer for pruned 1 layer model
 OUT_BASE = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_pruned1layer")     
 
 # Number of images to export (None = all)
-N = 10
+N = 1000
 MAX_DEPTH = 80.0          # VKITTI outdoor metric model
 
-# ------------------ backend-specific setup ------------------
+# backend-specific setup
 if MODE == "torch":
     import torch
     import torch.nn as nn
 
-    # --- instead of ROOT = Path(__file__).resolve().parent ---
+    # instead of ROOT = Path(__file__).resolve().parent
     DEPTH_ANYTHING_REPO = Path(r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main").resolve()
     METRIC_DIR = DEPTH_ANYTHING_REPO / "metric_depth"
     assert METRIC_DIR.exists(), f"metric_depth not found at: {METRIC_DIR}"
 
     # Make metric_depth importable (this is what 'cd Depth-Anything-V2/metric_depth' effectively does)
     if str(METRIC_DIR) not in sys.path:
-        sys.path.insert(0, str(METRIC_DIR))
-
-    # Now this should work:
+        sys.path.insert(0, str(METRIC_DIR)) 
     from depth_anything_v2.dpt import DepthAnythingV2
 
     
@@ -103,7 +99,7 @@ if MODE == "torch":
 
     state = torch.load(str(CKPT), map_location="cpu")
 
-    # Extract state_dict robustly + (optional) pruned_block metadata
+    # Extract state_dict + (optional) pruned_block metadata
     pruned_block = None
     if isinstance(state, dict):
         if "pruned_block" in state:
@@ -192,16 +188,16 @@ else:  # MODE starts with "onnx"
             - HWC -> CHW
             - add batch dimension
         """
-        # 0) resize to fixed resolution used in ONNX export
+        # resize to fixed resolution used in ONNX export
         bgr_resized = cv2.resize(bgr, (EXPORT_SIZE, EXPORT_SIZE), interpolation=cv2.INTER_LINEAR)
 
-        # 1) BGR -> RGB
+        # BGR -> RGB
         rgb = cv2.cvtColor(bgr_resized, cv2.COLOR_BGR2RGB)
 
-        # 2) float32 in [0, 1]
+        # float32 in [0, 1]
         img = rgb.astype(np.float32) / 255.0
 
-        # 3) normalize (ImageNet style)
+        # normalize (ImageNet style)
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         img = (img - mean) / std
@@ -220,8 +216,7 @@ else:  # MODE starts with "onnx"
 
     mode_str = f"ONNX/ORT {model_tag} ({ep_tag})"
 
-# ================== helpers ==================
-
+# helpers 
 def read_gt_shape(p: Path):
     """Just read the GT file to get (H, W) for resizing."""
     im = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)
@@ -229,8 +224,7 @@ def read_gt_shape(p: Path):
         raise FileNotFoundError(p)
     return im.shape[:2]  # (H, W)
 
-# ================== export loop ==================
-
+# export loop 
 gts_all = sorted(GT_DIR.glob("*.png"))
 gts = gts_all if N is None else gts_all[:N]
 assert gts, f"No GT PNGs found in {GT_DIR}"

@@ -31,14 +31,18 @@ OUTPUT (printed)
     - mean/median relative error (%)
 
 RESULT(pruned1layer)
+========== PER-CLASS ERROR STATS ==========
 Class                              N    mean|e|     med|e|   mean(gt-p)    med(gt-p)        MSE       RMSE   meanRel%    medRel%
 --------------------------------------------------------------------------------------------------------------------------------
-Car                               95      3.170      2.484       -0.617       -1.782     23.686      4.867      21.60      20.60
-Cyclist                           35      1.084      0.925       -0.931       -0.716      1.827      1.351      14.42      12.02
-Person                            53      4.377      4.291       -4.377       -4.291     20.999      4.582      53.21      48.49
-electric pole                      1      3.261      3.261       -3.261       -3.261     10.635      3.261      22.99      22.99
-pedestrian crossing sign           2      5.416      5.416       -5.416       -5.416     29.447      5.426      52.94      52.94
-tree                              19      3.938      3.038       -2.020       -2.822     22.212      4.713      27.03      24.55
+Car                             2639      2.772      2.002       -1.033       -1.591     17.853      4.225      18.18      15.54
+Cyclist                           98      1.720      1.413       -1.649       -1.413      4.688      2.165      20.43      16.83
+LargeVeh                          37      2.526      2.349       -2.513       -2.349      8.302      2.881      26.97      24.79
+Person                           174      4.703      4.625       -4.412       -4.549     25.159      5.016      53.20      49.57
+Truck                             33      2.031      1.729       -1.165       -1.628      7.399      2.720      23.88      24.44
+electric pole                     14      4.797      4.296       -3.442       -3.981     27.943      5.286      49.55      55.21
+motocycle                         17      2.521      2.459       -2.350       -2.459      7.217      2.686      33.19      26.35
+pedestrian crossing sign          17      3.194      2.716       -2.271       -2.236     14.572      3.817      34.14      13.26
+tree                             176      5.017      4.513       -2.280       -3.777     37.277      6.105      43.05      32.53
 
 int8 onnx model
 ========== PER-CLASS ERROR STATS ==========
@@ -87,7 +91,7 @@ tree                             176      4.950      4.160       -1.892       -2
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 # obj_depth_with_pred_pruned1layer.json, obj_depth_with_pred_onnx_int8_cpu.json, 
 #   obj_depth_with_pred_onnx_fp16_cpu.json, obj_depth_with_pred_origin.json
-JSON_PATH = ROOT / "obj_depth_with_pred_origin.json"
+JSON_PATH = ROOT / "obj_depth_with_pred_pruned1layer.json"
 
 
 def safe_float(x):

@@ -22,10 +22,10 @@ pruned1layer model
 ========== PER-DISTANCE ERROR STATS (SEGMENTATION) ==========
 GT bin (m)        N    mean|e|     med|e|  mean(gt-p)   med(gt-p)        MSE       RMSE   meanRel%    medRel%
 -------------------------------------------------------------------------------------------------------------
-[0, 10)          31      0.347      0.304       0.155       0.221      0.160      0.400       5.33       5.25
-[10, 20)          3      2.970      3.445      -2.970      -3.445      9.969      3.157      18.56      18.20
-[20, 40)          0        nan        nan         nan         nan        nan        nan        nan        nan
-[40, 80]          0        nan        nan         nan         nan        nan        nan        nan        nan
+[0, 10)         112      0.400      0.309      -0.188      -0.082      0.333      0.577       7.85       4.67
+[10, 20)         23      2.366      1.016      -0.269      -0.151     14.277      3.778      15.79       8.18
+[20, 40)          6      2.747      1.550      -1.476      -0.447     19.120      4.373       9.30       5.77
+[40, 80]          2      6.007      6.007       2.665       2.665     43.181      6.571      13.38      13.38
 
 int8 model
 ========== PER-DISTANCE ERROR STATS (SEGMENTATION) ==========
@@ -53,7 +53,7 @@ ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 #   seg_depth_with_pred_onnx_fp16_cpu.json
 JSON_PATH = ROOT / "seg_depth_with_pred_onnx_fp16_cpu.json"
 
-BINS = [0.0, 10.0, 20.0, 40.0, 80.0]  # last bin includes 80
+BINS = [0.0, 10.0, 20.0, 40.0, 80.0] 
 
 # If True, ignore regions marked as excluded_low_conf
 SKIP_EXCLUDED_LOW_CONF = True
