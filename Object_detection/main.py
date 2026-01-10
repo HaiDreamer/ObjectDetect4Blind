@@ -1,8 +1,9 @@
-# Object detection/main.py
 from pathlib import Path
 import argparse
 from ultralytics import YOLO
 import json
+
+'''check model if its works, pls dont fix code before ask me cause it affect MAIN_distance.py pipeline'''
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_IMAGE_PATH = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")

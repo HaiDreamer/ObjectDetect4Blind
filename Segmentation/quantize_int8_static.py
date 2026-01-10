@@ -14,6 +14,13 @@ from onnxruntime.quantization import (
     CalibrationMethod,
 )
 
+'''
+FOR: Quantize fp32 to int8 static qdq model
+
+INPUT: original model
+OUTPUT: int8 model
+'''
+
 # ----------------- CONFIG -----------------
 MODELS_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models")
 PT_PATH    = MODELS_DIR / "best_seg.pt"

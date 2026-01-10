@@ -8,10 +8,6 @@ import numpy as np
 from PIL import Image
 import cv2
 
-'''
-TODO: need to re-do it all!
-'''
-
 # =========================
 # PATHS
 # =========================
@@ -38,7 +34,7 @@ SINGLE_PIXEL_FALLBACK = "quantile_band"  # "none" or "quantile_band"
 MAX_DEPTH = 80.0
 Q = 10.0                     # percentile (p5 nearer / more conservative than p10, but may lower accuracy)
 SUBSAMPLE = 1                # >1 for speed (less accurate)
-BOTTOM_BAND_FRAC = 0.30      # bottom X% of polygon height (0.10, 0.20, 0.30, 1.00...)
+BOTTOM_BAND_FRAC = 0.1      # bottom X% of polygon height (0.10, 0.20, 0.30, 1.00...)
 
 # Confidence filtering
 CONF_THR = 0.25              # None to disable
@@ -253,11 +249,10 @@ def single_pixel_pick(
     max_depth: float
 ) -> Tuple[Optional[float], Optional[Dict[str, int]], Dict[str, Any]]:
     """
-    Pick exactly ONE fixed pixel:
-      - find bottom band rows
-      - take bottom-most row with any mask pixels
-      - x = median of that row
-      - distance = depth at that pixel (or None if invalid)
+    Pick exactly ONE pixel, but ensure it's valid:
+      - scan from bottom of band upwards
+      - for each row: take x0 = median(mask pixels)
+      - if depth at (y,x0) invalid -> pick nearest valid x on that row (still inside mask)
     """
     y_start, y_max = band_y_bounds_from_mask(mask, bottom_frac)
     if y_start is None:
@@ -265,20 +260,35 @@ def single_pixel_pick(
 
     H, W = mask.shape[:2]
     y_start = max(0, min(H - 1, y_start))
-    y_max = max(0, min(H - 1, y_max))
+    y_max   = max(0, min(H - 1, y_max))
 
     for y in range(y_max, y_start - 1, -1):
-        xs = np.where(mask[y] == 1)[0]
-        if xs.size == 0:
+        xs_mask = np.where(mask[y] == 1)[0]
+        if xs_mask.size == 0:
             continue
-        x = int(np.median(xs))
-        d = float(depth_m[y, x])
-        pix = {"x": int(x), "y": int(y)}
-        if is_valid_depth(d, max_depth):
-            return float(d), pix, {"reason": "ok"}
-        return None, pix, {"reason": "invalid_depth_at_pixel"}
 
-    return None, None, {"reason": "no_pixels_in_band_rows"}
+        x0 = int(np.median(xs_mask))
+
+        # valid depths on this row *within the mask*
+        row_depths = depth_m[y, xs_mask]
+        ok = np.isfinite(row_depths) & (row_depths > 0) & (row_depths < max_depth)
+        xs_valid = xs_mask[ok]
+
+        if xs_valid.size == 0:
+            continue  # try the next row up
+
+        # choose valid x closest to the median-x target
+        x = int(xs_valid[np.argmin(np.abs(xs_valid - x0))])
+        d = float(depth_m[y, x])
+        return d, {"x": x, "y": y}, {
+            "reason": "ok",
+            "x0_median": x0,
+            "picked_nearest_valid_on_row": (x != x0),
+            "valid_count_on_row": int(xs_valid.size),
+        }
+
+    return None, None, {"reason": "no_valid_depth_in_band_rows"}
+
 
 
 # =========================

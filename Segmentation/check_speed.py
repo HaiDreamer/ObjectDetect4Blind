@@ -4,10 +4,14 @@ import torch
 
 """
 TODO: estimate for some img => avg speed
+      NEED to check this code again
 
-MODELS:
+FOR      
+    Checking speed with onnx model (onnx model is fine for mobile app)
+
+MODELS input:
     C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg.pt
-    C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_fp32.onnx
+    C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_fp32.onnx (can skip)
     C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_fp16.onnx
     C:\\Python\\ObjectDetectRequireFile\\put-in-segment\\models\\best_seg_int8_static_qdq.onnx  
 

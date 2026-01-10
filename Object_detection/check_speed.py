@@ -3,6 +3,7 @@ from ultralytics import YOLO
 
 '''
 TODO: check model speed of some img => speed
+    need to check this code again
 
 Path of model to check
     C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2_fp32.onnx

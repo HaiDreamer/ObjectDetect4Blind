@@ -6,6 +6,11 @@ from ultralytics import YOLO
 from onnxruntime.quantization import quantize_dynamic, QuantType
 from onnxruntime.transformers.float16 import convert_float_to_float16
 
+'''
+FOR
+    quantize model to FP32 then FP16, but int8 in here is nearly useless
+'''
+
 MODELS_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models")
 PT_PATH = MODELS_DIR / "best_seg.pt"
 

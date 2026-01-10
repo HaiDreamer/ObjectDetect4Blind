@@ -5,7 +5,10 @@ import time
 import traceback
 from ultralytics import YOLO
 
-'''result
+'''
+FOR: checking accuracy of model
+
+RESULT
 model,ok,error,fitness,metrics/mAP50(B),metrics/mAP50-95(B),metrics/precision(B),metrics/recall(B),traceback,val_time_sec
 C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2_fp32.onnx,True,,0.5451066511344781,0.7239038738003981,0.5451066511344781,0.7412172402367192,0.6972859594105918,,839.858
 

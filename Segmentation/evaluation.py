@@ -10,6 +10,8 @@ import yaml
 r'''
 Note: No more error should be occurs
 
+FOR: Checking accuracy with onnx model (onnx model is fine for mobile app)
+
 PIPELINE
     model.val(task="segment") evaluates the model's predicted instance masks against the ground-truth segmentation masks from your validation labels
 

@@ -12,16 +12,20 @@ DET_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_json_K
 DEPTH_GT_DIR = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"
 OUT_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_distance_json_KITTI_val_GT.json"
 
-'''
-TODO: need to re-do it all!
-'''
-
 # =========================
 # DISTANCE PARAMS
 # =========================
 MAX_DEPTH = 80.0
 Q = 10.0              # p10 for bbox distance (use 5.0 if you want more conservative)
-FRAC = 0.30           # ROI fraction (linear) inside bbox (center mode uses frac for W and H)
+FRAC = 0.316          # ROI fraction (linear) inside bbox (center mode uses frac for W and H)
+'''
+frac: %region of ROI
+        frac = sqrt(area_fraction)
+            10% area → sqrt(0.10)=0.316
+            20% area → 0.447
+            30% area → 0.548
+            100% area → 1.0
+'''
 SUBSAMPLE = 1         # 2 or 4 for speed (less accurate)
 
 # Confidence filtering
@@ -132,8 +136,9 @@ def compute_box_distance_region(depth_m: np.ndarray, x1, y1, x2, y2, frac=0.316,
 
         patch = depth_m[y_start:y2, x_start:x_end]
     else:
-        cw = int(w * frac)
-        ch = int(h * frac)
+        cw = max(1, int(round(w * frac)))
+        ch = max(1, int(round(h * frac)))
+
         if cw <= 0 or ch <= 0:
             return None, 0
 

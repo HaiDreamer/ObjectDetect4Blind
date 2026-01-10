@@ -33,15 +33,15 @@ OUTPUT
         label: crosswalk, tree line, sidewalk, stairs
 
         1 middle pixel based on mod ("center"/"bottom")
-
+            Timing: {'eval_seconds_total_after_depth_ready': 0.5552077980246395, 'eval_images_counted': 1000, 'eval_regions_attempted': 0, 'avg_eval_ms_per_image_after_depth_ready': 0.5552077980246395, 'avg_eval_ms_per_region_attempted': 555.2077980246395, 'timer': 'time.perf_counter'}
         10% area of polygon mod ("center"/"bottom")
-            Timing: {'eval_seconds_total_after_depth_ready': 0.6681950998026878, 'eval_images_counted': 1000, 'eval_regions_attempted': 145, 'avg_eval_ms_per_image_after_depth_ready': 0.6681950998026878, 'avg_eval_ms_per_region_attempted': 4.608242067604743, 'timer': 'time.perf_counter'}
+            Timing: {'eval_seconds_total_after_depth_ready': 0.8177505994681269, 'eval_images_counted': 1000, 'eval_regions_attempted': 202, 'avg_eval_ms_per_image_after_depth_ready': 0.8177505994681269, 'avg_eval_ms_per_region_attempted': 4.048270294396668, 'timer': 'time.perf_counter'}
         20% area of polygon mod ("center"/"bottom")
-            Timing: {'eval_seconds_total_after_depth_ready': 1.3298907007556409, 'eval_images_counted': 1000, 'eval_regions_attempted': 145, 'avg_eval_ms_per_image_after_depth_ready': 1.3298907007556409, 'avg_eval_ms_per_region_attempted': 9.171660005211315, 'timer': 'time.perf_counter'}
+            Timing: {'eval_seconds_total_after_depth_ready': 0.8197237974964082, 'eval_images_counted': 1000, 'eval_regions_attempted': 202, 'avg_eval_ms_per_image_after_depth_ready': 0.8197237974964082, 'avg_eval_ms_per_region_attempted': 4.058038601467367, 'timer': 'time.perf_counter'}
         30% area of polygon mod ("center"/"bottom")
-            Timing: {'eval_seconds_total_after_depth_ready': 0.6380813051946461, 'eval_images_counted': 1000, 'eval_regions_attempted': 145, 'avg_eval_ms_per_image_after_depth_ready': 0.6380813051946461, 'avg_eval_ms_per_region_attempted': 4.400560725480318, 'timer': 'time.perf_counter'}
+            Timing: {'eval_seconds_total_after_depth_ready': 0.8357600974850357, 'eval_images_counted': 1000, 'eval_regions_attempted': 202, 'avg_eval_ms_per_image_after_depth_ready': 0.8357600974850357, 'avg_eval_ms_per_region_attempted': 4.137426225173444, 'timer': 'time.perf_counter'}
         100% area of polygon mod ("center"/"bottom")
-            Timing: {'eval_seconds_total_after_depth_ready': 1.361293802736327, 'eval_images_counted': 1000, 'eval_regions_attempted': 145, 'avg_eval_ms_per_image_after_depth_ready': 1.361293802736327, 'avg_eval_ms_per_region_attempted': 9.388233122319498, 'timer': 'time.perf_counter'}
+            Timing: {'eval_seconds_total_after_depth_ready': 0.8694858008529991, 'eval_images_counted': 1000, 'eval_regions_attempted': 202, 'avg_eval_ms_per_image_after_depth_ready': 0.8694858008529991, 'avg_eval_ms_per_region_attempted': 4.30438515273762, 'timer': 'time.perf_counter'}
 
 '''
 

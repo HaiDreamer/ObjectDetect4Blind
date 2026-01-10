@@ -4,6 +4,7 @@ from collections import Counter, defaultdict
 import yaml
 from PIL import Image
 
+'''checking if dataset is valid'''
 
 DATA_YAML = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\GroupProject_OD\data.yaml")
 

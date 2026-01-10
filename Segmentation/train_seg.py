@@ -3,6 +3,8 @@ import subprocess
 from pathlib import Path
 import shutil
 
+'''TRAINING model segmentation'''
+
 # setup bb 
 DATASET_PATH = "/storage/student5/blind/GroupProject_Seg"
 def clamp01(x: float) -> float:

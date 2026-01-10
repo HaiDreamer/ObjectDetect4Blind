@@ -3,6 +3,8 @@ import sys
 import subprocess
 from pathlib import Path
 
+'''train model code form my teammate'''
+
 # ================== Cấu hình của BẠN ==================
 # sửa lại cho đúng đường dẫn dataset & nơi lưu runs
 DATA_YAML = "/storage/student5/blind/GroupProject_OD/data.yaml"

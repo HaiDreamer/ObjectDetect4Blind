@@ -1,6 +1,8 @@
 from ultralytics import YOLO
 
 '''
+FOR: checking layer of model (for quantizing)
+
 OUTPUT
     Ultralytics YOLOv8m-seg (the dump literally says YOLOv8m-seg summary).
     Size/compute: 191 layers, 27,241,964 parameters, ~104.7 GFLOPs (typically reported at the default input size used by the tool).

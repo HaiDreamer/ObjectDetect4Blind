@@ -16,6 +16,7 @@ from onnxruntime.quantization import (
     CalibrationMethod,
 )
 
+'''quantize model original -> fp32 -> int8 qdq static'''
 
 # ----------------- CONFIG -----------------
 MODELS_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models")

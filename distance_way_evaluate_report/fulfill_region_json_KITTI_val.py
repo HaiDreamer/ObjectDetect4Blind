@@ -8,12 +8,12 @@ from ultralytics import YOLO
 
 
 # --- USER PATHS ---
-MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg.pt"
+MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best.pt"
 IMAGE_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image"
 OUT_JSON   = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\segment_json_KITTI_val.json"
 
 # Your model labels (must match class-id order in the model)
-OVERRIDE_CLASS_NAMES = ["crosswalk", "tree line", "sidewalk", "stairs"]
+OVERRIDE_CLASS_NAMES = ['Stairs', 'crosswalk', 'sidewalk', 'tree-lined']
 USE_OVERRIDE_NAMES = True  # set False if you want to use model.names instead
 
 # Inference settings

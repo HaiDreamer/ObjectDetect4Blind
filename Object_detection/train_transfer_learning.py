@@ -19,6 +19,8 @@ from ultralytics import YOLO
 import torch
 import os
 
+'''train model code form my teammate'''
+
 # ============================================
 # CẤU HÌNH ĐƯỜNG DẪN
 # ============================================

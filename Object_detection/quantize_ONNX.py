@@ -7,6 +7,7 @@ from ultralytics import YOLO
 from onnxruntime.quantization import quantize_dynamic, QuantType
 from onnxruntime.transformers.float16 import convert_float_to_float16
 
+'''quantize model original -> fp32 -> fp16 and int8 , but int8 model seems useless(u can ignore this qay of quantizing)'''
 
 # ----------------- CONFIG -----------------
 MODELS_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models")

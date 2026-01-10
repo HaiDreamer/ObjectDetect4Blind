@@ -1,7 +1,7 @@
 {
-  "model_path": "C:\\Python\\ObjectDetectRequireFile\\put-in-obj-detect\\models\\best-lan2.pt",
+  "model_path": "C:\\Python\\ObjectDetectRequireFile\\put-in-obj-detect\\models\\best.pt",
   "source_dir": "C:\\Python\\ObjectDetectRequireFile\\put-in-metric-depth\\kitti_root\\val_selection_cropped\\image",
-  "generated_at": "2026-01-05T20:24:49",
+  "generated_at": "2026-01-08T22:08:07",
   "image_count": 1000,
   "class_names": [
     "bicycle",

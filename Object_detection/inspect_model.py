@@ -5,6 +5,9 @@
 #   python inspect_onnx_dtypes.py "C:\path\to\model.onnx" --topk 30
 # python inspect_model.py "C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2_fp16.onnx" --show-cast
 
+'''just for checking model is effective ?
+mainly to answer: “Is my model really FP16 (or mixed precision), and where are dtype conversions happening?
+'''
 
 from __future__ import annotations
 

@@ -1,6 +1,6 @@
 {
   "task": "object_detection_distance_from_kitti_gt_depth",
-  "generated_at": "2026-01-06T13:42:05",
+  "generated_at": "2026-01-09T09:52:53",
   "sources": {
     "det_json": "C:\\Python\\ObjectDetect4Blind\\distance_way_evaluate_report\\bb_json_KITTI_val.json",
     "depth_gt_dir": "C:\\Python\\ObjectDetectRequireFile\\put-in-metric-depth\\kitti_root\\val_selection_cropped\\groundtruth_depth",
@@ -8,7 +8,7 @@
   },
   "params": {
     "q": 10.0,
-    "frac": 0.3,
+    "frac": 0.316,
     "subsample": 1,
     "max_depth": 80.0,
     "conf_thr": 0.25,
@@ -73536,11 +73536,11 @@
     "total_objects_with_distance": 818
   },
   "timing": {
-    "eval_seconds_total_after_depth_ready": 0.03638590034097433,
+    "eval_seconds_total_after_depth_ready": 0.06106350477784872,
     "eval_images_counted": 1000,
     "eval_objects_attempted": 3282,
-    "avg_eval_ms_per_image_after_depth_ready": 0.03638590034097433,
-    "avg_eval_ms_per_object_attempted": 0.011086502236738065,
+    "avg_eval_ms_per_image_after_depth_ready": 0.06106350477784872,
+    "avg_eval_ms_per_object_attempted": 0.01860557732414647,
     "timer": "time.perf_counter"
   }
 }

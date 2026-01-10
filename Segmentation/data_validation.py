@@ -1,5 +1,7 @@
 from pathlib import Path
 
+'''Checking if the dataset validation is valid'''
+
 IMG_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\GroupProject_Seg\images\val")
 LBL_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\GroupProject_Seg\labels\val")
 PROJECT_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\GroupProject_Seg")  # for deleting *.cache

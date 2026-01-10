@@ -1,136 +1,85 @@
 import json
-import os
 from pathlib import Path
-from datetime import datetime
+import cv2
+import numpy as np
 
-from PIL import Image
-from ultralytics import YOLO  # pip install ultralytics
+JSON_PATH = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\segment_json_KITTI_val.json"
+OUT_DIR   = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\debug_seg_vis"
 
+N_IMAGES = 50                 # how many images to export
+ALPHA_FILL = 0.35             # polygon fill transparency (0..1)
 
-# --- USER PATHS ---
-MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2.pt"
-IMAGE_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image"
+def flat_to_pts(seg_flat):
+    """[x1,y1,x2,y2,...] -> (N,1,2) int32 for OpenCV"""
+    if not seg_flat or len(seg_flat) < 6 or (len(seg_flat) % 2) != 0:
+        return None
+    pts = np.array(seg_flat, dtype=np.float32).reshape(-1, 2)
+    pts = np.round(pts).astype(np.int32)
+    return pts.reshape(-1, 1, 2)
 
-# Output JSON 
-OUT_JSON   = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_json_KITTI_val.json"
+def color_for_id(class_id: int):
+    # deterministic “random” color per class_id (BGR)
+    rng = np.random.default_rng(int(class_id) + 12345)
+    bgr = rng.integers(40, 255, size=3, dtype=np.int32)
+    return int(bgr[0]), int(bgr[1]), int(bgr[2])
 
-# Optional: override class names (ONLY if your model class order matches this list)
-OVERRIDE_CLASS_NAMES = [
-    "person", "bicycle", "car", "motorcycle", "bus", "truck",
-    "traffic light", "tree", "perdestrian_crossing_sign", "electric_pole"
-]
-USE_OVERRIDE_NAMES = False  # set True if you want to force the above names
+def draw_instance(img_bgr, inst):
+    pts = flat_to_pts(inst.get("segmentation_xy", []))
+    if pts is None:
+        return img_bgr
 
-# Inference settings
-CONF_THRES = 0.25
-IOU_THRES  = 0.7
-IMGSZ      = 640
-DEVICE     = None  # e.g. "cpu" or 0 for GPU; None = auto
+    cls_id = int(inst.get("class_id", 0))
+    cls_name = str(inst.get("class_name", cls_id))
+    conf = inst.get("confidence", None)
 
+    color = color_for_id(cls_id)
 
-def get_model_names(model) -> list[str]:
-    """
-    Ultralytics model.names can be a dict {id: name} or a list.
-    """
-    names = model.names
-    if isinstance(names, dict):
-        # ensure sorted by class id
-        return [names[i] for i in sorted(names.keys())]
-    return list(names)
+    # fill polygon with transparency
+    overlay = img_bgr.copy()
+    cv2.fillPoly(overlay, [pts], color)                 # filled polygon :contentReference[oaicite:1]{index=1}
+    img_bgr = cv2.addWeighted(overlay, ALPHA_FILL, img_bgr, 1 - ALPHA_FILL, 0)  # transparency :contentReference[oaicite:2]{index=2}
 
+    # outline polygon
+    cv2.polylines(img_bgr, [pts], True, color, 2)       # polygon outline :contentReference[oaicite:3]{index=3}
 
-def xyxy_to_xywh(x1, y1, x2, y2):
-    return [x1, y1, (x2 - x1), (y2 - y1)]
+    # label near first vertex (or you can compute centroid)
+    x, y = int(pts[0, 0, 0]), int(pts[0, 0, 1])
+    label = f"{cls_name}" + (f" {float(conf):.2f}" if conf is not None else "")
+    cv2.putText(img_bgr, label, (x, max(15, y)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2, cv2.LINE_AA)  # :contentReference[oaicite:4]{index=4}
 
+    return img_bgr
 
 def main():
-    image_dir = Path(IMAGE_DIR)
-    if not image_dir.exists():
-        raise FileNotFoundError(f"IMAGE_DIR not found: {image_dir}")
+    out_dir = Path(OUT_DIR)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
-    # Collect images
-    exts = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
-    image_paths = sorted([p for p in image_dir.rglob("*") if p.suffix.lower() in exts])
-    if not image_paths:
-        raise RuntimeError(f"No images found under: {image_dir}")
+    data = json.loads(Path(JSON_PATH).read_text(encoding="utf-8"))
+    images = data.get("images", [])
 
-    # Load model once
-    model = YOLO(MODEL_PATH)
+    saved = 0
+    for im in images:
+        if saved >= N_IMAGES:
+            break
 
-    # Determine class names to write
-    model_names = get_model_names(model)
-    class_names = OVERRIDE_CLASS_NAMES if USE_OVERRIDE_NAMES else model_names
+        file_path = im.get("file_path")
+        file_name = im.get("file_name", f"img_{saved}.png")
+        instances = im.get("instances", [])
 
-    # (Recommended) sanity check
-    print("Model class names:", model_names)
-    if USE_OVERRIDE_NAMES:
-        print("Override class names:", OVERRIDE_CLASS_NAMES)
+        if not file_path:
+            continue
 
-    out = {
-        "model_path": str(MODEL_PATH),
-        "source_dir": str(image_dir),
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "image_count": len(image_paths),
-        "class_names": class_names,
-        "images": []
-    }
+        img = cv2.imread(str(file_path), cv2.IMREAD_COLOR)
+        if img is None:
+            print("WARN: cannot read", file_path)
+            continue
 
-    for idx, img_path in enumerate(image_paths, 1):
-        # Read size (no need to load full image into numpy)
-        with Image.open(img_path) as im:
-            width, height = im.size
+        for inst in instances:
+            img = draw_instance(img, inst)
 
-        # Run inference on this image
-        # Ultralytics Results: r.boxes.xyxy, r.boxes.conf, r.boxes.cls :contentReference[oaicite:2]{index=2}
-        results = model.predict(
-            source=str(img_path),
-            conf=CONF_THRES,
-            iou=IOU_THRES,
-            imgsz=IMGSZ,
-            device=DEVICE,
-            verbose=False
-        )
-
-        r = results[0]
-        dets = []
-
-        if r.boxes is not None and len(r.boxes) > 0:
-            boxes_xyxy = r.boxes.xyxy.cpu().numpy()
-            confs = r.boxes.conf.cpu().numpy()
-            clss  = r.boxes.cls.cpu().numpy()
-
-            for (x1, y1, x2, y2), conf, cls_id in zip(boxes_xyxy, confs, clss):
-                cls_id_int = int(cls_id)
-                name = class_names[cls_id_int] if 0 <= cls_id_int < len(class_names) else str(cls_id_int)
-
-                # Keep a reasonable number of decimals
-                x1f, y1f, x2f, y2f = [float(v) for v in (x1, y1, x2, y2)]
-                dets.append({
-                    "class_id": cls_id_int,
-                    "class_name": name,
-                    "confidence": float(conf),
-                    "bbox_xyxy": [x1f, y1f, x2f, y2f],               # [xmin, ymin, xmax, ymax]
-                    "bbox_xywh": xyxy_to_xywh(x1f, y1f, x2f, y2f),  # [xmin, ymin, w, h]
-                })
-
-        out["images"].append({
-            "file_name": img_path.name,
-            "file_path": str(img_path),
-            "width": width,
-            "height": height,
-            "detections": dets
-        })
-
-        if idx % 50 == 0 or idx == len(image_paths):
-            print(f"Processed {idx}/{len(image_paths)}")
-
-    # Write JSON
-    os.makedirs(Path(OUT_JSON).parent, exist_ok=True)
-    with open(OUT_JSON, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-
-    print(f"Saved JSON: {OUT_JSON}")
-
+        out_path = out_dir / f"{Path(file_name).stem}__regions.png"
+        cv2.imwrite(str(out_path), img)
+        print("Saved:", out_path)
+        saved += 1
 
 if __name__ == "__main__":
     main()
