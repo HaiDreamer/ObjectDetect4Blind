@@ -16,31 +16,34 @@ OUT_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_distan
 # DISTANCE PARAMS
 # =========================
 MAX_DEPTH = 80.0
-Q = 10.0              # p10 for bbox distance (use 5.0 if you want more conservative)
-FRAC = 0.316          # ROI fraction (linear) inside bbox (center mode uses frac for W and H)
+Q = 10.0
+FRAC = 0.1
 '''
 frac: %region of ROI
         frac = sqrt(area_fraction)
+            1% area -> 0.1
             10% area → sqrt(0.10)=0.316
             20% area → 0.447
             30% area → 0.548
             100% area → 1.0
 '''
-SUBSAMPLE = 1         # 2 or 4 for speed (less accurate)
+SUBSAMPLE = 1
 
 # Confidence filtering
-CONF_THR = 0.25   
+CONF_THR = 0.25
 EXCLUDE_LOW_CONF = False
 #   False: keep object in output, but don't evaluate distance (distance=None, excluded_low_conf=True)
 #   True : drop object entirely from output
 
 # ROI method
-ROI_METHOD = "pixel"   # "region" or "pixel"
+ROI_METHOD = "region"   # "region" or "pixel"
 #   "pixel": 1 middle pixel (center) or bottom-center pixel (bottom)
 #   "region": your ROI patch + percentile
 
-# choose bottom ROI for vehicles
-BOTTOM_MODE_KEYWORDS = ("car", "bicycle", "truck", "motorbike", "motorcycle", "bus")
+# Mode selection (NO class-name keyword checks)
+DEFAULT_MODE = "center"        # "center" or "bottom"
+USE_DET_MODE_FIELD = False     # if True, read mode from detection dict field below
+DET_MODE_FIELD = "roi_mode"    # expected values: "center" or "bottom"
 
 
 # =========================
@@ -65,7 +68,6 @@ def fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
         return None
     k = int(round((q / 100.0) * (vals.size - 1)))
     k = max(0, min(vals.size - 1, k))
-    # np.partition places the k-th element in its final sorted position (partial sort). :contentReference[oaicite:2]{index=2}
     return float(np.partition(vals, k)[k])
 
 def _clamp_box_xyxy(x1, y1, x2, y2, H, W):
@@ -127,7 +129,7 @@ def compute_box_distance_region(depth_m: np.ndarray, x1, y1, x2, y2, frac=0.316,
             return None, 0
         y_start = max(y1, y2 - ch)
 
-        band_w = int(w * 0.5)  # fixed 50% width 
+        band_w = int(w * 0.5)  # fixed 50% width
         if band_w <= 0:
             return None, 0
         cx = (x1 + x2) // 2
@@ -223,6 +225,9 @@ def main():
             "conf_thr": CONF_THR,
             "exclude_low_conf": EXCLUDE_LOW_CONF,
             "roi_method": ROI_METHOD,
+            "default_mode": DEFAULT_MODE,
+            "use_det_mode_field": USE_DET_MODE_FIELD,
+            "det_mode_field": DET_MODE_FIELD,
         },
         "images": [],
     }
@@ -232,10 +237,11 @@ def main():
     total_objs_with_dist = 0
     total_low_conf = 0
 
-    # Timing for "distance evaluation after having depth map"
     eval_sec_total = 0.0
     eval_images = 0
-    eval_objects_attempted = 0
+
+    dist_sec_total = 0.0
+    dist_objects = 0
 
     for im in det.get("images", []):
         file_name = im.get("file_name") or Path(im.get("file_path", "")).name
@@ -249,7 +255,6 @@ def main():
         else:
             depth_m = read_kitti_depth_png_to_meters(depth_path)
 
-        # If sizes mismatch, resize depth to recorded width/height (rare but safe)
         if depth_m is not None:
             H, W = depth_m.shape
             if im.get("height") and im.get("width"):
@@ -268,7 +273,6 @@ def main():
         dets = im.get("detections", []) or []
         total_objs += len(dets)
 
-        # Start timing ONLY when depth map exists (your requirement)
         t0 = perf_counter() if depth_m is not None else None
 
         for i, d in enumerate(dets):
@@ -276,13 +280,11 @@ def main():
             conf = _to_float_or_none(d.get("confidence", None))
             bbox = d.get("bbox_xyxy", None)
 
-            # Confidence gating
             low_conf = (conf is not None) and (conf < CONF_THR)
             if low_conf:
                 total_low_conf += 1
                 if EXCLUDE_LOW_CONF:
-                    continue  # drop from output entirely
-                # keep it, but do not evaluate distance
+                    continue
                 objs.append({
                     "id": f"det_{i}",
                     "class_id": d.get("class_id", None),
@@ -297,15 +299,17 @@ def main():
 
             dist = None
             used_px = 0
-            mode = "center"
+            mode = DEFAULT_MODE
+
+            if USE_DET_MODE_FIELD:
+                m = d.get(DET_MODE_FIELD, None)
+                if m in ("center", "bottom"):
+                    mode = m
 
             if depth_m is not None and bbox and len(bbox) == 4:
                 x1, y1, x2, y2 = bbox
-                name_l = cls_name.lower()
-                mode = "bottom" if any(k in name_l for k in BOTTOM_MODE_KEYWORDS) else "center"
 
-                eval_objects_attempted += 1
-
+                t_obj = perf_counter()
                 if ROI_METHOD == "pixel":
                     dist, used_px = compute_box_distance_pixel(depth_m, x1, y1, x2, y2, mode=mode)
                 else:
@@ -313,6 +317,8 @@ def main():
                         depth_m, x1, y1, x2, y2,
                         frac=FRAC, mode=mode, q=Q, subsample=SUBSAMPLE
                     )
+                dist_sec_total += (perf_counter() - t_obj)
+                dist_objects += 1
 
             if dist is not None:
                 total_objs_with_dist += 1
@@ -348,12 +354,17 @@ def main():
         "total_objects_with_distance": total_objs_with_dist,
     }
 
+    avg_ms_per_bbox_distance_eval = (dist_sec_total / max(1, dist_objects)) * 1000.0
+
     out["timing"] = {
         "eval_seconds_total_after_depth_ready": eval_sec_total,
         "eval_images_counted": eval_images,
-        "eval_objects_attempted": eval_objects_attempted,
         "avg_eval_ms_per_image_after_depth_ready": (eval_sec_total / max(1, eval_images)) * 1000.0,
-        "avg_eval_ms_per_object_attempted": (eval_sec_total / max(1, eval_objects_attempted)) * 1000.0,
+
+        "dist_seconds_total_bbox_to_roi_to_distance_eval": dist_sec_total,
+        "dist_objects_counted": dist_objects,
+        "avg_ms_per_bbox_distance_eval": avg_ms_per_bbox_distance_eval,
+
         "timer": "time.perf_counter",
     }
 

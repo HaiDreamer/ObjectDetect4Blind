@@ -77,7 +77,6 @@ def compute_metric_errors(student_m, teacher_m, max_depth):
     s = student_m.astype(np.float64)
     t = teacher_m.astype(np.float64)
 
-    # valid mask: finite, positive teacher, within plausible range, also check for enough number of pixel requirement for calculation 
     mask = np.isfinite(s) & np.isfinite(t) & (t > 1e-6) & (t <= max_depth) & (s >= 0) & (s <= max_depth)
     if mask.sum() < 100:
         return float("nan"), float("nan"), float("nan")
@@ -85,8 +84,10 @@ def compute_metric_errors(student_m, teacher_m, max_depth):
     diff = s[mask] - t[mask]
     rmse = float(np.sqrt(np.mean(diff * diff)))
     mae  = float(np.mean(np.abs(diff)))
-    absrel = float(np.mean(np.abs(diff) / t[mask]))
-    return rmse, mae, absrel
+    # Mean relative error (signed): mean(abs(s - t) / t)
+    meanrel = float(np.mean(abs(diff / t[mask])))
+    return rmse, mae, meanrel
+
 
 def compute_visual_metrics_01(student_m, teacher_m, max_depth):
     """Convert a float depth map (meters) into an 8-bit grayscale image for saving/visualization."""
@@ -167,7 +168,7 @@ with open(csv_path, "w", newline="") as fcsv:
     writer = csv.writer(fcsv)
     writer.writerow([
         "block_idx",
-        "RMSE_m", "MAE_m", "AbsRel",
+        "RMSE_m", "MAE_m", "MeanRel",
         "MSE01", "PSNR", "SSIM"
     ])
 
@@ -182,17 +183,17 @@ for i in range(nblocks):
     block_dir = os.path.join(OUT_DIR, f"skip_block_{i:02d}")
     os.makedirs(block_dir, exist_ok=True)
 
-    rmse_list, mae_list, absrel_list = [], [], []
+    rmse_list, mae_list, meanrel_list = [], [], []
     mse01_list, psnr_list, ssim_list = [], [], []
 
     for name, im in imgs:
         t = teacher[name]
         s = predict_depth_meters(im)
 
-        rmse, mae, absrel = compute_metric_errors(s, t, MAX_DEPTH_METERS)
+        rmse, mae, meanRel = compute_metric_errors(s, t, MAX_DEPTH_METERS)
         mse01, psnr, ssim_val = compute_visual_metrics_01(s, t, MAX_DEPTH_METERS)
 
-        rmse_list.append(rmse); mae_list.append(mae); absrel_list.append(absrel)
+        rmse_list.append(rmse); mae_list.append(mae); meanrel_list.append(meanRel)
         mse01_list.append(mse01); psnr_list.append(psnr); ssim_list.append(ssim_val)
 
         # Visuals: [Teacher | Student | |T-S| heatmap] using fixed [0, MAX_DEPTH_METERS]
@@ -212,29 +213,29 @@ for i in range(nblocks):
 
     mean_rmse   = float(np.nanmean(rmse_list))
     mean_mae    = float(np.nanmean(mae_list))
-    mean_absrel = float(np.nanmean(absrel_list))
+    mean_meanrel = float(np.nanmean(meanrel_list))
     mean_mse01  = float(np.nanmean(mse01_list))
     mean_psnr   = float(np.nanmean(psnr_list))
     mean_ssim   = float(np.nanmean(ssim_list)) if HAVE_SSIM else float("nan")
 
-    summary.append((i, mean_rmse, mean_mae, mean_absrel, mean_mse01, mean_psnr, mean_ssim))
+    summary.append((i, mean_rmse, mean_mae, mean_meanrel, mean_mse01, mean_psnr, mean_ssim))
 
     with open(csv_path, "a", newline="") as fcsv:
         writer = csv.writer(fcsv)
         writer.writerow([
             i,
-            f"{mean_rmse:.6f}", f"{mean_mae:.6f}", f"{mean_absrel:.6f}",
+            f"{mean_rmse:.6f}", f"{mean_mae:.6f}", f"{mean_meanrel:.6f}",
             f"{mean_mse01:.8f}", f"{mean_psnr:.3f}", f"{mean_ssim:.5f}"
         ])
 
-    print(f"[Block {i:02d}] RMSE={mean_rmse:.3f}m  MAE={mean_mae:.3f}m  AbsRel={mean_absrel:.4f}  PSNR={mean_psnr:.2f}  SSIM={mean_ssim:.4f}")
+    print(f"[Block {i:02d}] RMSE={mean_rmse:.3f}m  MAE={mean_mae:.3f}m  meanRel={mean_meanrel:.4f}  PSNR={mean_psnr:.2f}  SSIM={mean_ssim:.4f}")
 
 # rank by RMSE (higher drift in meters => more important for metric behavior)
 summary.sort(key=lambda x: x[1], reverse=True)
 
 print("\n=== Block importance (METRIC) (higher RMSE drift => more important) ===")
 for (i, rmse, mae, absrel, mse01, psnr, ssim_v) in summary:
-    print(f"Block {i:2d} : RMSE={rmse:.3f}m  MAE={mae:.3f}m  AbsRel={absrel:.4f}  PSNR={psnr:.2f}  SSIM={ssim_v:.4f}")
+    print(f"Block {i:2d} : RMSE={rmse:.3f}m  MAE={mae:.3f}m  MeanRel={absrel:.4f}  PSNR={psnr:.2f}  SSIM={ssim_v:.4f}")
 
 print(f"\nVisuals per block in: {os.path.abspath(OUT_DIR)}\\skip_block_XX\\*_T-S-D_metric.png")
 print(f"CSV summary: {os.path.abspath(csv_path)}")

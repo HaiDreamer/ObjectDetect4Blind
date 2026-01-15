@@ -7,7 +7,7 @@ import json
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_IMAGE_PATH = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
-MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2.pt")
+MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best.pt")
 
 OUT_IMG = ROOT / "output"
 RUN_NAME = "run1"

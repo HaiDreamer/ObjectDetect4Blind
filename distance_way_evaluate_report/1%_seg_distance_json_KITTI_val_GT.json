@@ -1,6 +1,6 @@
 {
   "task": "segmentation_distance_from_kitti_gt_depth",
-  "generated_at": "2026-01-09T15:35:35",
+  "generated_at": "2026-01-11T09:26:30",
   "sources": {
     "seg_json": "C:\\Python\\ObjectDetect4Blind\\distance_way_evaluate_report\\segment_json_KITTI_val.json",
     "depth_gt_dir": "C:\\Python\\ObjectDetectRequireFile\\put-in-metric-depth\\kitti_root\\val_selection_cropped\\groundtruth_depth",
@@ -12,7 +12,7 @@
     "q": 10.0,
     "subsample": 1,
     "max_depth": 80.0,
-    "bottom_band_frac": 0.1,
+    "bottom_band_frac": 0.01,
     "conf_thr": 0.25,
     "exclude_low_conf": false
   },
@@ -559,19 +559,25 @@
             604.2,
             164.6
           ],
-          "distance_m": 6.30078125,
+          "distance_m": 6.890625,
           "pixel_xy": {
-            "x": 631,
-            "y": 341
+            "x": 592,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2152,
+            "used_px": 33910,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 11,
+                "y1": 164,
+                "x2": 809,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -784,19 +790,25 @@
             617.5,
             172.2
           ],
-          "distance_m": 6.33984375,
+          "distance_m": 7.08984375,
           "pixel_xy": {
-            "x": 701,
-            "y": 343
+            "x": 464,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 621,
+            "used_px": 14838,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 444,
+                "y1": 172,
+                "x2": 739,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -1020,19 +1032,25 @@
             1088.7,
             217.8
           ],
-          "distance_m": 5.19140625,
+          "distance_m": 6.265625,
           "pixel_xy": {
-            "x": 850,
-            "y": 335
+            "x": 906,
+            "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 55,
+            "used_px": 2,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 327,
-              "band_y_max": 338
+              "band_y_start": 337,
+              "band_y_max": 337,
+              "roi": {
+                "x1": 824,
+                "y1": 217,
+                "x2": 1216,
+                "y2": 339
+              }
             },
             "q": 10.0
           }
@@ -1675,19 +1693,25 @@
             1018.4,
             252.0
           ],
-          "distance_m": 5.5625,
+          "distance_m": 5.73828125,
           "pixel_xy": {
-            "x": 1050,
-            "y": 341
+            "x": 1191,
+            "y": 279
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 208,
+            "used_px": 2702,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 341,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 642,
+                "y1": 240,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -1863,19 +1887,25 @@
             161.5,
             271.0
           ],
-          "distance_m": 6.29296875,
+          "distance_m": 6.37109375,
           "pixel_xy": {
-            "x": 92,
-            "y": 345
+            "x": 93,
+            "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 15,
+            "used_px": 258,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 344,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 19,
+                "y1": 271,
+                "x2": 163,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -2687,19 +2717,25 @@
             397.1,
             210.2
           ],
-          "distance_m": 6.28515625,
+          "distance_m": 6.64453125,
           "pixel_xy": {
-            "x": 846,
-            "y": 340
+            "x": 836,
+            "y": 330
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1433,
+            "used_px": 21208,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -3645,19 +3681,25 @@
             1191.3,
             352.0
           ],
-          "distance_m": 6.3203125,
+          "distance_m": 6.66796875,
           "pixel_xy": {
-            "x": 958,
-            "y": 340
+            "x": 1136,
+            "y": 311
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1771,
+            "used_px": 17537,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 19,
+                "y1": 195,
+                "x2": 1195,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -3807,19 +3849,25 @@
             305.9,
             271.0
           ],
-          "distance_m": 6.48828125,
+          "distance_m": 6.453125,
           "pixel_xy": {
-            "x": 123,
-            "y": 331
+            "x": 128,
+            "y": 336
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 103,
+            "used_px": 6,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 330,
-              "band_y_max": 336
+              "band_y_start": 336,
+              "band_y_max": 336,
+              "roi": {
+                "x1": 117,
+                "y1": 271,
+                "x2": 307,
+                "y2": 337
+              }
             },
             "q": 10.0
           }
@@ -4386,19 +4434,25 @@
             1130.5,
             350.8
           ],
-          "distance_m": 6.3828125,
+          "distance_m": 6.6484375,
           "pixel_xy": {
-            "x": 877,
-            "y": 339
+            "x": 917,
+            "y": 334
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1407,
+            "used_px": 9277,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 376,
+                "y1": 179,
+                "x2": 1195,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -4879,19 +4933,25 @@
             967.1,
             347.0
           ],
-          "distance_m": 6.33203125,
+          "distance_m": 6.62890625,
           "pixel_xy": {
-            "x": 784,
-            "y": 342
+            "x": 975,
+            "y": 293
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1077,
+            "used_px": 7809,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 353,
+                "y1": 172,
+                "x2": 995,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -5574,19 +5634,25 @@
             940.5,
             164.6
           ],
-          "distance_m": 6.3046875,
+          "distance_m": 6.58203125,
           "pixel_xy": {
-            "x": 240,
-            "y": 338
+            "x": 956,
+            "y": 331
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1277,
+            "used_px": 8239,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 984,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -6074,19 +6140,25 @@
             286.9,
             271.0
           ],
-          "distance_m": 5.765625,
+          "distance_m": 6.14453125,
           "pixel_xy": {
-            "x": 149,
-            "y": 342
+            "x": 226,
+            "y": 330
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 359,
+            "used_px": 6317,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 233,
+                "x2": 490,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -6315,19 +6387,25 @@
             372.4,
             248.2
           ],
-          "distance_m": 5.73046875,
+          "distance_m": 6.109375,
           "pixel_xy": {
-            "x": 220,
-            "y": 342
+            "x": 228,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 155,
+            "used_px": 7117,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 248,
+                "x2": 429,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -6951,19 +7029,25 @@
             609.9,
             164.6
           ],
-          "distance_m": 6.14453125,
+          "distance_m": 6.5625,
           "pixel_xy": {
-            "x": 365,
-            "y": 342
+            "x": 355,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 3551,
+            "used_px": 31368,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -7588,19 +7672,25 @@
             570.0,
             172.2
           ],
-          "distance_m": 6.203125,
+          "distance_m": 6.6796875,
           "pixel_xy": {
-            "x": 50,
-            "y": 339
+            "x": 182,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2683,
+            "used_px": 28681,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -8281,19 +8371,25 @@
             431.3,
             172.2
           ],
-          "distance_m": 6.32421875,
+          "distance_m": 6.7421875,
           "pixel_xy": {
-            "x": 1159,
-            "y": 338
+            "x": 1210,
+            "y": 326
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2311,
+            "used_px": 25992,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -9230,19 +9326,25 @@
             267.9,
             253.9
           ],
-          "distance_m": 6.26953125,
+          "distance_m": 6.62890625,
           "pixel_xy": {
-            "x": 994,
-            "y": 336
+            "x": 1010,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2652,
+            "used_px": 17171,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 34,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -9929,19 +10031,25 @@
             117.8,
             347.0
           ],
-          "distance_m": 6.07421875,
+          "distance_m": 6.6953125,
           "pixel_xy": {
-            "x": 1052,
-            "y": 335
+            "x": 779,
+            "y": 332
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2158,
+            "used_px": 15829,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 95,
+                "y1": 179,
+                "x2": 1212,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -10623,19 +10731,25 @@
             963.3,
             348.9
           ],
-          "distance_m": 5.93359375,
+          "distance_m": 6.22265625,
           "pixel_xy": {
-            "x": 911,
-            "y": 338
+            "x": 863,
+            "y": 331
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1780,
+            "used_px": 7985,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -11261,19 +11375,25 @@
             1014.6,
             352.0
           ],
-          "distance_m": 6.140625,
+          "distance_m": 6.6796875,
           "pixel_xy": {
-            "x": 805,
-            "y": 339
+            "x": 763,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1506,
+            "used_px": 9996,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 72,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -11440,13 +11560,19 @@
             "y": 224
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 13,
+            "used_px": 1,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 220,
-              "band_y_max": 224
+              "band_y_start": 224,
+              "band_y_max": 224,
+              "roi": {
+                "x1": 672,
+                "y1": 172,
+                "x2": 845,
+                "y2": 225
+              }
             },
             "q": 10.0
           }
@@ -11676,13 +11802,19 @@
             "y": 300
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
             "used_px": 649,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 336,
-              "band_y_max": 345
+              "band_y_start": 345,
+              "band_y_max": 345,
+              "roi": {
+                "x1": 1029,
+                "y1": 240,
+                "x2": 1216,
+                "y2": 347
+              }
             },
             "q": 10.0
           }
@@ -12012,13 +12144,19 @@
             "y": 282
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1730,
+            "used_px": 1729,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 333,
-              "band_y_max": 345
+              "band_y_start": 345,
+              "band_y_max": 345,
+              "roi": {
+                "x1": 931,
+                "y1": 217,
+                "x2": 1216,
+                "y2": 347
+              }
             },
             "q": 10.0
           }
@@ -12327,19 +12465,25 @@
             965.2,
             210.2
           ],
-          "distance_m": 6.35546875,
+          "distance_m": 7.73828125,
           "pixel_xy": {
-            "x": 1207,
-            "y": 319
+            "x": 1138,
+            "y": 283
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1,
+            "used_px": 1818,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 319,
-              "band_y_max": 330
+              "used_fallback_full_polygon": true,
+              "band_y_start": 330,
+              "band_y_max": 330,
+              "roi": {
+                "x1": 923,
+                "y1": 210,
+                "x2": 1216,
+                "y2": 331
+              }
             },
             "q": 10.0
           }
@@ -12678,19 +12822,25 @@
             902.5,
             202.6
           ],
-          "distance_m": 7.38671875,
+          "distance_m": 8.50390625,
           "pixel_xy": {
-            "x": 1074,
-            "y": 302
+            "x": 1129,
+            "y": 264
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 4,
+            "used_px": 1629,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 298,
-              "band_y_max": 307
+              "used_fallback_full_polygon": true,
+              "band_y_start": 307,
+              "band_y_max": 307,
+              "roi": {
+                "x1": 855,
+                "y1": 202,
+                "x2": 1141,
+                "y2": 309
+              }
             },
             "q": 10.0
           }
@@ -12959,13 +13109,19 @@
             "y": 253
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
             "used_px": 1289,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 284,
-              "band_y_max": 292
+              "band_y_start": 292,
+              "band_y_max": 292,
+              "roi": {
+                "x1": 855,
+                "y1": 202,
+                "x2": 1102,
+                "y2": 293
+              }
             },
             "q": 10.0
           }
@@ -13134,13 +13290,19 @@
             "y": 262
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 5,
+            "used_px": 4,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 257,
-              "band_y_max": 262
+              "band_y_start": 262,
+              "band_y_max": 262,
+              "roi": {
+                "x1": 809,
+                "y1": 202,
+                "x2": 969,
+                "y2": 263
+              }
             },
             "q": 10.0
           }
@@ -13239,19 +13401,25 @@
             157.7,
             187.4
           ],
-          "distance_m": 13.9765625,
+          "distance_m": 21.75390625,
           "pixel_xy": {
-            "x": 17,
-            "y": 228
+            "x": 71,
+            "y": 212
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2,
+            "used_px": 1267,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 228,
-              "band_y_max": 231
+              "used_fallback_full_polygon": true,
+              "band_y_start": 231,
+              "band_y_max": 231,
+              "roi": {
+                "x1": 3,
+                "y1": 187,
+                "x2": 159,
+                "y2": 233
+              }
             },
             "q": 10.0
           }
@@ -13693,19 +13861,25 @@
             473.1,
             172.2
           ],
-          "distance_m": 5.7578125,
+          "distance_m": 7.09765625,
           "pixel_xy": {
-            "x": 70,
-            "y": 337
+            "x": 51,
+            "y": 293
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 279,
+            "used_px": 14933,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 475,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -14256,19 +14430,25 @@
             57.0,
             210.2
           ],
-          "distance_m": 5.765625,
+          "distance_m": 7.15625,
           "pixel_xy": {
-            "x": 12,
-            "y": 339
+            "x": 74,
+            "y": 292
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 329,
+            "used_px": 18030,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 476,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -14357,13 +14537,19 @@
             "y": 307
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
             "used_px": 84,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 312,
-              "band_y_max": 315
+              "band_y_start": 315,
+              "band_y_max": 315,
+              "roi": {
+                "x1": 1166,
+                "y1": 271,
+                "x2": 1216,
+                "y2": 316
+              }
             },
             "q": 10.0
           }
@@ -14947,19 +15133,25 @@
             412.3,
             157.0
           ],
-          "distance_m": 6.9453125,
+          "distance_m": 9.54296875,
           "pixel_xy": {
-            "x": 45,
-            "y": 310
+            "x": 72,
+            "y": 247
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 9,
+            "used_px": 12758,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 308,
-              "band_y_max": 324
+              "used_fallback_full_polygon": true,
+              "band_y_start": 323,
+              "band_y_max": 324,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 518,
+                "y2": 326
+              }
             },
             "q": 10.0
           }
@@ -15376,19 +15568,25 @@
             77.9,
             179.8
           ],
-          "distance_m": 7.01953125,
+          "distance_m": 7.0078125,
           "pixel_xy": {
-            "x": 10,
-            "y": 316
+            "x": 8,
+            "y": 322
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 57,
+            "used_px": 1,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 309,
-              "band_y_max": 322
+              "band_y_start": 322,
+              "band_y_max": 322,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 467,
+                "y2": 324
+              }
             },
             "q": 10.0
           }
@@ -15935,19 +16133,25 @@
             513.0,
             164.6
           ],
-          "distance_m": 6.890625,
+          "distance_m": 9.05859375,
           "pixel_xy": {
-            "x": 50,
-            "y": 318
+            "x": 84,
+            "y": 262
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 13,
+            "used_px": 13078,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 318,
-              "band_y_max": 334
+              "used_fallback_full_polygon": true,
+              "band_y_start": 333,
+              "band_y_max": 334,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 514,
+                "y2": 335
+              }
             },
             "q": 10.0
           }
@@ -16454,19 +16658,25 @@
             1052.6,
             233.0
           ],
-          "distance_m": 8.38671875,
+          "distance_m": 8.39453125,
           "pixel_xy": {
-            "x": 1091,
+            "x": 1081,
             "y": 286
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 893,
+            "used_px": 884,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 321,
-              "band_y_max": 330
+              "band_y_start": 330,
+              "band_y_max": 330,
+              "roi": {
+                "x1": 961,
+                "y1": 233,
+                "x2": 1216,
+                "y2": 331
+              }
             },
             "q": 10.0
           }
@@ -16748,19 +16958,25 @@
             760.0,
             248.2
           ],
-          "distance_m": 6.14453125,
+          "distance_m": 6.3359375,
           "pixel_xy": {
-            "x": 797,
-            "y": 342
+            "x": 846,
+            "y": 336
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 185,
+            "used_px": 2502,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 687,
+                "y1": 248,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -16969,19 +17185,25 @@
             824.6,
             263.4
           ],
-          "distance_m": 6.14453125,
+          "distance_m": 6.3984375,
           "pixel_xy": {
-            "x": 931,
-            "y": 344
+            "x": 940,
+            "y": 335
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 98,
+            "used_px": 1763,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 343,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 748,
+                "y1": 263,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -17289,19 +17511,25 @@
             594.7,
             157.0
           ],
-          "distance_m": 21.4296875,
+          "distance_m": 21.375,
           "pixel_xy": {
-            "x": 583,
-            "y": 207
+            "x": 564,
+            "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 139,
+            "used_px": 15,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 204,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 475,
+                "y1": 157,
+                "x2": 750,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -17439,19 +17667,25 @@
             606.1,
             164.6
           ],
-          "distance_m": 22.70703125,
+          "distance_m": 22.50390625,
           "pixel_xy": {
-            "x": 603,
-            "y": 200
+            "x": 539,
+            "y": 201
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 234,
+            "used_px": 69,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 198,
-              "band_y_max": 201
+              "band_y_start": 201,
+              "band_y_max": 201,
+              "roi": {
+                "x1": 452,
+                "y1": 164,
+                "x2": 725,
+                "y2": 202
+              }
             },
             "q": 10.0
           }
@@ -17654,19 +17888,25 @@
             608.0,
             164.6
           ],
-          "distance_m": 20.01171875,
+          "distance_m": 19.7578125,
           "pixel_xy": {
-            "x": 756,
+            "x": 551,
             "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 210,
+            "used_px": 47,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 205,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 452,
+                "y1": 164,
+                "x2": 801,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -17801,19 +18041,25 @@
             609.9,
             164.6
           ],
-          "distance_m": 19.77734375,
+          "distance_m": 19.41015625,
           "pixel_xy": {
-            "x": 453,
+            "x": 437,
             "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 380,
+            "used_px": 97,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 205,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 421,
+                "y1": 164,
+                "x2": 733,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -17984,19 +18230,25 @@
             590.9,
             157.0
           ],
-          "distance_m": 19.65625,
+          "distance_m": 19.38671875,
           "pixel_xy": {
-            "x": 544,
-            "y": 207
+            "x": 433,
+            "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 414,
+            "used_px": 83,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 204,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 421,
+                "y1": 157,
+                "x2": 741,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -18601,19 +18853,25 @@
             471.2,
             210.2
           ],
-          "distance_m": 6.421875,
+          "distance_m": 6.90234375,
           "pixel_xy": {
-            "x": 144,
-            "y": 342
+            "x": 19,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 312,
+            "used_px": 9186,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 473,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -19006,19 +19264,25 @@
             465.5,
             217.8
           ],
-          "distance_m": 6.2734375,
+          "distance_m": 6.6484375,
           "pixel_xy": {
-            "x": 94,
-            "y": 341
+            "x": 86,
+            "y": 327
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 260,
+            "used_px": 6699,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 217,
+                "x2": 467,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -19537,19 +19801,25 @@
             473.1,
             195.0
           ],
-          "distance_m": 6.44140625,
+          "distance_m": 6.375,
           "pixel_xy": {
-            "x": 32,
-            "y": 339
+            "x": 79,
+            "y": 344
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 832,
+            "used_px": 42,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 331,
-              "band_y_max": 345
+              "band_y_start": 344,
+              "band_y_max": 345,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 475,
+                "y2": 347
+              }
             },
             "q": 10.0
           }
@@ -20034,19 +20304,25 @@
             473.1,
             195.0
           ],
-          "distance_m": 6.3203125,
+          "distance_m": 6.77734375,
           "pixel_xy": {
-            "x": 61,
-            "y": 339
+            "x": 78,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 418,
+            "used_px": 7126,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 475,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -20586,19 +20862,25 @@
             495.9,
             195.0
           ],
-          "distance_m": 6.40234375,
+          "distance_m": 7.0390625,
           "pixel_xy": {
-            "x": 78,
-            "y": 342
+            "x": 92,
+            "y": 323
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 322,
+            "used_px": 7225,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 497,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -21205,19 +21487,25 @@
             3.8,
             206.4
           ],
-          "distance_m": 6.4296875,
+          "distance_m": 7.01171875,
           "pixel_xy": {
-            "x": 111,
-            "y": 339
+            "x": 44,
+            "y": 321
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 202,
+            "used_px": 8242,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 484,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -21708,19 +21996,25 @@
             478.8,
             202.6
           ],
-          "distance_m": 6.41015625,
+          "distance_m": 7.0390625,
           "pixel_xy": {
-            "x": 126,
-            "y": 340
+            "x": 145,
+            "y": 321
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 219,
+            "used_px": 7105,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 480,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -22189,19 +22483,25 @@
             38.0,
             352.0
           ],
-          "distance_m": 6.578125,
+          "distance_m": 7.05078125,
           "pixel_xy": {
-            "x": 146,
-            "y": 341
+            "x": 141,
+            "y": 327
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 246,
+            "used_px": 6654,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 452,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -22557,19 +22857,25 @@
             412.3,
             233.0
           ],
-          "distance_m": 6.44921875,
+          "distance_m": 7.01953125,
           "pixel_xy": {
-            "x": 9,
-            "y": 340
+            "x": 84,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 83,
+            "used_px": 7446,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 233,
+                "x2": 414,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -22908,13 +23214,19 @@
             "y": 206
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 5908,
+            "used_px": 5906,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 258,
-              "band_y_max": 267
+              "band_y_start": 267,
+              "band_y_max": 267,
+              "roi": {
+                "x1": 839,
+                "y1": 164,
+                "x2": 1216,
+                "y2": 269
+              }
             },
             "q": 10.0
           }
@@ -23205,19 +23517,25 @@
             961.4,
             172.2
           ],
-          "distance_m": 6.9296875,
+          "distance_m": 7.23828125,
           "pixel_xy": {
-            "x": 1168,
-            "y": 308
+            "x": 903,
+            "y": 204
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2,
+            "used_px": 5653,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 308,
-              "band_y_max": 322
+              "used_fallback_full_polygon": true,
+              "band_y_start": 321,
+              "band_y_max": 322,
+              "roi": {
+                "x1": 900,
+                "y1": 172,
+                "x2": 1216,
+                "y2": 324
+              }
             },
             "q": 10.0
           }
@@ -23656,19 +23974,25 @@
             469.3,
             202.6
           ],
-          "distance_m": 6.40625,
+          "distance_m": 6.90625,
           "pixel_xy": {
-            "x": 165,
-            "y": 340
+            "x": 157,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 253,
+            "used_px": 7657,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 471,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -24111,19 +24435,25 @@
             452.2,
             202.6
           ],
-          "distance_m": 6.42578125,
+          "distance_m": 6.88671875,
           "pixel_xy": {
-            "x": 86,
-            "y": 340
+            "x": 78,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 307,
+            "used_px": 8222,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 454,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -24582,19 +24912,25 @@
             355.3,
             280.5
           ],
-          "distance_m": 6.4921875,
+          "distance_m": 6.8203125,
           "pixel_xy": {
-            "x": 92,
-            "y": 340
+            "x": 71,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 310,
+            "used_px": 7091,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 475,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -24978,13 +25314,19 @@
             "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 2241,
+            "used_px": 2237,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 348,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 309,
+                "x2": 1212,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -25333,19 +25675,25 @@
             427.5,
             225.4
           ],
-          "distance_m": 6.1640625,
+          "distance_m": 6.70703125,
           "pixel_xy": {
-            "x": 155,
-            "y": 341
+            "x": 197,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 98,
+            "used_px": 5021,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 96,
+                "y1": 225,
+                "x2": 429,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -25850,19 +26198,25 @@
             727.7,
             195.0
           ],
-          "distance_m": 6.37109375,
+          "distance_m": 6.62109375,
           "pixel_xy": {
-            "x": 1074,
-            "y": 341
+            "x": 967,
+            "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 352,
+            "used_px": 3128,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 684,
+                "y1": 195,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -26433,19 +26787,25 @@
             746.7,
             187.4
           ],
-          "distance_m": 6.32421875,
+          "distance_m": 6.7421875,
           "pixel_xy": {
-            "x": 1096,
-            "y": 343
+            "x": 1014,
+            "y": 332
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 454,
+            "used_px": 5471,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 672,
+                "y1": 187,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -26906,19 +27266,25 @@
             761.9,
             195.0
           ],
-          "distance_m": 6.328125,
+          "distance_m": 6.6484375,
           "pixel_xy": {
-            "x": 1070,
-            "y": 341
+            "x": 1044,
+            "y": 332
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 439,
+            "used_px": 4461,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 680,
+                "y1": 195,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -27369,19 +27735,25 @@
             822.7,
             217.8
           ],
-          "distance_m": 6.30859375,
+          "distance_m": 6.64453125,
           "pixel_xy": {
-            "x": 1060,
-            "y": 343
+            "x": 1024,
+            "y": 333
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 239,
+            "used_px": 3747,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 720,
+                "y1": 217,
+                "x2": 1212,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -27676,19 +28048,25 @@
             845.5,
             233.0
           ],
-          "distance_m": 6.11328125,
+          "distance_m": 6.46484375,
           "pixel_xy": {
-            "x": 978,
-            "y": 343
+            "x": 936,
+            "y": 334
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 156,
+            "used_px": 2529,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 748,
+                "y1": 233,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -27860,19 +28238,25 @@
             1214.1,
             81.0
           ],
-          "distance_m": 11.38671875,
+          "distance_m": 11.890625,
           "pixel_xy": {
-            "x": 1172,
-            "y": 217
+            "x": 1151,
+            "y": 118
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 96,
+            "used_px": 8321,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 217,
-              "band_y_max": 231
+              "used_fallback_full_polygon": true,
+              "band_y_start": 230,
+              "band_y_max": 231,
+              "roi": {
+                "x1": 908,
+                "y1": 81,
+                "x2": 1216,
+                "y2": 233
+              }
             },
             "q": 10.0
           }
@@ -28026,19 +28410,25 @@
             685.9,
             149.4
           ],
-          "distance_m": 46.7421875,
+          "distance_m": 46.671875,
           "pixel_xy": {
-            "x": 683,
-            "y": 174
+            "x": 684,
+            "y": 176
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 43,
+            "used_px": 17,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 174,
-              "band_y_max": 176
+              "band_y_start": 176,
+              "band_y_max": 176,
+              "roi": {
+                "x1": 665,
+                "y1": 149,
+                "x2": 733,
+                "y2": 177
+              }
             },
             "q": 10.0
           }
@@ -28065,19 +28455,25 @@
             676.4,
             179.8
           ],
-          "distance_m": 26.24609375,
+          "distance_m": 26.2109375,
           "pixel_xy": {
-            "x": 556,
+            "x": 562,
             "y": 201
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 171,
+            "used_px": 63,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 200,
-              "band_y_max": 201
+              "band_y_start": 201,
+              "band_y_max": 201,
+              "roi": {
+                "x1": 482,
+                "y1": 179,
+                "x2": 687,
+                "y2": 202
+              }
             },
             "q": 10.0
           }
@@ -28136,19 +28532,25 @@
             727.7,
             149.4
           ],
-          "distance_m": 44.11328125,
+          "distance_m": 44.97265625,
           "pixel_xy": {
-            "x": 682,
-            "y": 174
+            "x": 685,
+            "y": 176
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 38,
+            "used_px": 13,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 174,
-              "band_y_max": 176
+              "band_y_start": 176,
+              "band_y_max": 176,
+              "roi": {
+                "x1": 665,
+                "y1": 149,
+                "x2": 729,
+                "y2": 177
+              }
             },
             "q": 10.0
           }
@@ -28209,19 +28611,25 @@
             737.2,
             149.4
           ],
-          "distance_m": 40.34375,
+          "distance_m": 40.99609375,
           "pixel_xy": {
-            "x": 696,
-            "y": 174
+            "x": 695,
+            "y": 176
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 44,
+            "used_px": 14,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 174,
-              "band_y_max": 176
+              "band_y_start": 176,
+              "band_y_max": 176,
+              "roi": {
+                "x1": 672,
+                "y1": 149,
+                "x2": 739,
+                "y2": 177
+              }
             },
             "q": 10.0
           }
@@ -28278,19 +28686,25 @@
             752.4,
             157.0
           ],
-          "distance_m": 32.09375,
+          "distance_m": 32.0,
           "pixel_xy": {
-            "x": 686,
+            "x": 703,
             "y": 193
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 47,
+            "used_px": 12,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 190,
-              "band_y_max": 193
+              "band_y_start": 193,
+              "band_y_max": 193,
+              "roi": {
+                "x1": 680,
+                "y1": 157,
+                "x2": 754,
+                "y2": 195
+              }
             },
             "q": 10.0
           }
@@ -28355,19 +28769,25 @@
             777.1,
             149.4
           ],
-          "distance_m": 31.65625,
+          "distance_m": 31.92578125,
           "pixel_xy": {
-            "x": 721,
-            "y": 186
+            "x": 725,
+            "y": 185
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 19,
+            "used_px": 3,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 183,
-              "band_y_max": 186
+              "band_y_start": 185,
+              "band_y_max": 185,
+              "roi": {
+                "x1": 687,
+                "y1": 149,
+                "x2": 779,
+                "y2": 187
+              }
             },
             "q": 10.0
           }
@@ -28483,13 +28903,19 @@
             "y": 201
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 47,
+            "used_px": 6,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 198,
-              "band_y_max": 201
+              "band_y_start": 201,
+              "band_y_max": 201,
+              "roi": {
+                "x1": 718,
+                "y1": 157,
+                "x2": 834,
+                "y2": 202
+              }
             },
             "q": 10.0
           }
@@ -28558,13 +28984,19 @@
             "y": 232
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 44,
+            "used_px": 43,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 293,
-              "band_y_max": 300
+              "band_y_start": 299,
+              "band_y_max": 299,
+              "roi": {
+                "x1": 3,
+                "y1": 225,
+                "x2": 64,
+                "y2": 301
+              }
             },
             "q": 10.0
           }
@@ -28691,19 +29123,25 @@
             790.4,
             149.4
           ],
-          "distance_m": 18.98828125,
+          "distance_m": 19.12890625,
           "pixel_xy": {
-            "x": 824,
-            "y": 205
+            "x": 818,
+            "y": 206
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 125,
+            "used_px": 17,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 201,
-              "band_y_max": 206
+              "band_y_start": 206,
+              "band_y_max": 206,
+              "roi": {
+                "x1": 741,
+                "y1": 149,
+                "x2": 898,
+                "y2": 208
+              }
             },
             "q": 10.0
           }
@@ -28875,19 +29313,25 @@
             330.6,
             248.2
           ],
-          "distance_m": 6.17578125,
+          "distance_m": 6.90234375,
           "pixel_xy": {
-            "x": 141,
-            "y": 344
+            "x": 97,
+            "y": 321
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 88,
+            "used_px": 7823,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 248,
+                "x2": 399,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -29289,19 +29733,25 @@
             408.5,
             255.8
           ],
-          "distance_m": 6.35546875,
+          "distance_m": 6.875,
           "pixel_xy": {
             "x": 109,
-            "y": 341
+            "y": 323
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 132,
+            "used_px": 9070,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 229,
+                "x2": 482,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -29698,19 +30148,25 @@
             389.5,
             233.0
           ],
-          "distance_m": 6.21875,
+          "distance_m": 6.73046875,
           "pixel_xy": {
-            "x": 14,
-            "y": 339
+            "x": 10,
+            "y": 322
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 270,
+            "used_px": 7520,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 448,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -30362,19 +30818,25 @@
             72.2,
             348.9
           ],
-          "distance_m": 6.109375,
+          "distance_m": 6.70703125,
           "pixel_xy": {
-            "x": 131,
-            "y": 340
+            "x": 123,
+            "y": 319
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 487,
+            "used_px": 9467,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 562,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -31003,19 +31465,25 @@
             554.8,
             168.4
           ],
-          "distance_m": 6.05859375,
+          "distance_m": 6.58984375,
           "pixel_xy": {
-            "x": 54,
-            "y": 338
+            "x": 130,
+            "y": 321
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 613,
+            "used_px": 11318,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 168,
+                "x2": 558,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -31595,19 +32063,25 @@
             524.4,
             179.8
           ],
-          "distance_m": 5.9140625,
+          "distance_m": 6.5078125,
           "pixel_xy": {
-            "x": 164,
-            "y": 343
+            "x": 169,
+            "y": 293
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 247,
+            "used_px": 6550,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 526,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -32181,19 +32655,25 @@
             497.8,
             195.0
           ],
-          "distance_m": 6.3046875,
+          "distance_m": 6.81640625,
           "pixel_xy": {
-            "x": 137,
-            "y": 344
+            "x": 58,
+            "y": 320
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 231,
+            "used_px": 7012,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 499,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -32771,19 +33251,25 @@
             530.1,
             172.2
           ],
-          "distance_m": 6.37109375,
+          "distance_m": 6.984375,
           "pixel_xy": {
-            "x": 93,
-            "y": 342
+            "x": 199,
+            "y": 307
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 424,
+            "used_px": 6656,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 532,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -33406,19 +33892,25 @@
             38.0,
             352.0
           ],
-          "distance_m": 6.44921875,
+          "distance_m": 7.2578125,
           "pixel_xy": {
-            "x": 103,
-            "y": 340
+            "x": 178,
+            "y": 320
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 250,
+            "used_px": 7697,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 516,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -33941,19 +34433,25 @@
             503.5,
             179.8
           ],
-          "distance_m": 6.4921875,
+          "distance_m": 7.07421875,
           "pixel_xy": {
-            "x": 102,
-            "y": 339
+            "x": 79,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 425,
+            "used_px": 8981,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 505,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -34415,19 +34913,25 @@
             488.3,
             195.0
           ],
-          "distance_m": 6.4453125,
+          "distance_m": 6.91015625,
           "pixel_xy": {
-            "x": 68,
-            "y": 339
+            "x": 137,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 423,
+            "used_px": 10222,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 490,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -34806,19 +35310,25 @@
             444.6,
             217.8
           ],
-          "distance_m": 6.32421875,
+          "distance_m": 6.8515625,
           "pixel_xy": {
-            "x": 81,
-            "y": 341
+            "x": 51,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 238,
+            "used_px": 10244,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 217,
+                "x2": 446,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -35083,19 +35593,25 @@
             533.9,
             179.8
           ],
-          "distance_m": 9.46484375,
+          "distance_m": 8.90625,
           "pixel_xy": {
-            "x": 302,
-            "y": 276
+            "x": 334,
+            "y": 277
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 384,
+            "used_px": 44,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 268,
-              "band_y_max": 277
+              "band_y_start": 277,
+              "band_y_max": 277,
+              "roi": {
+                "x1": 300,
+                "y1": 179,
+                "x2": 535,
+                "y2": 278
+              }
             },
             "q": 10.0
           }
@@ -35286,19 +35802,25 @@
             1048.8,
             255.8
           ],
-          "distance_m": 6.2109375,
+          "distance_m": 6.6328125,
           "pixel_xy": {
-            "x": 1084,
-            "y": 343
+            "x": 1041,
+            "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 48,
+            "used_px": 2384,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 946,
+                "y1": 255,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -35802,19 +36324,25 @@
             469.3,
             179.8
           ],
-          "distance_m": 6.171875,
+          "distance_m": 6.6640625,
           "pixel_xy": {
-            "x": 55,
-            "y": 339
+            "x": 69,
+            "y": 323
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 439,
+            "used_px": 8682,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 511,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -36251,19 +36779,25 @@
             429.4,
             233.0
           ],
-          "distance_m": 6.51953125,
+          "distance_m": 7.5234375,
           "pixel_xy": {
-            "x": 26,
-            "y": 341
+            "x": 131,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 42,
+            "used_px": 7481,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 233,
+                "x2": 431,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -36922,19 +37456,25 @@
             473.1,
             187.4
           ],
-          "distance_m": 6.40625,
+          "distance_m": 7.41796875,
           "pixel_xy": {
-            "x": 100,
-            "y": 343
+            "x": 69,
+            "y": 313
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 168,
+            "used_px": 8811,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 187,
+                "x2": 475,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -37083,19 +37623,25 @@
             1162.8,
             210.2
           ],
-          "distance_m": 5.26171875,
+          "distance_m": 5.19921875,
           "pixel_xy": {
-            "x": 1095,
-            "y": 325
+            "x": 1102,
+            "y": 328
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 198,
+            "used_px": 7,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 317,
-              "band_y_max": 328
+              "band_y_start": 328,
+              "band_y_max": 328,
+              "roi": {
+                "x1": 991,
+                "y1": 210,
+                "x2": 1216,
+                "y2": 329
+              }
             },
             "q": 10.0
           }
@@ -37629,19 +38175,25 @@
             440.8,
             202.6
           ],
-          "distance_m": 6.5859375,
+          "distance_m": 7.55859375,
           "pixel_xy": {
-            "x": 93,
-            "y": 340
+            "x": 73,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 170,
+            "used_px": 7535,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 442,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -37716,19 +38268,25 @@
             708.7,
             179.8
           ],
-          "distance_m": 19.76171875,
+          "distance_m": 19.7265625,
           "pixel_xy": {
-            "x": 694,
+            "x": 695,
             "y": 206
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 17,
+            "used_px": 5,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 204,
-              "band_y_max": 206
+              "band_y_start": 206,
+              "band_y_max": 206,
+              "roi": {
+                "x1": 657,
+                "y1": 179,
+                "x2": 710,
+                "y2": 208
+              }
             },
             "q": 10.0
           }
@@ -37962,19 +38520,25 @@
             121.6,
             149.4
           ],
-          "distance_m": 9.98046875,
+          "distance_m": 9.9921875,
           "pixel_xy": {
-            "x": 5,
-            "y": 278
+            "x": 11,
+            "y": 284
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 87,
+            "used_px": 3,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 271,
-              "band_y_max": 284
+              "band_y_start": 284,
+              "band_y_max": 284,
+              "roi": {
+                "x1": 3,
+                "y1": 149,
+                "x2": 214,
+                "y2": 286
+              }
             },
             "q": 10.0
           }
@@ -38408,19 +38972,25 @@
             796.1,
             202.6
           ],
-          "distance_m": 5.24609375,
+          "distance_m": 5.875,
           "pixel_xy": {
-            "x": 1099,
-            "y": 343
+            "x": 1063,
+            "y": 315
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 644,
+            "used_px": 13802,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 718,
+                "y1": 202,
+                "x2": 1197,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -38739,19 +39309,25 @@
             866.4,
             225.4
           ],
-          "distance_m": 5.3203125,
+          "distance_m": 6.01171875,
           "pixel_xy": {
-            "x": 1179,
-            "y": 339
+            "x": 1193,
+            "y": 314
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 597,
+            "used_px": 14376,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 756,
+                "y1": 225,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -39160,19 +39736,25 @@
             836.0,
             324.2
           ],
-          "distance_m": 5.30859375,
+          "distance_m": 5.8828125,
           "pixel_xy": {
-            "x": 1120,
-            "y": 344
+            "x": 1148,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 446,
+            "used_px": 7570,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 771,
+                "y1": 233,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -39254,19 +39836,25 @@
             267.9,
             187.4
           ],
-          "distance_m": 13.5390625,
+          "distance_m": 13.515625,
           "pixel_xy": {
-            "x": 235,
-            "y": 214
+            "x": 226,
+            "y": 203
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 4,
+            "used_px": 626,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 214,
-              "band_y_max": 216
+              "used_fallback_full_polygon": true,
+              "band_y_start": 216,
+              "band_y_max": 216,
+              "roi": {
+                "x1": 193,
+                "y1": 187,
+                "x2": 269,
+                "y2": 217
+              }
             },
             "q": 10.0
           }
@@ -39477,19 +40065,25 @@
             296.4,
             242.5
           ],
-          "distance_m": 8.890625,
+          "distance_m": 8.81640625,
           "pixel_xy": {
-            "x": 289,
+            "x": 285,
             "y": 292
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 135,
+            "used_px": 21,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 285,
-              "band_y_max": 292
+              "band_y_start": 292,
+              "band_y_max": 292,
+              "roi": {
+                "x1": 133,
+                "y1": 210,
+                "x2": 315,
+                "y2": 293
+              }
             },
             "q": 10.0
           }
@@ -39566,19 +40160,25 @@
             1012.7,
             149.4
           ],
-          "distance_m": 21.8125,
+          "distance_m": 21.7578125,
           "pixel_xy": {
-            "x": 891,
+            "x": 893,
             "y": 193
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 21,
+            "used_px": 11,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 190,
-              "band_y_max": 193
+              "band_y_start": 193,
+              "band_y_max": 193,
+              "roi": {
+                "x1": 885,
+                "y1": 149,
+                "x2": 1014,
+                "y2": 195
+              }
             },
             "q": 10.0
           }
@@ -39669,19 +40269,25 @@
             1043.1,
             149.4
           ],
-          "distance_m": 17.6328125,
+          "distance_m": 17.73046875,
           "pixel_xy": {
-            "x": 876,
-            "y": 191
+            "x": 878,
+            "y": 193
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 118,
+            "used_px": 36,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 190,
-              "band_y_max": 193
+              "band_y_start": 193,
+              "band_y_max": 193,
+              "roi": {
+                "x1": 870,
+                "y1": 149,
+                "x2": 1045,
+                "y2": 195
+              }
             },
             "q": 10.0
           }
@@ -39736,19 +40342,25 @@
             442.7,
             164.6
           ],
-          "distance_m": 12.76171875,
+          "distance_m": 12.73828125,
           "pixel_xy": {
-            "x": 329,
-            "y": 191
+            "x": 336,
+            "y": 193
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 44,
+            "used_px": 15,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 191,
-              "band_y_max": 193
+              "band_y_start": 193,
+              "band_y_max": 193,
+              "roi": {
+                "x1": 323,
+                "y1": 164,
+                "x2": 444,
+                "y2": 195
+              }
             },
             "q": 10.0
           }
@@ -39836,19 +40448,25 @@
             940.5,
             157.0
           ],
-          "distance_m": 14.90234375,
+          "distance_m": 14.9453125,
           "pixel_xy": {
-            "x": 779,
-            "y": 205
+            "x": 785,
+            "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 30,
+            "used_px": 8,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 204,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 779,
+                "y1": 157,
+                "x2": 942,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -39941,19 +40559,25 @@
             866.4,
             157.0
           ],
-          "distance_m": 13.6484375,
+          "distance_m": 18.125,
           "pixel_xy": {
-            "x": 707,
-            "y": 205
+            "x": 728,
+            "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 50,
+            "used_px": 5,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 204,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 695,
+                "y1": 157,
+                "x2": 868,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -40098,19 +40722,25 @@
             984.2,
             195.0
           ],
-          "distance_m": 11.81640625,
+          "distance_m": 13.421875,
           "pixel_xy": {
             "x": 984,
-            "y": 247
+            "y": 231
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1,
+            "used_px": 1054,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 247,
-              "band_y_max": 252
+              "used_fallback_full_polygon": true,
+              "band_y_start": 252,
+              "band_y_max": 252,
+              "roi": {
+                "x1": 938,
+                "y1": 195,
+                "x2": 1018,
+                "y2": 253
+              }
             },
             "q": 10.0
           }
@@ -40262,19 +40892,25 @@
             940.5,
             164.6
           ],
-          "distance_m": 20.296875,
+          "distance_m": 20.3828125,
           "pixel_xy": {
-            "x": 911,
-            "y": 190
+            "x": 908,
+            "y": 189
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 503,
+            "used_px": 504,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 219,
-              "band_y_max": 224
+              "band_y_start": 224,
+              "band_y_max": 224,
+              "roi": {
+                "x1": 885,
+                "y1": 164,
+                "x2": 969,
+                "y2": 225
+              }
             },
             "q": 10.0
           }
@@ -40456,13 +41092,19 @@
             "y": 203
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 692,
+            "used_px": 691,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 224,
-              "band_y_max": 229
+              "band_y_start": 229,
+              "band_y_max": 229,
+              "roi": {
+                "x1": 733,
+                "y1": 172,
+                "x2": 801,
+                "y2": 231
+              }
             },
             "q": 10.0
           }
@@ -40752,19 +41394,25 @@
             739.1,
             179.8
           ],
-          "distance_m": 9.703125,
+          "distance_m": 9.6953125,
           "pixel_xy": {
-            "x": 846,
+            "x": 848,
             "y": 264
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 3453,
+            "used_px": 3448,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 302,
-              "band_y_max": 315
+              "band_y_start": 315,
+              "band_y_max": 315,
+              "roi": {
+                "x1": 718,
+                "y1": 179,
+                "x2": 923,
+                "y2": 316
+              }
             },
             "q": 10.0
           }
@@ -41179,19 +41827,25 @@
             741.0,
             179.8
           ],
-          "distance_m": 5.6328125,
+          "distance_m": 6.3046875,
           "pixel_xy": {
-            "x": 1046,
-            "y": 338
+            "x": 1091,
+            "y": 314
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 514,
+            "used_px": 13775,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 718,
+                "y1": 179,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -41700,19 +42354,25 @@
             763.8,
             187.4
           ],
-          "distance_m": 5.515625,
+          "distance_m": 6.15234375,
           "pixel_xy": {
-            "x": 1199,
-            "y": 336
+            "x": 1100,
+            "y": 319
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 737,
+            "used_px": 17125,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 733,
+                "y1": 187,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -41821,19 +42481,25 @@
             771.4,
             172.2
           ],
-          "distance_m": 9.14453125,
+          "distance_m": 9.1796875,
           "pixel_xy": {
-            "x": 751,
-            "y": 206
+            "x": 750,
+            "y": 208
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 27,
+            "used_px": 1,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 205,
-              "band_y_max": 208
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 710,
+                "y1": 172,
+                "x2": 775,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -42008,19 +42674,25 @@
             729.6,
             164.6
           ],
-          "distance_m": 13.99609375,
+          "distance_m": 15.875,
           "pixel_xy": {
-            "x": 775,
-            "y": 224
+            "x": 776,
+            "y": 207
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 8,
+            "used_px": 1914,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 222,
-              "band_y_max": 227
+              "used_fallback_full_polygon": true,
+              "band_y_start": 227,
+              "band_y_max": 227,
+              "roi": {
+                "x1": 703,
+                "y1": 164,
+                "x2": 855,
+                "y2": 229
+              }
             },
             "q": 10.0
           }
@@ -42227,19 +42899,25 @@
             70.3,
             263.4
           ],
-          "distance_m": 6.859375,
+          "distance_m": 7.21484375,
           "pixel_xy": {
-            "x": 5,
-            "y": 331
+            "x": 22,
+            "y": 320
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 21,
+            "used_px": 664,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 330,
-              "band_y_max": 336
+              "used_fallback_full_polygon": true,
+              "band_y_start": 336,
+              "band_y_max": 336,
+              "roi": {
+                "x1": 0,
+                "y1": 263,
+                "x2": 95,
+                "y2": 337
+              }
             },
             "q": 10.0
           }
@@ -42444,13 +43122,19 @@
             "y": 333
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
             "used_px": 611,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 345,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 286,
+                "x2": 171,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -42640,13 +43324,19 @@
             "y": 344
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 363,
+            "used_px": 362,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 347,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 953,
+                "y1": 301,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -43371,19 +44061,25 @@
             159.6,
             347.0
           ],
-          "distance_m": 5.76171875,
+          "distance_m": 6.3984375,
           "pixel_xy": {
-            "x": 177,
-            "y": 341
+            "x": 189,
+            "y": 313
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 489,
+            "used_px": 9073,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 803,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -44098,19 +44794,25 @@
             89.3,
             348.9
           ],
-          "distance_m": 5.6015625,
+          "distance_m": 6.28125,
           "pixel_xy": {
-            "x": 188,
-            "y": 339
+            "x": 242,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 556,
+            "used_px": 8571,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 19,
+                "y1": 172,
+                "x2": 714,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -44910,19 +45612,25 @@
             530.1,
             200.7
           ],
-          "distance_m": 5.609375,
+          "distance_m": 6.3359375,
           "pixel_xy": {
-            "x": 61,
-            "y": 334
+            "x": 163,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 621,
+            "used_px": 8935,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 349
+              "used_fallback_full_polygon": true,
+              "band_y_start": 348,
+              "band_y_max": 349,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 611,
+                "y2": 350
+              }
             },
             "q": 10.0
           }
@@ -45563,19 +46271,25 @@
             34.2,
             181.7
           ],
-          "distance_m": 5.8671875,
+          "distance_m": 6.5234375,
           "pixel_xy": {
-            "x": 46,
-            "y": 337
+            "x": 123,
+            "y": 326
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 686,
+            "used_px": 7228,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 543,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -46261,19 +46975,25 @@
             347.7,
             248.2
           ],
-          "distance_m": 5.8046875,
+          "distance_m": 6.49609375,
           "pixel_xy": {
-            "x": 19,
-            "y": 333
+            "x": 67,
+            "y": 322
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 551,
+            "used_px": 7637,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 541,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -47036,19 +47756,25 @@
             81.7,
             164.6
           ],
-          "distance_m": 6.0546875,
+          "distance_m": 6.79296875,
           "pixel_xy": {
-            "x": 56,
-            "y": 336
+            "x": 138,
+            "y": 325
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 462,
+            "used_px": 7126,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 554,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -47778,19 +48504,25 @@
             551.0,
             172.2
           ],
-          "distance_m": 6.16796875,
+          "distance_m": 6.90625,
           "pixel_xy": {
-            "x": 107,
-            "y": 337
+            "x": 151,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 414,
+            "used_px": 6810,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 552,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -48483,19 +49215,25 @@
             530.1,
             172.2
           ],
-          "distance_m": 5.6640625,
+          "distance_m": 6.9375,
           "pixel_xy": {
-            "x": 15,
-            "y": 338
+            "x": 120,
+            "y": 309
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 170,
+            "used_px": 4630,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 532,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -49370,19 +50108,25 @@
             3.8,
             324.2
           ],
-          "distance_m": 6.05859375,
+          "distance_m": 6.7734375,
           "pixel_xy": {
-            "x": 98,
-            "y": 342
+            "x": 132,
+            "y": 311
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 414,
+            "used_px": 7150,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 349
+              "used_fallback_full_polygon": true,
+              "band_y_start": 348,
+              "band_y_max": 349,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 522,
+                "y2": 350
+              }
             },
             "q": 10.0
           }
@@ -50037,19 +50781,25 @@
             543.4,
             172.2
           ],
-          "distance_m": 5.8203125,
+          "distance_m": 6.7421875,
           "pixel_xy": {
-            "x": 36,
-            "y": 343
+            "x": 84,
+            "y": 316
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 428,
+            "used_px": 8026,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 545,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -50840,19 +51590,25 @@
             108.3,
             267.2
           ],
-          "distance_m": 6.6484375,
+          "distance_m": 6.625,
           "pixel_xy": {
-            "x": 169,
-            "y": 330
+            "x": 178,
+            "y": 338
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 231,
+            "used_px": 7,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 325,
-              "band_y_max": 339
+              "band_y_start": 338,
+              "band_y_max": 339,
+              "roi": {
+                "x1": 3,
+                "y1": 189,
+                "x2": 513,
+                "y2": 341
+              }
             },
             "q": 10.0
           }
@@ -51814,19 +52570,25 @@
             199.5,
             324.2
           ],
-          "distance_m": 5.875,
+          "distance_m": 6.625,
           "pixel_xy": {
-            "x": 73,
-            "y": 333
+            "x": 140,
+            "y": 317
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 362,
+            "used_px": 8513,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 349
+              "used_fallback_full_polygon": true,
+              "band_y_start": 348,
+              "band_y_max": 349,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 562,
+                "y2": 350
+              }
             },
             "q": 10.0
           }
@@ -52627,19 +53389,25 @@
             47.5,
             177.9
           ],
-          "distance_m": 5.8203125,
+          "distance_m": 6.6484375,
           "pixel_xy": {
-            "x": 31,
-            "y": 342
+            "x": 89,
+            "y": 313
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 432,
+            "used_px": 7397,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 564,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -53163,19 +53931,25 @@
             456.0,
             164.6
           ],
-          "distance_m": 9.11328125,
+          "distance_m": 9.05078125,
           "pixel_xy": {
-            "x": 4,
-            "y": 276
+            "x": 6,
+            "y": 286
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 127,
+            "used_px": 9,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 275,
-              "band_y_max": 286
+              "band_y_start": 286,
+              "band_y_max": 286,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 459,
+                "y2": 288
+              }
             },
             "q": 10.0
           }
@@ -53634,19 +54408,25 @@
             463.6,
             172.2
           ],
-          "distance_m": 8.86328125,
+          "distance_m": 9.98046875,
           "pixel_xy": {
-            "x": 33,
-            "y": 289
+            "x": 63,
+            "y": 261
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 39,
+            "used_px": 4937,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 286,
-              "band_y_max": 298
+              "used_fallback_full_polygon": true,
+              "band_y_start": 298,
+              "band_y_max": 298,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 465,
+                "y2": 299
+              }
             },
             "q": 10.0
           }
@@ -54076,19 +54856,25 @@
             423.7,
             179.8
           ],
-          "distance_m": 9.0625,
+          "distance_m": 10.08203125,
           "pixel_xy": {
-            "x": 33,
-            "y": 286
+            "x": 45,
+            "y": 262
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 23,
+            "used_px": 4691,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 285,
-              "band_y_max": 296
+              "used_fallback_full_polygon": true,
+              "band_y_start": 296,
+              "band_y_max": 296,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 425,
+                "y2": 297
+              }
             },
             "q": 10.0
           }
@@ -54512,19 +55298,25 @@
             408.5,
             179.8
           ],
-          "distance_m": 10.37890625,
+          "distance_m": 10.37109375,
           "pixel_xy": {
-            "x": 53,
+            "x": 75,
             "y": 258
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 4594,
+            "used_px": 4599,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 289,
-              "band_y_max": 300
+              "band_y_start": 299,
+              "band_y_max": 299,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 410,
+                "y2": 301
+              }
             },
             "q": 10.0
           }
@@ -54916,19 +55708,25 @@
             385.7,
             187.4
           ],
-          "distance_m": 9.3359375,
+          "distance_m": 10.2421875,
           "pixel_xy": {
-            "x": 31,
-            "y": 279
+            "x": 56,
+            "y": 251
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 13,
+            "used_px": 4057,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 279,
-              "band_y_max": 288
+              "used_fallback_full_polygon": true,
+              "band_y_start": 288,
+              "band_y_max": 288,
+              "roi": {
+                "x1": 3,
+                "y1": 187,
+                "x2": 387,
+                "y2": 290
+              }
             },
             "q": 10.0
           }
@@ -55097,19 +55895,25 @@
             864.5,
             210.2
           ],
-          "distance_m": 11.703125,
+          "distance_m": 11.65625,
           "pixel_xy": {
-            "x": 856,
+            "x": 859,
             "y": 231
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 42,
+            "used_px": 25,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 230,
-              "band_y_max": 231
+              "band_y_start": 231,
+              "band_y_max": 231,
+              "roi": {
+                "x1": 794,
+                "y1": 210,
+                "x2": 866,
+                "y2": 233
+              }
             },
             "q": 10.0
           }
@@ -55249,19 +56053,25 @@
             1214.1,
             73.4
           ],
-          "distance_m": 7.2265625,
+          "distance_m": 6.6640625,
           "pixel_xy": {
-            "x": 1113,
-            "y": 197
+            "x": 1156,
+            "y": 135
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 20,
+            "used_px": 108,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 195,
-              "band_y_max": 208
+              "used_fallback_full_polygon": true,
+              "band_y_start": 208,
+              "band_y_max": 208,
+              "roi": {
+                "x1": 1083,
+                "y1": 73,
+                "x2": 1216,
+                "y2": 210
+              }
             },
             "q": 10.0
           }
@@ -55473,19 +56283,25 @@
             655.5,
             255.8
           ],
-          "distance_m": 5.98828125,
+          "distance_m": 6.5625,
           "pixel_xy": {
-            "x": 751,
-            "y": 344
+            "x": 726,
+            "y": 326
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 168,
+            "used_px": 7964,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 247,
+                "y1": 255,
+                "x2": 801,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -55749,19 +56565,25 @@
             912.0,
             309.0
           ],
-          "distance_m": 5.8984375,
+          "distance_m": 6.140625,
           "pixel_xy": {
-            "x": 758,
-            "y": 345
+            "x": 764,
+            "y": 336
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 71,
+            "used_px": 9094,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 345,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 300,
+                "y1": 286,
+                "x2": 969,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -56088,19 +56910,25 @@
             993.7,
             352.0
           ],
-          "distance_m": 6.15625,
+          "distance_m": 6.5703125,
           "pixel_xy": {
-            "x": 885,
-            "y": 342
+            "x": 839,
+            "y": 335
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 143,
+            "used_px": 2815,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 733,
+                "y1": 255,
+                "x2": 1210,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -56306,19 +57134,25 @@
             169.1,
             278.6
           ],
-          "distance_m": 7.0625,
+          "distance_m": 7.31640625,
           "pixel_xy": {
-            "x": 118,
-            "y": 346
+            "x": 50,
+            "y": 337
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 23,
+            "used_px": 1065,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 345,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 278,
+                "x2": 171,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -56570,19 +57404,25 @@
             684.0,
             195.0
           ],
-          "distance_m": 6.01171875,
+          "distance_m": 6.6953125,
           "pixel_xy": {
-            "x": 840,
-            "y": 341
+            "x": 861,
+            "y": 318
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 223,
+            "used_px": 5227,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 665,
+                "y1": 195,
+                "x2": 893,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -56940,19 +57780,25 @@
             427.5,
             210.2
           ],
-          "distance_m": 7.46875,
+          "distance_m": 9.34375,
           "pixel_xy": {
-            "x": 160,
-            "y": 329
+            "x": 199,
+            "y": 288
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 16,
+            "used_px": 4662,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 319,
-              "band_y_max": 330
+              "used_fallback_full_polygon": true,
+              "band_y_start": 330,
+              "band_y_max": 330,
+              "roi": {
+                "x1": 155,
+                "y1": 210,
+                "x2": 429,
+                "y2": 331
+              }
             },
             "q": 10.0
           }
@@ -57117,19 +57963,25 @@
             780.9,
             217.8
           ],
-          "distance_m": 5.89453125,
+          "distance_m": 6.34765625,
           "pixel_xy": {
-            "x": 869,
-            "y": 344
+            "x": 808,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 161,
+            "used_px": 3201,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 703,
+                "y1": 217,
+                "x2": 904,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -57376,19 +58228,25 @@
             1088.7,
             223.5
           ],
-          "distance_m": 5.8984375,
+          "distance_m": 6.29296875,
           "pixel_xy": {
-            "x": 898,
-            "y": 340
+            "x": 860,
+            "y": 330
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 157,
+            "used_px": 3180,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 703,
+                "y1": 217,
+                "x2": 1113,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -57782,19 +58640,25 @@
             351.5,
             233.0
           ],
-          "distance_m": 6.49609375,
+          "distance_m": 7.27734375,
           "pixel_xy": {
-            "x": 96,
-            "y": 346
+            "x": 87,
+            "y": 321
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 106,
+            "used_px": 5453,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 233,
+                "x2": 353,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -57944,19 +58808,25 @@
             180.5,
             278.6
           ],
-          "distance_m": 6.46484375,
+          "distance_m": 6.828125,
           "pixel_xy": {
-            "x": 58,
-            "y": 345
+            "x": 83,
+            "y": 331
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 10,
+            "used_px": 2133,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 345,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 278,
+                "x2": 201,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -58100,19 +58970,25 @@
             809.4,
             187.4
           ],
-          "distance_m": 15.80078125,
+          "distance_m": 15.8125,
           "pixel_xy": {
             "x": 756,
-            "y": 221
+            "y": 223
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 3,
+            "used_px": 1,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 221,
-              "band_y_max": 224
+              "band_y_start": 223,
+              "band_y_max": 223,
+              "roi": {
+                "x1": 756,
+                "y1": 187,
+                "x2": 811,
+                "y2": 225
+              }
             },
             "q": 10.0
           }
@@ -58235,19 +59111,25 @@
             883.5,
             195.0
           ],
-          "distance_m": 12.9140625,
+          "distance_m": 12.91015625,
           "pixel_xy": {
-            "x": 775,
-            "y": 210
+            "x": 771,
+            "y": 205
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1722,
+            "used_px": 1724,
             "band": {
               "used_fallback_full_polygon": true,
-              "band_y_start": 249,
-              "band_y_max": 254
+              "band_y_start": 254,
+              "band_y_max": 254,
+              "roi": {
+                "x1": 771,
+                "y1": 195,
+                "x2": 885,
+                "y2": 255
+              }
             },
             "q": 10.0
           }
@@ -58324,19 +59206,25 @@
             632.7,
             172.2
           ],
-          "distance_m": 21.9453125,
+          "distance_m": 21.8828125,
           "pixel_xy": {
-            "x": 626,
-            "y": 205
+            "x": 605,
+            "y": 206
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 112,
+            "used_px": 21,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 203,
-              "band_y_max": 206
+              "band_y_start": 206,
+              "band_y_max": 206,
+              "roi": {
+                "x1": 589,
+                "y1": 172,
+                "x2": 657,
+                "y2": 208
+              }
             },
             "q": 10.0
           }
@@ -58720,19 +59608,25 @@
             1031.7,
             337.5
           ],
-          "distance_m": 5.92578125,
+          "distance_m": 6.21484375,
           "pixel_xy": {
-            "x": 935,
-            "y": 343
+            "x": 910,
+            "y": 335
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 396,
+            "used_px": 6269,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 341,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 718,
+                "y1": 240,
+                "x2": 1083,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -59029,19 +59923,25 @@
             769.5,
             233.0
           ],
-          "distance_m": 5.8203125,
+          "distance_m": 6.34765625,
           "pixel_xy": {
-            "x": 951,
-            "y": 341
+            "x": 912,
+            "y": 324
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 354,
+            "used_px": 6657,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 340,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 672,
+                "y1": 233,
+                "x2": 965,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -59402,19 +60302,25 @@
             841.7,
             248.2
           ],
-          "distance_m": 5.421875,
+          "distance_m": 6.015625,
           "pixel_xy": {
-            "x": 1199,
-            "y": 344
+            "x": 970,
+            "y": 332
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 351,
+            "used_px": 7494,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 703,
+                "y1": 248,
+                "x2": 1212,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -59683,19 +60589,25 @@
             841.7,
             248.2
           ],
-          "distance_m": 5.64453125,
+          "distance_m": 6.078125,
           "pixel_xy": {
-            "x": 936,
-            "y": 344
+            "x": 974,
+            "y": 327
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 288,
+            "used_px": 7431,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 703,
+                "y1": 248,
+                "x2": 1050,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -60091,19 +61003,25 @@
             796.1,
             210.2
           ],
-          "distance_m": 5.55078125,
+          "distance_m": 6.18359375,
           "pixel_xy": {
-            "x": 1142,
-            "y": 340
+            "x": 1025,
+            "y": 330
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 689,
+            "used_px": 9927,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 710,
+                "y1": 210,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -60400,19 +61318,25 @@
             796.1,
             210.2
           ],
-          "distance_m": 5.76953125,
+          "distance_m": 6.3203125,
           "pixel_xy": {
-            "x": 1062,
-            "y": 340
+            "x": 1020,
+            "y": 326
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 579,
+            "used_px": 9628,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 710,
+                "y1": 210,
+                "x2": 1075,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -60823,19 +61747,25 @@
             1022.2,
             310.9
           ],
-          "distance_m": 5.56640625,
+          "distance_m": 6.17578125,
           "pixel_xy": {
-            "x": 1147,
-            "y": 339
+            "x": 1112,
+            "y": 323
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 614,
+            "used_px": 8692,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 733,
+                "y1": 217,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -61130,19 +62060,25 @@
             910.1,
             248.2
           ],
-          "distance_m": 5.71484375,
+          "distance_m": 6.11328125,
           "pixel_xy": {
-            "x": 1100,
-            "y": 342
+            "x": 1000,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 329,
+            "used_px": 5861,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 794,
+                "y1": 248,
+                "x2": 1191,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -61560,19 +62496,25 @@
             391.4,
             217.8
           ],
-          "distance_m": 6.55078125,
+          "distance_m": 7.62109375,
           "pixel_xy": {
-            "x": 149,
-            "y": 339
+            "x": 52,
+            "y": 316
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 131,
+            "used_px": 8953,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 217,
+                "x2": 414,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -61903,19 +62845,25 @@
             283.1,
             225.4
           ],
-          "distance_m": 6.3984375,
+          "distance_m": 7.20703125,
           "pixel_xy": {
-            "x": 92,
-            "y": 344
+            "x": 110,
+            "y": 315
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 174,
+            "used_px": 7236,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 225,
+                "x2": 328,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -62110,19 +63058,25 @@
             188.1,
             248.2
           ],
-          "distance_m": 6.640625,
+          "distance_m": 7.171875,
           "pixel_xy": {
-            "x": 113,
-            "y": 343
+            "x": 108,
+            "y": 329
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 93,
+            "used_px": 4059,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 248,
+                "x2": 254,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -62524,19 +63478,25 @@
             330.6,
             210.2
           ],
-          "distance_m": 6.8125,
+          "distance_m": 8.15625,
           "pixel_xy": {
-            "x": 79,
-            "y": 319
+            "x": 37,
+            "y": 293
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 16,
+            "used_px": 5459,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 319,
-              "band_y_max": 330
+              "used_fallback_full_polygon": true,
+              "band_y_start": 330,
+              "band_y_max": 330,
+              "roi": {
+                "x1": 0,
+                "y1": 210,
+                "x2": 368,
+                "y2": 331
+              }
             },
             "q": 10.0
           }
@@ -62849,19 +63809,25 @@
             1050.7,
             210.2
           ],
-          "distance_m": 5.703125,
+          "distance_m": 6.23828125,
           "pixel_xy": {
-            "x": 1120,
-            "y": 343
+            "x": 1104,
+            "y": 319
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 57,
+            "used_px": 1483,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 893,
+                "y1": 210,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -63129,19 +64095,25 @@
             32.3,
             195.0
           ],
-          "distance_m": 12.12109375,
+          "distance_m": 12.82421875,
           "pixel_xy": {
-            "x": 29,
-            "y": 241
+            "x": 16,
+            "y": 244
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 16,
+            "used_px": 4,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 240,
-              "band_y_max": 244
+              "band_y_start": 244,
+              "band_y_max": 244,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 34,
+                "y2": 246
+              }
             },
             "q": 10.0
           }
@@ -63208,19 +64180,25 @@
             93.1,
             195.0
           ],
-          "distance_m": 12.78515625,
+          "distance_m": 12.8046875,
           "pixel_xy": {
-            "x": 24,
-            "y": 243
+            "x": 28,
+            "y": 244
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 30,
+            "used_px": 3,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 240,
-              "band_y_max": 244
+              "band_y_start": 244,
+              "band_y_max": 244,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 95,
+                "y2": 246
+              }
             },
             "q": 10.0
           }
@@ -63764,19 +64742,25 @@
             545.3,
             187.4
           ],
-          "distance_m": 5.44921875,
+          "distance_m": 5.1953125,
           "pixel_xy": {
-            "x": 1173,
-            "y": 338
+            "x": 1210,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1481,
+            "used_px": 26,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 535,
+                "y1": 187,
+                "x2": 1216,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -64268,19 +65252,25 @@
             475.0,
             248.2
           ],
-          "distance_m": 6.02734375,
+          "distance_m": 5.9921875,
           "pixel_xy": {
-            "x": 182,
-            "y": 346
+            "x": 223,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 359,
+            "used_px": 28,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 342,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 248,
+                "x2": 476,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -64595,19 +65585,25 @@
             286.9,
             318.5
           ],
-          "distance_m": 6.19140625,
+          "distance_m": 6.08984375,
           "pixel_xy": {
-            "x": 134,
-            "y": 349
+            "x": 152,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 281,
+            "used_px": 15,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 345,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 278,
+                "x2": 353,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -64686,19 +65682,25 @@
             421.8,
             255.8
           ],
-          "distance_m": 9.015625,
+          "distance_m": 10.0625,
           "pixel_xy": {
-            "x": 367,
-            "y": 291
+            "x": 385,
+            "y": 277
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 7,
+            "used_px": 404,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 289,
-              "band_y_max": 292
+              "used_fallback_full_polygon": true,
+              "band_y_start": 292,
+              "band_y_max": 292,
+              "roi": {
+                "x1": 361,
+                "y1": 255,
+                "x2": 423,
+                "y2": 293
+              }
             },
             "q": 10.0
           }
@@ -65262,19 +66264,25 @@
             560.5,
             172.2
           ],
-          "distance_m": 6.1015625,
+          "distance_m": 5.984375,
           "pixel_xy": {
-            "x": 446,
-            "y": 345
+            "x": 366,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 729,
+            "used_px": 31,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 247,
+                "y1": 172,
+                "x2": 562,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -65633,19 +66641,25 @@
             532.0,
             187.4
           ],
-          "distance_m": 6.109375,
+          "distance_m": 6.03515625,
           "pixel_xy": {
             "x": 188,
-            "y": 347
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1026,
+            "used_px": 70,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 95,
+                "y1": 187,
+                "x2": 543,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -66176,19 +67190,25 @@
             520.6,
             172.2
           ],
-          "distance_m": 5.94140625,
+          "distance_m": 5.8125,
           "pixel_xy": {
-            "x": 278,
-            "y": 346
+            "x": 238,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1521,
+            "used_px": 60,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 172,
+                "x2": 558,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -66639,19 +67659,25 @@
             176.7,
             252.0
           ],
-          "distance_m": 5.98828125,
+          "distance_m": 5.90234375,
           "pixel_xy": {
-            "x": 205,
-            "y": 347
+            "x": 252,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1084,
+            "used_px": 63,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 547,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -67116,19 +68142,25 @@
             571.9,
             172.2
           ],
-          "distance_m": 5.9921875,
+          "distance_m": 5.87890625,
           "pixel_xy": {
-            "x": 231,
-            "y": 347
+            "x": 242,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1281,
+            "used_px": 65,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 87,
+                "y1": 172,
+                "x2": 573,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -67585,19 +68617,25 @@
             535.8,
             187.4
           ],
-          "distance_m": 6.0546875,
+          "distance_m": 5.9453125,
           "pixel_xy": {
-            "x": 139,
-            "y": 348
+            "x": 297,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1279,
+            "used_px": 54,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 187,
+                "x2": 551,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -68108,19 +69146,25 @@
             571.9,
             164.6
           ],
-          "distance_m": 5.984375,
+          "distance_m": 5.87109375,
           "pixel_xy": {
-            "x": 338,
-            "y": 346
+            "x": 395,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1615,
+            "used_px": 50,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 51,
+                "y1": 164,
+                "x2": 573,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -68551,19 +69595,25 @@
             545.3,
             179.8
           ],
-          "distance_m": 6.0625,
+          "distance_m": 5.9609375,
           "pixel_xy": {
-            "x": 314,
-            "y": 347
+            "x": 267,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1539,
+            "used_px": 82,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 558,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -69080,19 +70130,25 @@
             11.4,
             210.2
           ],
-          "distance_m": 6.1796875,
+          "distance_m": 6.0859375,
           "pixel_xy": {
-            "x": 452,
-            "y": 346
+            "x": 174,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1783,
+            "used_px": 72,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 566,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -69441,19 +70497,25 @@
             541.5,
             195.0
           ],
-          "distance_m": 6.0625,
+          "distance_m": 5.96484375,
           "pixel_xy": {
-            "x": 62,
-            "y": 346
+            "x": 138,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1515,
+            "used_px": 53,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 549,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -69861,19 +70923,25 @@
             307.8,
             210.2
           ],
-          "distance_m": 5.97265625,
+          "distance_m": 5.83203125,
           "pixel_xy": {
-            "x": 272,
-            "y": 347
+            "x": 12,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 787,
+            "used_px": 20,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 338,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 210,
+                "x2": 490,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -70353,19 +71421,25 @@
             535.8,
             187.4
           ],
-          "distance_m": 6.3203125,
+          "distance_m": 6.19140625,
           "pixel_xy": {
-            "x": 389,
-            "y": 345
+            "x": 358,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1691,
+            "used_px": 69,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 187,
+                "x2": 551,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -70932,19 +72006,25 @@
             161.5,
             261.5
           ],
-          "distance_m": 6.26953125,
+          "distance_m": 6.03125,
           "pixel_xy": {
-            "x": 434,
-            "y": 342
+            "x": 461,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1529,
+            "used_px": 25,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 140,
+                "y1": 172,
+                "x2": 573,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -71531,19 +72611,25 @@
             110.2,
             259.6
           ],
-          "distance_m": 6.2578125,
+          "distance_m": 6.0390625,
           "pixel_xy": {
-            "x": 374,
-            "y": 342
+            "x": 398,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1773,
+            "used_px": 48,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 566,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -71982,19 +73068,25 @@
             9.5,
             200.7
           ],
-          "distance_m": 6.22265625,
+          "distance_m": 6.10546875,
           "pixel_xy": {
-            "x": 429,
-            "y": 343
+            "x": 280,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1883,
+            "used_px": 74,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 560,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -72335,19 +73427,25 @@
             556.7,
             195.0
           ],
-          "distance_m": 6.3125,
+          "distance_m": 6.2578125,
           "pixel_xy": {
-            "x": 357,
-            "y": 346
+            "x": 290,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1640,
+            "used_px": 112,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 336,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 195,
+                "x2": 558,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -72800,19 +73898,25 @@
             564.3,
             179.8
           ],
-          "distance_m": 6.17578125,
+          "distance_m": 6.09375,
           "pixel_xy": {
-            "x": 438,
-            "y": 345
+            "x": 383,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1438,
+            "used_px": 100,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 335,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 179,
+                "x2": 566,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -73081,19 +74185,25 @@
             501.6,
             240.6
           ],
-          "distance_m": 6.0703125,
+          "distance_m": 5.9921875,
           "pixel_xy": {
-            "x": 385,
-            "y": 345
+            "x": 145,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 603,
+            "used_px": 30,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 341,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 240,
+                "x2": 503,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -73594,19 +74704,25 @@
             490.2,
             320.4
           ],
-          "distance_m": 6.28125,
+          "distance_m": 6.203125,
           "pixel_xy": {
-            "x": 362,
-            "y": 345
+            "x": 425,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1227,
+            "used_px": 54,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 566,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -73743,19 +74859,25 @@
             507.3,
             240.6
           ],
-          "distance_m": 6.0703125,
+          "distance_m": 6.0,
           "pixel_xy": {
-            "x": 287,
-            "y": 347
+            "x": 297,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 607,
+            "used_px": 14,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 341,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 0,
+                "y1": 240,
+                "x2": 509,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -74054,19 +75176,25 @@
             482.6,
             172.2
           ],
-          "distance_m": 6.10546875,
+          "distance_m": 6.015625,
           "pixel_xy": {
-            "x": 397,
-            "y": 345
+            "x": 263,
+            "y": 350
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1168,
+            "used_px": 37,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 334,
-              "band_y_max": 351
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 172,
+                "x2": 543,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -74471,19 +75599,25 @@
             549.1,
             202.6
           ],
-          "distance_m": 6.08984375,
+          "distance_m": 5.98046875,
           "pixel_xy": {
-            "x": 186,
-            "y": 347
+            "x": 167,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 690,
+            "used_px": 12,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 337,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 551,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -74824,19 +75958,25 @@
             237.5,
             225.4
           ],
-          "distance_m": 6.06640625,
+          "distance_m": 5.9609375,
           "pixel_xy": {
-            "x": 423,
-            "y": 344
+            "x": 86,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 576,
+            "used_px": 14,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 339,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 225,
+                "x2": 520,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -75095,19 +76235,25 @@
             526.3,
             263.4
           ],
-          "distance_m": 6.1875,
+          "distance_m": 6.15625,
           "pixel_xy": {
-            "x": 435,
-            "y": 347
+            "x": 437,
+            "y": 351
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 456,
+            "used_px": 14,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 343,
-              "band_y_max": 351
+              "band_y_start": 351,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 125,
+                "y1": 263,
+                "x2": 528,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -75362,19 +76508,25 @@
             387.6,
             179.8
           ],
-          "distance_m": 14.11328125,
+          "distance_m": 14.0390625,
           "pixel_xy": {
-            "x": 7,
+            "x": 8,
             "y": 250
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 73,
+            "used_px": 7,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 244,
-              "band_y_max": 250
+              "band_y_start": 250,
+              "band_y_max": 250,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 389,
+                "y2": 252
+              }
             },
             "q": 10.0
           }
@@ -76026,19 +77178,25 @@
             252.7,
             291.9
           ],
-          "distance_m": 6.3359375,
+          "distance_m": 6.62890625,
           "pixel_xy": {
-            "x": 668,
-            "y": 341
+            "x": 301,
+            "y": 333
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 3349,
+            "used_px": 27151,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 809,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -76593,19 +77751,25 @@
             47.5,
             179.8
           ],
-          "distance_m": 9.40234375,
+          "distance_m": 9.3515625,
           "pixel_xy": {
-            "x": 51,
+            "x": 49,
             "y": 284
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 51,
+            "used_px": 9,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 275,
-              "band_y_max": 284
+              "band_y_start": 284,
+              "band_y_max": 284,
+              "roi": {
+                "x1": 3,
+                "y1": 179,
+                "x2": 125,
+                "y2": 286
+              }
             },
             "q": 10.0
           }
@@ -76734,19 +77898,25 @@
             85.5,
             202.6
           ],
-          "distance_m": 9.421875,
+          "distance_m": 9.328125,
           "pixel_xy": {
             "x": 12,
-            "y": 276
+            "y": 277
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 23,
+            "used_px": 2,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 270,
-              "band_y_max": 277
+              "band_y_start": 277,
+              "band_y_max": 277,
+              "roi": {
+                "x1": 3,
+                "y1": 202,
+                "x2": 87,
+                "y2": 278
+              }
             },
             "q": 10.0
           }
@@ -78141,19 +79311,25 @@
             459.8,
             0.0
           ],
-          "distance_m": 8.37890625,
+          "distance_m": 9.4140625,
           "pixel_xy": {
-            "x": 43,
-            "y": 305
+            "x": 50,
+            "y": 138
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 270,
+            "used_px": 22598,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 291,
-              "band_y_max": 322
+              "used_fallback_full_polygon": true,
+              "band_y_start": 320,
+              "band_y_max": 322,
+              "roi": {
+                "x1": 3,
+                "y1": 0,
+                "x2": 528,
+                "y2": 324
+              }
             },
             "q": 10.0
           }
@@ -78822,19 +79998,25 @@
             486.4,
             164.6
           ],
-          "distance_m": 3.62890625,
+          "distance_m": 4.07421875,
           "pixel_xy": {
-            "x": 19,
-            "y": 338
+            "x": 80,
+            "y": 284
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 227,
+            "used_px": 7870,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 333,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 164,
+                "x2": 501,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -79481,19 +80663,25 @@
             530.1,
             157.0
           ],
-          "distance_m": 3.73046875,
+          "distance_m": 3.6796875,
           "pixel_xy": {
-            "x": 101,
-            "y": 337
+            "x": 98,
+            "y": 345
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 246,
+            "used_px": 15,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 327,
-              "band_y_max": 345
+              "band_y_start": 344,
+              "band_y_max": 345,
+              "roi": {
+                "x1": 11,
+                "y1": 157,
+                "x2": 532,
+                "y2": 347
+              }
             },
             "q": 10.0
           }
@@ -80048,19 +81236,25 @@
             533.9,
             157.0
           ],
-          "distance_m": 3.74609375,
+          "distance_m": 4.4765625,
           "pixel_xy": {
-            "x": 24,
-            "y": 341
+            "x": 130,
+            "y": 284
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 134,
+            "used_px": 7259,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 535,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -80682,19 +81876,25 @@
             520.6,
             157.0
           ],
-          "distance_m": 3.703125,
+          "distance_m": 3.67578125,
           "pixel_xy": {
-            "x": 14,
-            "y": 344
+            "x": 7,
+            "y": 345
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 196,
+            "used_px": 22,
             "band": {
               "used_fallback_full_polygon": false,
-              "band_y_start": 327,
-              "band_y_max": 345
+              "band_y_start": 344,
+              "band_y_max": 345,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 530,
+                "y2": 347
+              }
             },
             "q": 10.0
           }
@@ -81512,19 +82712,25 @@
             264.1,
             345.1
           ],
-          "distance_m": 3.9375,
+          "distance_m": 4.421875,
           "pixel_xy": {
-            "x": 50,
-            "y": 335
+            "x": 120,
+            "y": 281
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 854,
+            "used_px": 8707,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 551,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -82208,19 +83414,25 @@
             387.6,
             307.1
           ],
-          "distance_m": 4.7421875,
+          "distance_m": 4.73046875,
           "pixel_xy": {
-            "x": 90,
-            "y": 344
+            "x": 24,
+            "y": 274
           },
           "distance_detail": {
-            "bottom_band_frac": 0.1,
+            "bottom_band_frac": 0.01,
             "mode": "quantile_band",
-            "used_px": 1148,
+            "used_px": 9251,
             "band": {
-              "used_fallback_full_polygon": false,
-              "band_y_start": 332,
-              "band_y_max": 351
+              "used_fallback_full_polygon": true,
+              "band_y_start": 350,
+              "band_y_max": 351,
+              "roi": {
+                "x1": 3,
+                "y1": 157,
+                "x2": 543,
+                "y2": 352
+              }
             },
             "q": 10.0
           }
@@ -82250,11 +83462,15 @@
     "regions_with_distance": 202
   },
   "timing": {
-    "eval_seconds_total_after_depth_ready": 0.8177505994681269,
+    "eval_seconds_total_after_depth_ready": 0.15344289294444025,
     "eval_images_counted": 1000,
-    "eval_regions_attempted": 202,
-    "avg_eval_ms_per_image_after_depth_ready": 0.8177505994681269,
-    "avg_eval_ms_per_region_attempted": 4.048270294396668,
+    "avg_eval_ms_per_image_after_depth_ready": 0.15344289294444025,
+    "mask_seconds_total_polygon_to_mask": 0.026729100849479437,
+    "mask_regions_counted": 202,
+    "avg_ms_per_region_polygon_to_mask": 0.1323222814330665,
+    "pick_seconds_total_band_to_percentile_to_pick": 0.12436809996142983,
+    "pick_regions_attempted": 202,
+    "avg_ms_per_region_band_to_percentile_to_pick": 0.6156836631753952,
     "timer": "time.perf_counter"
   }
 }

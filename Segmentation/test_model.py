@@ -6,13 +6,13 @@ import cv2
 import torch
 from ultralytics import YOLO
 
-'''
-TODO: check model if its works, pls dont fix this before ask me because it affect pipeline MAIN_distance.py code
-'''
 
 ROOT = Path(__file__).resolve().parent
-MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg.pt")
+MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best.pt")
 OUT_IMG_DIR = ROOT / "output"
+
+model = YOLO(str(MODEL_PATH))
+print("[SEG] model.names =", model.names)   # {0: 'sidewalk', 1: 'road', ...}
 
 
 def _load_rgb(path: Path):
@@ -62,6 +62,53 @@ def _results_to_semantic_mask(res, out_h: int, out_w: int, class_whitelist: list
 
     return (bin_mask.astype(np.uint8) * 255)
 
+def save_instances_border_txt(
+    res,
+    out_txt_path: Path,
+    out_h: int,
+    out_w: int,
+    simplify_eps_ratio: float = 0.002,
+) -> Path:
+    # No predictions
+    if res.masks is None or res.boxes is None or len(res.boxes) == 0:
+        out_txt_path.parent.mkdir(parents=True, exist_ok=True)
+        out_txt_path.write_text("", encoding="utf-8")
+        return out_txt_path
+
+    masks = (res.masks.data > 0.5).cpu().numpy()          # (N, hm, wm)
+    cls_ids = res.boxes.cls.cpu().numpy().astype(int)     # (N,)
+    confs = res.boxes.conf.cpu().numpy().astype(float)    # (N,)
+
+    hm, wm = masks.shape[1], masks.shape[2]
+
+    out_txt_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(out_txt_path, "w", encoding="utf-8") as f:
+        for i in range(masks.shape[0]):
+            m = masks[i].astype(np.uint8) * 255
+
+            # resize mask to original image size
+            if (hm, wm) != (out_h, out_w):
+                m = cv2.resize(m, (out_w, out_h), interpolation=cv2.INTER_NEAREST)
+
+            contours, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            if not contours:
+                continue
+
+            # pick largest contour (most stable)
+            cnt = max(contours, key=cv2.contourArea)
+
+            peri = cv2.arcLength(cnt, True)
+            eps = simplify_eps_ratio * peri
+            approx = cv2.approxPolyDP(cnt, eps, True).reshape(-1, 2)
+
+            if approx.shape[0] < 3:
+                continue
+
+            # format: cls conf x1 y1 x2 y2 ...
+            coords = " ".join(f"{int(x)} {int(y)}" for x, y in approx)
+            f.write(f"{cls_ids[i]} {confs[i]:.6f} {coords}\n")
+
+    return out_txt_path
 
 def save_border_txt_from_mask(
     mask_path: Path,
@@ -136,6 +183,7 @@ def main():
 
     H, W = img_rgb.shape[:2]
     mask_hw = _results_to_semantic_mask(res, H, W)
+    save_instances_border_txt(res, out_border_path, H, W, simplify_eps_ratio=0.002)
 
     stem = image_path.stem
     mask_img_path = OUT_IMG_DIR / f"{stem}_mask.png"

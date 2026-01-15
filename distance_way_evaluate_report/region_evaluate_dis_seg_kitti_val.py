@@ -34,7 +34,7 @@ SINGLE_PIXEL_FALLBACK = "quantile_band"  # "none" or "quantile_band"
 MAX_DEPTH = 80.0
 Q = 10.0                     # percentile (p5 nearer / more conservative than p10, but may lower accuracy)
 SUBSAMPLE = 1                # >1 for speed (less accurate)
-BOTTOM_BAND_FRAC = 0.1      # bottom X% of polygon height (0.10, 0.20, 0.30, 1.00...)
+BOTTOM_BAND_FRAC = 0.01      # bottom X% of polygon height (0.10, 0.20, 0.30, 1.00...)
 
 # Confidence filtering
 CONF_THR = 0.25              # None to disable
@@ -107,30 +107,56 @@ def _to_float_or_none(x) -> Optional[float]:
         return None
 
 
-def polygon_to_mask(poly_xy, H: int, W: int) -> np.ndarray:
+def polygon_to_mask(poly_xy, H: int, W: int):
     """
     Fill polygon area into a binary mask.
     Accepts:
       - [[x,y], [x,y], ...]
       - [x1,y1,x2,y2,...] (flat)
     """
-    mask = np.zeros((H, W), dtype=np.uint8)
-    if not poly_xy:
-        return mask
+    if poly_xy is None:
+        return np.zeros((0, 0), dtype=np.uint8), None
 
     # flat list -> Nx2
     if isinstance(poly_xy, (list, tuple)) and poly_xy and not isinstance(poly_xy[0], (list, tuple)):
         if len(poly_xy) < 6 or (len(poly_xy) % 2) != 0:
-            return mask
+            return np.zeros((0, 0), dtype=np.uint8), None
         pts = np.array(poly_xy, dtype=np.float32).reshape(-1, 2)
     else:
         if len(poly_xy) < 3:
-            return mask
+            return np.zeros((0, 0), dtype=np.uint8), None
         pts = np.array(poly_xy, dtype=np.float32).reshape(-1, 2)
 
-    pts_i32 = np.round(pts).astype(np.int32).reshape(-1, 1, 2)  # OpenCV polygon format :contentReference[oaicite:3]{index=3}
+    xs = pts[:, 0]
+    ys = pts[:, 1]
+
+    x1 = int(np.floor(np.nanmin(xs)))
+    y1 = int(np.floor(np.nanmin(ys)))
+    x2 = int(np.ceil(np.nanmax(xs))) + 1
+    y2 = int(np.ceil(np.nanmax(ys))) + 1
+
+    x1 = max(0, min(W, x1))
+    y1 = max(0, min(H, y1))
+    x2 = max(0, min(W, x2))
+    y2 = max(0, min(H, y2))
+
+    if x2 <= x1 or y2 <= y1:
+        return np.zeros((0, 0), dtype=np.uint8), None
+
+    roi_w = x2 - x1
+    roi_h = y2 - y1
+
+    mask = np.zeros((roi_h, roi_w), dtype=np.uint8)
+
+    pts_local = pts.copy()
+    pts_local[:, 0] -= x1
+    pts_local[:, 1] -= y1
+
+    pts_i32 = np.round(pts_local).astype(np.int32).reshape(-1, 1, 2)  # OpenCV polygon format :contentReference[oaicite:3]{index=3}
     cv2.fillPoly(mask, [pts_i32], 1)
-    return mask
+
+    roi = {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
+    return mask, roi
 
 
 def band_y_bounds_from_mask(mask: np.ndarray, bottom_frac: float) -> Tuple[Optional[int], Optional[int]]:
@@ -161,18 +187,38 @@ def collect_valid_pixels_in_band(
     mask: np.ndarray,
     bottom_frac: float,
     subsample: int,
-    max_depth: float
+    max_depth: float,
+    roi: Optional[Dict[str, int]] = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Dict[str, Any]]:
     """
     Collect (ys, xs, vals) for valid depth pixels inside polygon AND inside bottom band.
     Fallback: if band has no valid pixels, use full polygon.
     """
-    valid = (mask == 1) & np.isfinite(depth_m) & (depth_m > 0) & (depth_m < max_depth)
+    if roi is None:
+        depth_patch = depth_m
+        x_off = 0
+        y_off = 0
+    else:
+        x1, y1, x2, y2 = roi["x1"], roi["y1"], roi["x2"], roi["y2"]
+        depth_patch = depth_m[y1:y2, x1:x2]
+        x_off = x1
+        y_off = y1
+
+    if mask.size == 0 or depth_patch.size == 0:
+        return np.array([], dtype=np.int32), np.array([], dtype=np.int32), np.array([], dtype=np.float32), {
+            "used_fallback_full_polygon": False,
+            "band_y_start": None,
+            "band_y_max": None,
+            "roi": roi,
+        }
+
+    valid = (mask == 1) & np.isfinite(depth_patch) & (depth_patch > 0) & (depth_patch < max_depth)
     if not np.any(valid):
         return np.array([], dtype=np.int32), np.array([], dtype=np.int32), np.array([], dtype=np.float32), {
             "used_fallback_full_polygon": False,
             "band_y_start": None,
             "band_y_max": None,
+            "roi": roi,
         }
 
     y_start, y_max = band_y_bounds_from_mask(mask, bottom_frac)
@@ -181,37 +227,46 @@ def collect_valid_pixels_in_band(
             "used_fallback_full_polygon": False,
             "band_y_start": None,
             "band_y_max": None,
+            "roi": roi,
         }
 
-    band = np.zeros_like(valid, dtype=bool)
-    band[y_start:y_max + 1, :] = True
+    y_start = int(max(0, min(mask.shape[0] - 1, y_start)))
+    y_max   = int(max(0, min(mask.shape[0] - 1, y_max)))
 
-    cond = valid & band
+    band_valid = valid[y_start:y_max + 1, :]
     used_fallback = False
-    if not np.any(cond):
-        cond = valid
+
+    if np.any(band_valid):
+        ys, xs = np.where(band_valid)
+        ys = ys + y_start
+    else:
+        ys, xs = np.where(valid)
         used_fallback = True
 
-    ys, xs = np.where(cond)
     if ys.size == 0:
         return np.array([], dtype=np.int32), np.array([], dtype=np.int32), np.array([], dtype=np.float32), {
             "used_fallback_full_polygon": used_fallback,
             "band_y_start": int(y_start),
             "band_y_max": int(y_max),
+            "roi": roi,
         }
 
     if subsample > 1:
         take = np.arange(0, ys.size, subsample, dtype=np.int64)
         ys, xs = ys[take], xs[take]
 
-    vals = depth_m[ys, xs].astype(np.float32)
+    vals = depth_patch[ys, xs].astype(np.float32)
     keep = np.isfinite(vals)
     ys, xs, vals = ys[keep], xs[keep], vals[keep]
 
-    return ys, xs, vals, {
+    ys = ys + y_off
+    xs = xs + x_off
+
+    return ys.astype(np.int32), xs.astype(np.int32), vals.astype(np.float32), {
         "used_fallback_full_polygon": used_fallback,
-        "band_y_start": int(y_start),
-        "band_y_max": int(y_max),
+        "band_y_start": int(y_start) + y_off,
+        "band_y_max": int(y_max) + y_off,
+        "roi": roi,
     }
 
 
@@ -221,7 +276,8 @@ def quantile_band_pick_1pixel(
     bottom_frac: float,
     q: float,
     subsample: int,
-    max_depth: float
+    max_depth: float,
+    roi: Optional[Dict[str, int]] = None
 ) -> Tuple[Optional[float], Optional[Dict[str, int]], int, Dict[str, Any]]:
     """
     Option B:
@@ -229,7 +285,7 @@ def quantile_band_pick_1pixel(
       - pick ONE pixel whose depth is closest to that pQ
     Returns (dist_m, pix_xy, used_px, detail)
     """
-    ys, xs, vals, band_detail = collect_valid_pixels_in_band(depth_m, mask, bottom_frac, subsample, max_depth)
+    ys, xs, vals, band_detail = collect_valid_pixels_in_band(depth_m, mask, bottom_frac, subsample, max_depth, roi=roi)
     if vals.size == 0:
         return None, None, 0, {"band": band_detail, "q": q}
 
@@ -246,7 +302,8 @@ def single_pixel_pick(
     depth_m: np.ndarray,
     mask: np.ndarray,
     bottom_frac: float,
-    max_depth: float
+    max_depth: float,
+    roi: Optional[Dict[str, int]] = None
 ) -> Tuple[Optional[float], Optional[Dict[str, int]], Dict[str, Any]]:
     """
     Pick exactly ONE pixel, but ensure it's valid:
@@ -254,6 +311,16 @@ def single_pixel_pick(
       - for each row: take x0 = median(mask pixels)
       - if depth at (y,x0) invalid -> pick nearest valid x on that row (still inside mask)
     """
+    if roi is None:
+        depth_patch = depth_m
+        x_off = 0
+        y_off = 0
+    else:
+        x1, y1, x2, y2 = roi["x1"], roi["y1"], roi["x2"], roi["y2"]
+        depth_patch = depth_m[y1:y2, x1:x2]
+        x_off = x1
+        y_off = y1
+
     y_start, y_max = band_y_bounds_from_mask(mask, bottom_frac)
     if y_start is None:
         return None, None, {"reason": "empty_mask"}
@@ -270,7 +337,7 @@ def single_pixel_pick(
         x0 = int(np.median(xs_mask))
 
         # valid depths on this row *within the mask*
-        row_depths = depth_m[y, xs_mask]
+        row_depths = depth_patch[y, xs_mask]
         ok = np.isfinite(row_depths) & (row_depths > 0) & (row_depths < max_depth)
         xs_valid = xs_mask[ok]
 
@@ -279,8 +346,8 @@ def single_pixel_pick(
 
         # choose valid x closest to the median-x target
         x = int(xs_valid[np.argmin(np.abs(xs_valid - x0))])
-        d = float(depth_m[y, x])
-        return d, {"x": x, "y": y}, {
+        d = float(depth_patch[y, x])
+        return d, {"x": int(x + x_off), "y": int(y + y_off)}, {
             "reason": "ok",
             "x0_median": x0,
             "picked_nearest_valid_on_row": (x != x0),
@@ -333,9 +400,17 @@ def main():
     regions_with_distance = 0
     low_conf_count = 0
 
+    # Timing for "distance evaluation after having depth map"
     eval_sec_total = 0.0
     eval_images = 0
-    eval_regions_attempted = 0
+
+    # Timing ONLY for: (after poly exists) -> mask ROI -> pick pixel/quantile -> distance
+    # (clean split: mask time separated, pick time excludes polygon_to_mask)
+    mask_sec_total = 0.0
+    mask_regions_counted = 0
+
+    pick_sec_total = 0.0
+    pick_regions_attempted = 0
 
     for im in seg.get("images", []):
         file_name = im.get("file_name") or Path(im.get("file_path", "")).name
@@ -396,35 +471,42 @@ def main():
             detail = {}
 
             if depth_m is not None and poly:
-                mask = polygon_to_mask(poly, H, W)
+                t_mask = perf_counter()
+                mask, roi = polygon_to_mask(poly, H, W)
+                mask_sec_total += (perf_counter() - t_mask)
+                mask_regions_counted += 1
 
-                if DISTANCE_MODE == "single_pixel":
-                    d1, p1, d1_detail = single_pixel_pick(depth_m, mask, BOTTOM_BAND_FRAC, MAX_DEPTH)
-                    dist_m, pix_xy = d1, p1
-                    detail = {"mode": "single_pixel", **d1_detail}
+                if mask.size != 0 and roi is not None:
+                    t_pick = perf_counter()
 
-                    if dist_m is None and SINGLE_PIXEL_FALLBACK == "quantile_band":
+                    if DISTANCE_MODE == "single_pixel":
+                        d1, p1, d1_detail = single_pixel_pick(depth_m, mask, BOTTOM_BAND_FRAC, MAX_DEPTH, roi=roi)
+                        dist_m, pix_xy = d1, p1
+                        detail = {"mode": "single_pixel", **d1_detail}
+
+                        if dist_m is None and SINGLE_PIXEL_FALLBACK == "quantile_band":
+                            d2, p2, used_px, q_detail = quantile_band_pick_1pixel(
+                                depth_m, mask, BOTTOM_BAND_FRAC, Q, SUBSAMPLE, MAX_DEPTH, roi=roi
+                            )
+                            dist_m, pix_xy = d2, p2
+                            detail = {
+                                "mode": "single_pixel",
+                                "fallback": "quantile_band",
+                                "fallback_used_px": used_px,
+                                "fallback_detail": q_detail,
+                                **detail,
+                            }
+
+                    else:
+                        # default: quantile_band (Option B)
                         d2, p2, used_px, q_detail = quantile_band_pick_1pixel(
-                            depth_m, mask, BOTTOM_BAND_FRAC, Q, SUBSAMPLE, MAX_DEPTH
+                            depth_m, mask, BOTTOM_BAND_FRAC, Q, SUBSAMPLE, MAX_DEPTH, roi=roi
                         )
                         dist_m, pix_xy = d2, p2
-                        detail = {
-                            "mode": "single_pixel",
-                            "fallback": "quantile_band",
-                            "fallback_used_px": used_px,
-                            "fallback_detail": q_detail,
-                            **detail,
-                        }
-                        eval_regions_attempted += 1
+                        detail = {"mode": "quantile_band", "used_px": used_px, **q_detail}
 
-                else:
-                    # default: quantile_band (Option B)
-                    d2, p2, used_px, q_detail = quantile_band_pick_1pixel(
-                        depth_m, mask, BOTTOM_BAND_FRAC, Q, SUBSAMPLE, MAX_DEPTH
-                    )
-                    dist_m, pix_xy = d2, p2
-                    detail = {"mode": "quantile_band", "used_px": used_px, **q_detail}
-                    eval_regions_attempted += 1
+                    pick_sec_total += (perf_counter() - t_pick)
+                    pick_regions_attempted += 1
 
             if dist_m is not None:
                 regions_with_distance += 1
@@ -467,9 +549,17 @@ def main():
     out["timing"] = {
         "eval_seconds_total_after_depth_ready": eval_sec_total,
         "eval_images_counted": eval_images,
-        "eval_regions_attempted": eval_regions_attempted,
         "avg_eval_ms_per_image_after_depth_ready": (eval_sec_total / max(1, eval_images)) * 1000.0,
-        "avg_eval_ms_per_region_attempted": (eval_sec_total / max(1, eval_regions_attempted)) * 1000.0,
+
+        # split timing (clean): polygon_to_mask excluded from "pick" timing
+        "mask_seconds_total_polygon_to_mask": mask_sec_total,
+        "mask_regions_counted": mask_regions_counted,
+        "avg_ms_per_region_polygon_to_mask": (mask_sec_total / max(1, mask_regions_counted)) * 1000.0,
+
+        "pick_seconds_total_band_to_percentile_to_pick": pick_sec_total,
+        "pick_regions_attempted": pick_regions_attempted,
+        "avg_ms_per_region_band_to_percentile_to_pick": (pick_sec_total / max(1, pick_regions_attempted)) * 1000.0,
+
         "timer": "time.perf_counter",
     }
 

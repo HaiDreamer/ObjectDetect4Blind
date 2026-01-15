@@ -106,10 +106,11 @@ def per_class_error_table(m: pd.DataFrame) -> pd.DataFrame:
 REF_100 = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\100%_bb_distance_json_KITTI_val_GT.json"
 
 ABLATIONS = {
-    "pixel_center": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1pixel_bb_distance_json_KITTI_val_GT.json",
-    "roi10":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_bb_distance_json_KITTI_val_GT.json",
-    "roi20":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\20%_bb_distance_json_KITTI_val_GT.json",
-    "roi30":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\30%_bb_distance_json_KITTI_val_GT.json",
+    #"pixel_center": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1pixel_bb_distance_json_KITTI_val_GT.json",
+    "roi1": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1%_bb_distance_json_KITTI_val_GT.json",
+    #"roi10":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_bb_distance_json_KITTI_val_GT.json",
+    #"roi20":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\20%_bb_distance_json_KITTI_val_GT.json",
+    #"roi30":        r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\30%_bb_distance_json_KITTI_val_GT.json",
 }
 
 ref_df = load_distance_json(REF_100)

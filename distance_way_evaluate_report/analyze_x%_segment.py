@@ -10,13 +10,14 @@ EPS = 1e-6
 # CONFIG: paths
 # =========================
 # base line for compare with another ablations
-REF_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\100%_seg_distance_json_KITTI_val_GT.json"
+REF_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_seg_distance_json_KITTI_val_GT.json"
 
 ABLATIONS = {
-    "single_pixel": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1pixel_seg_distance_json_KITTI_val_GT.json",
-    "quantile_band_10%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_seg_distance_json_KITTI_val_GT.json",
-    "quantile_band_20%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\20%_seg_distance_json_KITTI_val_GT.json",
-    "quantile_band_30%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\30%_seg_distance_json_KITTI_val_GT.json",
+    #"single_pixel": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1pixel_seg_distance_json_KITTI_val_GT.json",
+    "quantile_band_1%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\1%_seg_distance_json_KITTI_val_GT.json",
+    #"quantile_band_10%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_seg_distance_json_KITTI_val_GT.json",
+    #"quantile_band_20%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\20%_seg_distance_json_KITTI_val_GT.json",
+    #"quantile_band_30%": r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\30%_seg_distance_json_KITTI_val_GT.json",
 }
 
 JOIN_STRATEGY = "inner"  # intersection only

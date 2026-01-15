@@ -12,7 +12,7 @@ try:
 except ImportError:
     ort = None
 
-'''Fully run metric depth model + object detection model + image segmentation model
+r'''Fully run metric depth model + object detection model + image segmentation model
 FOR WHAT?
     Input: RGB image
     Output: Combines all results on one depth image, computes distances, and save a PNG overlay and a JSON file with distances
@@ -36,9 +36,6 @@ Why first time run take much more time than 2 or more time run after
     The first run is “cold”, so a bunch of one-time setup work happens (disk, Python, PyTorch, CUDA/cuDNN, etc.). 
     The second run is “warm”, so it reuses caches and is much faster, even though your code not change.
 
-TODO:
-    Update voice notification and alert
-    Check algorithm in mobile app, optimize as we do here
 '''
 
 # =========================
@@ -51,46 +48,37 @@ YOLO_SCRIPT          = ROOT / "Object_detection" / "main.py"
 METRIC_DEPTH_SCRIPT  = ROOT / "Depth-Anything-V2-main" / "metric_depth" / "run.py"
 SEG_SCRIPT           = ROOT / "Segmentation" / "test_model.py"
 
+SEG_CLASS_NAMES = {0: 'Stairs', 1: 'crosswalk', 2: 'sidewalk', 3: 'tree-lined'}
+
 # Python interpreters
 PY_YOLO   = r"C:\Python\miniconda\envs\tensor_test\python.exe"
 PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
 PY_SEG    = PY_YOLO
-
-# Metric-depth weights
-# NOTE:
-#   - If this points to *.pth  → use original metric_depth/run.py (PyTorch backend)
-#   - If this points to *.onnx or *.ort → use ONNX Runtime backend defined below
+# Metric depth weight
 METRIC_DEPTH_WEIGHTS = (
-    #r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
-    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
+    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
+    #r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.onnx"
     # r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits_fp16.with_runtime_opt.ort"
 )
 
-# =========================
+# ========================= (HARD CODE)
 # Inputs / Outputs                                                  Avg time(s) original model
-#      2011_09_26_drive_0013_sync_image_0000000077_image_03.png
-#      2011_09_26_drive_0023_sync_image_0000000101_image_03.png
-#      2011_09_26_drive_0023_sync_image_0000000305_image_03.png
-#      2011_09_26_drive_0036_sync_image_0000000386_image_02.png
 #      demo02.jpg                                                   5.284, 5.245, 5.247, 5.294, 5.326 -> 5.2792
 #      demo01.jpg                                                   5.797, 5.508, 5.279, 5.400, 5.279 -> 5.4526
 # =========================
-ORIG_IMG = ROOT / "assets" / "demo02.jpg"
-
+ORIG_IMG = ROOT / "assets" / "demo03.jpg"
 # YOLO labels
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels"
-
 # Metric-depth outputs 
 METRIC_DEPTH_OUT_DIR = Path(r"C:\Python\ObjectDetect4Blind\output_metric_depth")
 METRIC_DEPTH_VIS_PNG = METRIC_DEPTH_OUT_DIR / f"{ORIG_IMG.stem}.png"
 METRIC_DEPTH_RAW_NPY = METRIC_DEPTH_OUT_DIR / f"{ORIG_IMG.stem}_raw_depth_meter.npy"
-
 # Segmentation border txt
 SEG_BORDER_TXT = ROOT / "Segmentation" / "output" / "mask_border.txt"
-
 # Final overlay and JSON output
 FINAL_OUT = ROOT / "output" / f"{ORIG_IMG.stem}_metric_depth_boxes_borders.png"
 JSON_OUT  = ROOT / "output" / f"{ORIG_IMG.stem}_objects_distance.json"
+
 
 # Colors (BGR)
 COLOR_YOLO_BOX       = (0, 0, 0)   # bounding boxes
@@ -151,11 +139,11 @@ def _compute_box_distance(
     x1: int, y1: int, x2: int, y2: int,
     frac: float = 0.5,
     mode: str = "center",      # "center" or "bottom"
-    q: float = 10.0,           # <-- p10 mặc định (đổi 5.0 nếu muốn “bảo thủ” hơn)
+    q: float = 10.0,           # <-- p10 mặc định
     subsample: int = 1,        # <-- 2 hoặc 4 để nhanh hơn (trade-off)
 ) -> float | None:
     """
-    Robust distance for bbox ROI:
+    distance for bbox ROI:
       - Use p10 (or p5) instead of min() to reduce outliers.
       - Keep mode constant for clean ablation.
 
@@ -232,15 +220,15 @@ def _nearest_sidewalk_distance(
     depth_map_m: np.ndarray,
     sidewalk_mask: np.ndarray,
     max_depth: float = 80.0,
-    band_start_frac: float = 0.3,
+    band_start_frac: float = 0.1,
     q: float = 10.0,            # p10 as default
-    min_valid_px: int = 50,
     subsample: int = 1,
 ):
     """
-    Robust nearest sidewalk distance:
+    nearest sidewalk distance:
       - Use low percentile (p5/p10) instead of true min to avoid 1-pixel noise.
       - Return a pixel whose depth is closest to that percentile value.
+      - Fast and effective way to evaluate distance with low time calculating
     """
     assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
     H, W = depth_map_m.shape
@@ -264,7 +252,7 @@ def _nearest_sidewalk_distance(
 
     ys, xs = np.where(cond)
 
-    # subsample indices for speed (optional)
+    # subsample indices for speed 
     if subsample > 1 and ys.size > 0:
         take = np.arange(0, ys.size, subsample, dtype=np.int64)
         ys = ys[take]
@@ -275,9 +263,6 @@ def _nearest_sidewalk_distance(
     vals = vals[finite]
     ys = ys[finite]
     xs = xs[finite]
-
-    if vals.size < min_valid_px:
-        return None, None, None
 
     d_q = _fast_percentile_1d(vals, q=q)
     if d_q is None:
@@ -314,7 +299,7 @@ def _load_seg_polys_from_border_txt(border_txt_path: Path, W: int, H: int):
 
 
 # =========================
-# Metric depth via ONNX Runtime (optional backend)
+# Metric depth via ONNX Runtime
 # =========================
 def _run_metric_depth_onnx():
     '''
@@ -344,8 +329,8 @@ def _run_metric_depth_onnx():
         raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] Original image not found: {ORIG_IMG}")
     H0, W0 = img_bgr.shape[:2]
 
-    # ONNX export for DepthAnythingV2 usually uses a fixed input size (e.g. 518x518)
-    # so we resize to that resolution, then resize depth back to original size.
+    # ONNX export for DepthAnythingV2 usually uses a fixed input size (518x518)
+    # resize to that resolution, then resize depth back to original size.
     EXPORT_SIZE = 518
     bgr_resized = cv2.resize(img_bgr, (EXPORT_SIZE, EXPORT_SIZE), interpolation=cv2.INTER_LINEAR)
 
@@ -388,9 +373,7 @@ def _run_metric_depth_onnx():
     print(f"[METRIC_DEPTH_ONNX] saved vis PNG: {METRIC_DEPTH_VIS_PNG}")
 
 
-# =========================
 # Main pipeline
-# =========================
 def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: list[str] | None = None):
 
     # 1) YOLO
@@ -519,16 +502,16 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
                 mode = "bottom" if is_bottom_region else "center"
 
                 # frac controls how tall the sampled region is (0.5 = half the bbox height)
-                dist = _compute_box_distance(depth_map_m, x1, y1, x2, y2, frac=0.3, mode=mode)
+                dist = _compute_box_distance(depth_map_m, x1, y1, x2, y2, frac=0.1, mode=mode)
 
                 if dist is not None:
                     label_txt += f" {dist:.2f}m"
 
 
             cv2.rectangle(depth_bgr, (x1, y1), (x2, y2), COLOR_YOLO_BOX, 2)
-            cv2.putText(depth_bgr, label_txt, (x1, max(0, y1 - 6)),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                        COLOR_YOLO_TEXT, 1, cv2.LINE_AA)
+
+            # img, text, org, fontFace, fontScale, color, thickness, lineType
+            cv2.putText(depth_bgr, label_txt, (x1, max(0, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 1.2, COLOR_YOLO_TEXT, 3, cv2.LINE_AA)
 
             results.append({
                 "id": f"yolo_{idx}",
@@ -556,12 +539,20 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
                 depth_map_m,
                 poly_mask,
                 max_depth=80.0,
-                band_start_frac=0.3,   # bottom 70% of region
+                band_start_frac=0.1,   # bottom 90% of region
             )
 
             # Optionally draw the nearest point for that region
             if d_min is not None:
                 cv2.circle(depth_bgr, (x_min, y_min), 4, COLOR_SIDEWALK_PT, -1)
+
+            # draw distance text near that point
+            txt = f"{d_min:.2f}m"
+            x_txt = min(W - 1, max(0, x_min + 6))
+            y_txt = min(H - 1, max(0, y_min - 6))
+
+            # img, text, org, fontFace, fontScale, color, thickness, lineType
+            cv2.putText(depth_bgr, txt, (x_txt, y_txt), cv2.FONT_HERSHEY_SIMPLEX, 1.2, COLOR_SIDEWALK_TEXT, 3, cv2.LINE_AA)
 
             results.append({
                 "id": f"seg_{idx}",
