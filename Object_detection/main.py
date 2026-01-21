@@ -12,6 +12,10 @@ MODEL_PATH = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\b
 OUT_IMG = ROOT / "output"
 RUN_NAME = "run1"
 
+model = YOLO(str(MODEL_PATH))
+print("[OBJ] model.names =", model.names)       # 0: 'bicycle', 1: 'bus', 2: 'car', 3: 'electric pole', 4: 'motocycle', 5: 'pedestrian crossing sign', 6: 'person', 7: 'tree', 8: 'truck'
+print("[OBJ] num_classes =", len(model.names))  # 9
+
 
 def main():
     parser = argparse.ArgumentParser()

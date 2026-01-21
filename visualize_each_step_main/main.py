@@ -61,6 +61,11 @@ SEG_BORDER_TXT = ROOT / "Segmentation" / "output" / "mask_border.txt"
 FINAL_OUT = ROOT / "output" / f"{ORIG_IMG.stem}_metric_depth_boxes_borders.png"
 JSON_OUT  = ROOT / "output" / f"{ORIG_IMG.stem}_objects_distance.json"
 
+# Intermediate visualization outputs for pipeline steps
+STEP1_DEPTH_ONLY = ROOT / "output" / f"{ORIG_IMG.stem}_step1_depth_only.png"
+STEP2_DEPTH_OD   = ROOT / "output" / f"{ORIG_IMG.stem}_step2_depth_with_objects.png"
+STEP3_DEPTH_SEG  = ROOT / "output" / f"{ORIG_IMG.stem}_step3_depth_with_segmentation.png"
+
 # Colors (BGR)
 COLOR_YOLO_BOX       = (0, 0, 0)
 COLOR_YOLO_TEXT      = (0, 0, 0)
@@ -347,7 +352,6 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
             "--img-path", str(ORIG_IMG),
             "--outdir", str(METRIC_DEPTH_OUT_DIR),
             "--pred-only",
-            "--grayscale",
             "--save-numpy",
         ]
         p_depth = subprocess.Popen(metric_cmd, cwd=str(METRIC_DEPTH_SCRIPT.parent))

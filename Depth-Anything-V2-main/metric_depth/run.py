@@ -11,8 +11,10 @@ from depth_anything_v2.dpt import DepthAnythingV2
 We apply for Outdoor (VKITTI2) case, so use model "depth_anything_v2_metric_vkitti_vits.pth"
 Run this code 
     cd C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main\metric_depth
-    python run.py --encoder vits --load-from "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth" --max-depth 80 --img-path "C:\Python\ObjectDetect4Blind\assets\demo01.jpg" --outdir "C:\Python\ObjectDetect4Blind\output_metric_depth" --pred-only
+    python run.py --encoder vits --load-from "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth" --max-depth 80 --img-path "C:\Python\ObjectDetect4Blind\assets\demo03.jpg" --outdir "C:\Python\ObjectDetect4Blind\output_metric_depth" --pred-only --grayscale
 
+    OR
+    python run.py --encoder vits --load-from "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth" --max-depth 80 --img-path "C:\Python\ObjectDetect4Blind\assets\demo03.jpg" --outdir "C:\Python\ObjectDetect4Blind\output_metric_depth" --pred-only
 Model output: Absolute depth in meters
 
 '''

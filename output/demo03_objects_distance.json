@@ -3,7 +3,7 @@
     "id": "yolo_0",
     "source": "yolo",
     "class_id": 2,
-    "class_name": "2",
+    "class_name": "car",
     "confidence": 0.978795,
     "bbox": {
       "x1": 2,
@@ -11,13 +11,13 @@
       "x2": 616,
       "y2": 1003
     },
-    "distance_m": 13.692083358764648
+    "distance_m": 14.500666618347168
   },
   {
     "id": "yolo_1",
     "source": "yolo",
     "class_id": 2,
-    "class_name": "2",
+    "class_name": "car",
     "confidence": 0.978795,
     "bbox": {
       "x1": 2,
@@ -25,13 +25,13 @@
       "x2": 616,
       "y2": 1003
     },
-    "distance_m": 13.692083358764648
+    "distance_m": 14.500666618347168
   },
   {
     "id": "yolo_2",
     "source": "yolo",
     "class_id": 2,
-    "class_name": "2",
+    "class_name": "car",
     "confidence": 0.978795,
     "bbox": {
       "x1": 2,
@@ -39,11 +39,84 @@
       "x2": 616,
       "y2": 1003
     },
-    "distance_m": 13.692083358764648
+    "distance_m": 14.500666618347168
+  },
+  {
+    "id": "yolo_3",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.978795,
+    "bbox": {
+      "x1": 2,
+      "y1": 461,
+      "x2": 616,
+      "y2": 1003
+    },
+    "distance_m": 14.500666618347168
+  },
+  {
+    "id": "yolo_4",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.978795,
+    "bbox": {
+      "x1": 2,
+      "y1": 461,
+      "x2": 616,
+      "y2": 1003
+    },
+    "distance_m": 14.500666618347168
+  },
+  {
+    "id": "yolo_5",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.978795,
+    "bbox": {
+      "x1": 2,
+      "y1": 461,
+      "x2": 616,
+      "y2": 1003
+    },
+    "distance_m": 14.500666618347168
+  },
+  {
+    "id": "yolo_6",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.978795,
+    "bbox": {
+      "x1": 2,
+      "y1": 461,
+      "x2": 616,
+      "y2": 1003
+    },
+    "distance_m": 14.500666618347168
+  },
+  {
+    "id": "yolo_7",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.978795,
+    "bbox": {
+      "x1": 2,
+      "y1": 461,
+      "x2": 616,
+      "y2": 1003
+    },
+    "distance_m": 14.500666618347168
   },
   {
     "id": "seg_0",
     "source": "segmentation",
+    "class_id": 2,
+    "class_name": "sidewalk",
+    "confidence": 0.974096,
     "polygon": [
       [
         40,
