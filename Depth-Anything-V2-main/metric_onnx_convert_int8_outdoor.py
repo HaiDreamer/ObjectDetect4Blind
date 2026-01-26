@@ -46,7 +46,7 @@ def quantize_to_int8():
     quantize_dynamic(
         model_input=MODEL_FP32,
         model_output=MODEL_INT8,
-        weight_type=QuantType.QInt8,  # or QuantType.QUInt8
+        weight_type=QuantType.QInt8, 
         nodes_to_quantize=nodes,
     )
 
