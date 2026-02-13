@@ -30,7 +30,7 @@ ONNX_INT8_STATIC = MODELS_DIR / "best-lan2_int8_static_qdq.onnx"
 DATA_YAML = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\GroupProject_OD\data.yaml")
 
 IMGSZ = 640
-OPSET = 18
+OPSET = 13  
 DYNAMIC = False       # strongly recommended for quantization stability
 SIMPLIFY = False
 

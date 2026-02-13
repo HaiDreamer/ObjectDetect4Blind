@@ -31,7 +31,7 @@ ONNX_INT8_STATIC = MODELS_DIR / "best_seg_int8_static_qdq.onnx"
 DATA_YAML = Path(r"C:\Python\ObjectDetectRequireFile\put-in-segment\GroupProject_Seg\data.yaml")
 
 IMGSZ = 640
-OPSET = 18
+OPSET = 13  
 DYNAMIC = False
 SIMPLIFY = False
 

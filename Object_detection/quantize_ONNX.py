@@ -17,7 +17,7 @@ ONNX_FP32 = MODELS_DIR / "best-lan2_fp32.onnx"
 ONNX_FP16 = MODELS_DIR / "best-lan2_fp16.onnx"     
 ONNX_INT8 = MODELS_DIR / "best-lan2_int8dyn_mm.onnx"
 
-OPSET = 18
+OPSET = 13
 DYNAMIC = True
 SIMPLIFY = False   # avoid simplifier issues i saw
 IMGSZ = 640

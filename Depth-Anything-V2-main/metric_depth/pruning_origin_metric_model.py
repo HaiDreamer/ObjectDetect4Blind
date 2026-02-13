@@ -7,18 +7,18 @@ Use this after rank_vits_block_metric_depth
 '''
 
 # ---------------- CONFIG ----------------
-REPO_ROOT = r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main"  # <-- adjust if needed
+REPO_ROOT = r"C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main"  
 CKPT_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
 SAVE_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints"
 
-BLOCK_TO_PRUNE = 10                 # <-- choose 0..11
+BLOCK_TO_PRUNE = 10                 # choose 0..11
 MAX_DEPTH_METERS = 80.0             # VKITTI outdoor metric models use 80m
 INPUT_SIZE = 518
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # ----------------------------------------
 
-# Force-import the METRIC version (so max_depth is supported)
+# import METRIC version (so max_depth is supported)
 sys.path.insert(0, os.path.join(REPO_ROOT, "metric_depth"))
 from depth_anything_v2.dpt import DepthAnythingV2
 

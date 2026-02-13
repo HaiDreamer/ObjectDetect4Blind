@@ -18,7 +18,7 @@ ONNX_FP32 = MODELS_DIR / "best_seg_fp32.onnx"
 ONNX_FP16 = MODELS_DIR / "best_seg_fp16.onnx"
 ONNX_INT8 = MODELS_DIR / "best_seg_int8dyn_mm.onnx"
 
-OPSET = 18
+OPSET = 13
 DYNAMIC = True
 SIMPLIFY = False
 IMGSZ = 640
@@ -83,14 +83,9 @@ def quantize_int8_dynamic_mm(onnx_fp32_path: Path, onnx_int8_path: Path) -> Path
     return onnx_int8_path
 
 def main():
-    if not ONNX_FP32.exists():
-        export_fp32_onnx(PT_PATH, ONNX_FP32)
-
-    if not ONNX_FP16.exists():
-        convert_to_fp16(ONNX_FP32, ONNX_FP16)
-
-    if not ONNX_INT8.exists():
-        quantize_int8_dynamic_mm(ONNX_FP32, ONNX_INT8)
+    export_fp32_onnx(PT_PATH, ONNX_FP32)
+    convert_to_fp16(ONNX_FP32, ONNX_FP16)        
+    quantize_int8_dynamic_mm(ONNX_FP32, ONNX_INT8)
 
 if __name__ == "__main__":
     main()
