@@ -15,7 +15,7 @@ Sanity-check obj_depth_with_pred.json
     * basic GT / pred distance stats
 """
 
-# ====== CONFIG ======
+# CONFIG
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 JSON_PATH = ROOT / "obj_depth_with_pred.json"
 

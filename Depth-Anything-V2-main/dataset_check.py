@@ -1,34 +1,36 @@
 from pathlib import Path
 from typing import Optional 
 import argparse, random, cv2, numpy as np
+import re
 
 '''
-Purpose: test train/val image kitti dataset(for depth estimation)
+Purpose: check if dataset train/val image kitti exist (for depth estimation)
+
 How to run
 cd C:\Python\ObjectDetect4Blind\Depth-Anything-V2-main
-python dataset_check.py --root "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\kitti_root\val_selection_cropped" --shuffle (has set as default)
+python dataset_check.py --root "C:\Python\ObjectDetectRequireFile\put-in-depth-anything\kitti_root\val_selection_cropped" --shuffle 
+    (has set as default)
 '''
 
 def is_img(p: Path):
     return p.suffix.lower() in {".png", ".jpg", ".jpeg"}
 
 def find_depth_for_image(img_path: Path, dep_dir: Path) -> Optional[Path]:
-    # 1) KITTI val_selection_cropped uses identical names across folders
+    # KITTI val_selection_cropped uses identical names across folders
     same = dep_dir / img_path.name.replace(img_path.suffix, ".png")
     if same.exists():
         return same
 
-    # 2) Fallbacks for odd mirrors
+    # Fallbacks for odd mirrors
     stem = img_path.stem
     # try matching by trailing frame id and camera (########## + 02/03)
-    import re
     m = re.search(r'_(\d{10})_image_(0[23])$', stem)
     if m:
         frame, cam = m.groups()
         for p in dep_dir.glob(f"*{frame}_image_{cam}.png"):
             return p
 
-    # last resort: any file sharing the same stem prefix
+    # any file sharing the same stem prefix ?
     for p in dep_dir.glob(f"{stem}*.png"):
         return p
     return None

@@ -1,4 +1,4 @@
-import os, glob, csv, math
+import os, glob, csv
 import cv2, numpy as np
 import torch, torch.nn as nn
 
@@ -29,7 +29,7 @@ OUTPUT
     Block 1 (RMSE 18.17)
     Block 5 (RMSE 18.27)
     Block 0 (RMSE 19.00)
-    Block 2 (RMSE 19.72) ← most important (skipping it changes output most)    
+    Block 2 (RMSE 19.72) most important (skipping it changes output most)    
 
 '''
 
@@ -38,7 +38,7 @@ CKPT_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\
 IMG_DIR   = r"C:\Python\ObjectDetect4Blind\assets"
 OUT_DIR   = r".\block_change_reports_metric"
 MAX_IMGS  = 6
-INPUT_SIZE = 518
+INPUT_SIZE = 518        # default image size, 518 is “nice” for ViT patch size 14
 
 # For metric VKITTI (outdoor) models, max_depth should be 80 meters
 MAX_DEPTH_METERS = 80.0
@@ -48,68 +48,41 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
-# optional SSIM
-try:
-    from skimage.metrics import structural_similarity as ssim_metric
-    # SSIM measures “structural” similarity of image
-    HAVE_SSIM = True
-except Exception:
-    HAVE_SSIM = False
+# NOTE: visual metrics removed; we keep only metric error metrics: RMSE/MAE/MeanRel (AbsRel-style)
 
 # ---------- helpers ----------
-def psnr_from_mse01(mse01):
-    '''
-    Convert an MSE measured on a [0,1] normalized image into PSNR (dB), Higher PSNR = more similar
-    '''
-    if mse01 <= 0:
-        return 99.0
-    return -10.0 * math.log10(mse01)
-
 def to_uint8_fixed_range(arr, lo, hi):
-    '''Convert a float depth map (meters) into an 8-bit grayscale image for saving/visualization.'''
+    """Convert a float depth map (meters) into an 8-bit grayscale image for saving/visualization."""
     arr = np.asarray(arr, dtype=np.float32)
     x = (arr - lo) / (hi - lo + 1e-12)
     x = np.clip(x, 0, 1)
     return (x * 255.0 + 0.5).astype(np.uint8)
 
 def compute_metric_errors(student_m, teacher_m, max_depth):
-    """Compare metric depths (meters) without scale/shift alignment."""
-    s = student_m.astype(np.float64)
-    t = teacher_m.astype(np.float64)
+    """
+    Compare metric depths (meters) without scale/shift alignment.
 
-    mask = np.isfinite(s) & np.isfinite(t) & (t > 1e-6) & (t <= max_depth) & (s >= 0) & (s <= max_depth)
-    if mask.sum() < 100:
+    Returns:
+        rmse_m:   sqrt(mean((s - t)^2)) over valid pixels
+        mae_m:    mean(|s - t|) over valid pixels
+        meanrel:  mean(|s - t| / t) over valid pixels  (AbsRel definition)
+    """
+    s = np.asarray(student_m, dtype=np.float64)
+    t = np.asarray(teacher_m, dtype=np.float64)
+
+    mask = (
+        np.isfinite(s) & np.isfinite(t) &
+        (t > 1e-6) & (t <= max_depth) &
+        (s >= 0.0) & (s <= max_depth)
+    )
+    if int(mask.sum()) < 100:
         return float("nan"), float("nan"), float("nan")
 
     diff = s[mask] - t[mask]
     rmse = float(np.sqrt(np.mean(diff * diff)))
     mae  = float(np.mean(np.abs(diff)))
-    # Mean relative error (signed): mean(abs(s - t) / t)
-    meanrel = float(np.mean(abs(diff / t[mask])))
+    meanrel = float(np.mean(np.abs(diff) / t[mask]))
     return rmse, mae, meanrel
-
-
-def compute_visual_metrics_01(student_m, teacher_m, max_depth):
-    """Convert a float depth map (meters) into an 8-bit grayscale image for saving/visualization."""
-    #Normalize both depth maps to [0, 1]
-    s = np.clip(student_m, 0, max_depth) / max_depth
-    t = np.clip(teacher_m, 0, max_depth) / max_depth
-
-    mask = np.isfinite(s) & np.isfinite(t)
-    if mask.sum() < 100:
-        return float("nan"), float("nan"), float("nan")
-
-    diff = (t - s)[mask]
-    mse01 = float(np.mean(diff * diff))     # mean squared error on [0,1]
-    psnr  = psnr_from_mse01(mse01)
-
-    if HAVE_SSIM:
-        # SSIM expects float32
-        ssim_val = float(ssim_metric(t.astype(np.float32), s.astype(np.float32), data_range=1.0))
-    else:
-        ssim_val = float("nan")
-
-    return mse01, psnr, ssim_val
 
 def load_images():
     exts = ("*.jpg","*.jpeg","*.png","*.bmp")
@@ -117,19 +90,21 @@ def load_images():
     if IMG_DIR and os.path.isdir(IMG_DIR):
         for e in exts:
             paths += glob.glob(os.path.join(IMG_DIR, e))
+
     imgs = []
     for p in paths[:MAX_IMGS]:
         im = cv2.imread(p)
         if im is not None:
             imgs.append((os.path.basename(p), im))
+
+    # fallback 
     if not imgs:
         for i in range(MAX_IMGS):
-            arr = np.random.randint(0,255,(INPUT_SIZE,INPUT_SIZE,3),dtype=np.uint8)
+            arr = np.random.randint(0, 255, (INPUT_SIZE, INPUT_SIZE, 3), dtype=np.uint8)
             imgs.append((f"random_{i}.png", arr))
     return imgs
 
-# ---------- model (METRIC) ----------
-# IMPORTANT: for metric checkpoints, DepthAnythingV2 should support max_depth and output meters.
+# for metric checkpoints, DepthAnythingV2 support max_depth and output meters.
 from depth_anything_v2.dpt import DepthAnythingV2
 
 model = DepthAnythingV2(
@@ -162,41 +137,35 @@ teacher = {}
 for name, im in imgs:
     teacher[name] = predict_depth_meters(im)
 
-# CSV summary
+# CSV summary (metric errors)
 csv_path = os.path.join(OUT_DIR, "block_change_summary_metric.csv")
 with open(csv_path, "w", newline="") as fcsv:
     writer = csv.writer(fcsv)
-    writer.writerow([
-        "block_idx",
-        "RMSE_m", "MAE_m", "MeanRel",
-        "MSE01", "PSNR", "SSIM"
-    ])
+    writer.writerow(["block_idx", "RMSE_m", "MAE_m", "MeanRel"])
 
 summary = []
 
-# ---------- loop over blocks ----------
+# loop over blocks
 for i in range(nblocks):
     print(f"[Eval] Skipping block {i} ...")
     original = vit.blocks[i]
-    vit.blocks[i] = nn.Identity()
+    vit.blocks[i] = nn.Identity()  # ok on any device (no params)
 
     block_dir = os.path.join(OUT_DIR, f"skip_block_{i:02d}")
     os.makedirs(block_dir, exist_ok=True)
 
     rmse_list, mae_list, meanrel_list = [], [], []
-    mse01_list, psnr_list, ssim_list = [], [], []
 
     for name, im in imgs:
         t = teacher[name]
         s = predict_depth_meters(im)
 
         rmse, mae, meanRel = compute_metric_errors(s, t, MAX_DEPTH_METERS)
-        mse01, psnr, ssim_val = compute_visual_metrics_01(s, t, MAX_DEPTH_METERS)
+        rmse_list.append(rmse)
+        mae_list.append(mae)
+        meanrel_list.append(meanRel)
 
-        rmse_list.append(rmse); mae_list.append(mae); meanrel_list.append(meanRel)
-        mse01_list.append(mse01); psnr_list.append(psnr); ssim_list.append(ssim_val)
-
-        # Visuals: [Teacher | Student | |T-S| heatmap] using fixed [0, MAX_DEPTH_METERS]
+        # Visuals: [Teacher | Student | heatmap] with depth range 0 -> 80m
         t8 = to_uint8_fixed_range(t, 0.0, MAX_DEPTH_METERS)
         s8 = to_uint8_fixed_range(s, 0.0, MAX_DEPTH_METERS)
         ad = to_uint8_fixed_range(np.abs(t - s), 0.0, MAX_DEPTH_METERS)
@@ -207,35 +176,32 @@ for i in range(nblocks):
             cv2.cvtColor(s8, cv2.COLOR_GRAY2BGR),
             ad_c
         ])
-        cv2.imwrite(os.path.join(block_dir, f"{os.path.splitext(name)[0]}_T-S-D_metric.png"), triptych)
+        cv2.imwrite(os.path.join(block_dir, f"{os.path.splitext(name)[0]}metric.png"), triptych)
 
+    # restore block
     vit.blocks[i] = original
 
-    mean_rmse   = float(np.nanmean(rmse_list))
-    mean_mae    = float(np.nanmean(mae_list))
+    mean_rmse    = float(np.nanmean(rmse_list))
+    mean_mae     = float(np.nanmean(mae_list))
     mean_meanrel = float(np.nanmean(meanrel_list))
-    mean_mse01  = float(np.nanmean(mse01_list))
-    mean_psnr   = float(np.nanmean(psnr_list))
-    mean_ssim   = float(np.nanmean(ssim_list)) if HAVE_SSIM else float("nan")
 
-    summary.append((i, mean_rmse, mean_mae, mean_meanrel, mean_mse01, mean_psnr, mean_ssim))
+    summary.append((i, mean_rmse, mean_mae, mean_meanrel))
 
     with open(csv_path, "a", newline="") as fcsv:
         writer = csv.writer(fcsv)
         writer.writerow([
             i,
             f"{mean_rmse:.6f}", f"{mean_mae:.6f}", f"{mean_meanrel:.6f}",
-            f"{mean_mse01:.8f}", f"{mean_psnr:.3f}", f"{mean_ssim:.5f}"
         ])
 
-    print(f"[Block {i:02d}] RMSE={mean_rmse:.3f}m  MAE={mean_mae:.3f}m  meanRel={mean_meanrel:.4f}  PSNR={mean_psnr:.2f}  SSIM={mean_ssim:.4f}")
+    print(f"[Block {i:02d}] RMSE={mean_rmse:.3f}m  MAE={mean_mae:.3f}m  MeanRel={mean_meanrel:.4f}")
 
-# rank by RMSE (higher drift in meters => more important for metric behavior)
-summary.sort(key=lambda x: x[1], reverse=True)
+# rank by RMSE (lower drift in meters => less important => prune-first)
+summary.sort(key=lambda x: x[1])  # ascending RMSE
 
-print("\n=== Block importance (METRIC) (higher RMSE drift => more important) ===")
-for (i, rmse, mae, absrel, mse01, psnr, ssim_v) in summary:
-    print(f"Block {i:2d} : RMSE={rmse:.3f}m  MAE={mae:.3f}m  MeanRel={absrel:.4f}  PSNR={psnr:.2f}  SSIM={ssim_v:.4f}")
+print("\n=== Block ranking (METRIC) ===")
+for (i, rmse, mae, meanrel) in summary:
+    print(f"Block {i:2d} : RMSE={rmse:.3f}m  MAE={mae:.3f}m  MeanRel={meanrel:.4f}")
 
-print(f"\nVisuals per block in: {os.path.abspath(OUT_DIR)}\\skip_block_XX\\*_T-S-D_metric.png")
+print(f"\nVisuals per block in: {os.path.abspath(OUT_DIR)}\\skip_block_XX\\*metric.png")
 print(f"CSV summary: {os.path.abspath(csv_path)}")

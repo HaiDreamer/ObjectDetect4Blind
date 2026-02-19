@@ -8,9 +8,6 @@ Compare per-object distance between:
 - GT object distance (from KITTI GT depth)      -> gt_distance_m
 - Predicted object distance (from metric model) -> pred_distance_m
 
-TODO: case 100 first image only (done)
-    Next step: none
-
 INPUT:
   - obj_depth_gt.json   (created by kitti_object_depth_gt.py code)
   - predicted depth maps in:
@@ -23,26 +20,18 @@ OUTPUT:
   - basic stats printed per eval_category
 """
 
-# ----------------------------
 # CONFIG
-# ----------------------------
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
-
 OBJ_GT_JSON = ROOT / "obj_depth_gt.json"
-
 # where make_kitti_preds_metric.py wrote its outputs
 # pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
 #   pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu for pruned 1 layer model
 PRED_DIR = ROOT / "pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu" 
-
 OUT_ERR_JSON = ROOT / "obj_depth_err.json"
 
 MAX_DEPTH_M = 80.0
 
 
-# ----------------------------
-# Helpers
-# ----------------------------
 def load_pred_depth_for_image(image_name: str) -> np.ndarray | None:
     """
     Given an 'image' filename from obj_depth_gt.json, derive the corresponding
@@ -55,7 +44,7 @@ def load_pred_depth_for_image(image_name: str) -> np.ndarray | None:
       2011_09_26_drive_0002_sync_groundtruth_depth_0000000005_image_02.png
 
     Prediction files (produced by make_kitti_preds_metric.py):
-      PRED_DIR / GT_name                  (uint16 PNG)
+      PRED_DIR / GT_name                   (uint16 PNG)
       PRED_DIR / (GT_stem + "_pred_m.npy") (optional float32 meters)
     """
     # Recover GT-style name from image name using the same split rule as before
@@ -73,9 +62,9 @@ def load_pred_depth_for_image(image_name: str) -> np.ndarray | None:
     depth_m = None
 
     if npy_path.exists():
-        # preferred: exact float32 prediction (meters)
+        # exact float32 prediction (meters)
         depth_m = np.load(str(npy_path)).astype(np.float32)
-        # if someone saved with extra channel dim, squeeze
+        # if saved with extra channel dim, squeeze to 2 dim only contains H, W
         if depth_m.ndim == 3:
             depth_m = depth_m.squeeze()
     elif png_path.exists():
@@ -98,8 +87,8 @@ def box_distance(depth_map_m: np.ndarray,
                  x1: int, y1: int, x2: int, y2: int,
                  mode: str, frac: float = 0.3) -> float | None:
     """
-    Same logic as box_distance_from_gt, but generic.
-    We want identical behavior for GT and prediction.
+    Same logic as box_distance_from_gt.
+    identical behavior for GT and prediction.
     """
     H, W = depth_map_m.shape[:2]
 
@@ -158,9 +147,7 @@ def mode_for_category(eval_category: str) -> str:
     return "center"
 
 
-# ----------------------------
 # MAIN
-# ----------------------------
 def main():
     assert OBJ_GT_JSON.exists(), f"Missing GT JSON: {OBJ_GT_JSON}"
     with open(OBJ_GT_JSON, "r", encoding="utf-8") as f:

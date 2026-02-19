@@ -1,4 +1,3 @@
-# analyze_seg_ablation_short.py
 import json
 from pathlib import Path
 import numpy as np
@@ -6,9 +5,7 @@ import pandas as pd
 
 EPS = 1e-6
 
-# =========================
-# CONFIG: paths
-# =========================
+# paths
 # base line for compare with another ablations
 REF_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\10%_seg_distance_json_KITTI_val_GT.json"
 
@@ -22,7 +19,6 @@ ABLATIONS = {
 
 JOIN_STRATEGY = "inner"  # intersection only
 OUT_CSV = "seg_ablation_overall_short.csv"
-
 
 def load_seg_distance_json(path: str | Path) -> pd.DataFrame:
     path = Path(path)
@@ -49,21 +45,20 @@ def load_seg_distance_json(path: str | Path) -> pd.DataFrame:
 
 
 def merge_ref_ablation(ref_df: pd.DataFrame, abl_df: pd.DataFrame, join: str = "inner") -> pd.DataFrame:
+    '''keep only evaluated objects (not excluded + has distance)'''
     ref = ref_df[(~ref_df["excluded_low_conf"]) & ref_df["distance_m"].notna()].copy()
     abl = abl_df[(~abl_df["excluded_low_conf"]) & abl_df["distance_m"].notna()].copy()
 
     if join != "inner":
-        raise ValueError("This short script supports JOIN_STRATEGY='inner' only.")
+        raise ValueError("This script supports inner only.")
 
     m = ref[["key", "distance_m"]].rename(columns={"distance_m": "gt"}).merge(
-        abl[["key", "distance_m"]].rename(columns={"distance_m": "p"}),
-        on="key",
-        how="inner",
+        abl[["key", "distance_m"]].rename(columns={"distance_m": "p"}), on="key", how="inner",
     )
     return m
 
 
-def overall_metrics_short(m: pd.DataFrame) -> dict:
+def overall_metrics(m: pd.DataFrame) -> dict:
     """
     mean|e|  = mean absolute error (MAE)
     meanRel% = mean(|e| / |gt|) * 100
@@ -89,14 +84,14 @@ def main():
         abl_df = load_seg_distance_json(path)
         m = merge_ref_ablation(ref_df, abl_df, join=JOIN_STRATEGY)
 
-        r = overall_metrics_short(m)
+        r = overall_metrics(m)
         r["setting"] = setting
         rows.append(r)
 
     out = pd.DataFrame(rows)[["setting", "N", "mean|e|", "meanRel%", "RMSE (m)"]].sort_values("setting")
     out.to_csv(OUT_CSV, index=False)
 
-    # pretty table for console (DataFrame.to_string) :contentReference[oaicite:1]{index=1}
+    # table for console
     print(out.to_string(index=False, float_format=lambda x: f"{x:.6f}"))
     print("\nSaved:", OUT_CSV)
 

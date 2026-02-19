@@ -20,7 +20,7 @@ def quantize_to_int8_matmul_only():
         nodes_to_quantize=nodes,  # allow-list: ONLY these nodes are quantized
     )
 
-    # sanity: ensure ConvInteger doesn't exist
+    # ensure ConvInteger doesn't exist
     q = onnx.load(MODEL_INT8)
     ops = {n.op_type for n in q.graph.node}
     print("Has ConvInteger?", "ConvInteger" in ops)

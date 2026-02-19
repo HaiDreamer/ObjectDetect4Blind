@@ -21,9 +21,9 @@ model_configs = {
 encoder = 'vits' 
 model = DepthAnythingV2(**model_configs[encoder])
 
-# 3) Load the checkpoint (CPU-safe)
+# Load the checkpoint (CPU-safe)
 ckpt = torch.load(CHECKPOINT_PATH, map_location="cpu")
-# Some checkpoints are saved as plain state_dict; others nested (e.g., {"state_dict": ...})
+# Some checkpoints are saved as plain state_dict and others nested (e.g., {"state_dict": ...})
 state_dict = ckpt.get("state_dict", ckpt)
 # If keys are prefixed (e.g., "module."), strip them
 clean_state_dict = OrderedDict()
@@ -36,13 +36,13 @@ for k, v in state_dict.items():
 missing, unexpected = model.load_state_dict(clean_state_dict, strict=False)
 print(f"[load_state_dict] Missing keys: {len(missing)}, Unexpected keys: {len(unexpected)}")
 if missing:
-    print("  First few missing:", missing[:10])
+    print("First few missing:", missing[:10])
 if unexpected:
-    print("  First few unexpected:", unexpected[:10])
+    print("First few unexpected:", unexpected[:10])
 
 model.eval()
 
-# 4) Pretty print: total params and per-module listing
+# print total params and per-module listing
 total_params = sum(p.numel() for p in model.parameters())
 trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print("\n=== Model Size ===")
@@ -52,7 +52,7 @@ print(f"Trainable:    {trainable_params:,}")
 rows = []
 print("\n=== Named Modules (name -> type, #params) ===")
 for name, m in model.named_modules():
-    # skip the root module line if you want only submodules; keep it here for completeness
+    # skip the root module line if want only submodules; keep it here for completeness
     n_params = sum(p.numel() for p in m.parameters(recurse=False))
     mtype = m.__class__.__name__
     print(f"{name if name else '<root>':50s} -> {mtype:25s}  params={n_params:,}")

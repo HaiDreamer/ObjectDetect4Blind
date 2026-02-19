@@ -8,53 +8,62 @@ import onnx
 from onnxconverter_common import float16
 
 '''
-EXPLAIN
-    Graph inputs are the tensors the model expects you to provide when you run inference.
-
 ALGORITHM
-    Take a DepthAnythingV2 metric-depth PyTorch checkpoint → export it to ONNX FP32 → convert to ONNX FP16 → optionally convert to ORT format.
-
-INPUT: original metric depth small model
-
-OUTPUT
-    For experiments / portability → use the FP16 ONNX model (.onnx)
-    For production on ONNX Runtime (desktop/server) → use the .ort model
-    For mobile app:
-        If use ONNX Runtime Mobile, .onnx or .ort are both valid, but .ort is smaller & faster to load.
+    Take a DepthAnythingV2 metric-depth PyTorch checkpoint -> export it to ONNX FP32 -> convert to ONNX FP16 -> optionally convert to ORT format.
 '''
 
-
-# -------------------
 # Paths & configs
-# -------------------
 ROOT = Path(__file__).resolve().parent
-
 # Use metric_depth version of DepthAnythingV2
 METRIC_ROOT = ROOT / "metric_depth"
 sys.path.insert(0, str(METRIC_ROOT))
 from depth_anything_v2.dpt import DepthAnythingV2  
 
-CKPT_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints"
+CKPT_DIR = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints"
 
-# Metric checkpoint (PyTorch)
-FP32_CKPT = os.path.join(CKPT_DIR, "depth_anything_v2_metric_vkitti_vits.pth")
+# choose which dataset/model to export 
+#   "vkitti"   -> depth_anything_v2_metric_vkitti_vits.pth  (outdoor)
+#   "hypersim" -> depth_anything_v2_metric_hypersim_vits.pth (indoor)
+DATASET = "hypersim"      # change this between "vkitti" and "hypersim"
 
-# ONNX output paths (saved in the same directory)
-ONNX_FP32 = os.path.join(CKPT_DIR, "depth_anything_v2_metric_vkitti_vits_fp32.onnx")
-ONNX_FP16 = os.path.join(CKPT_DIR, "depth_anything_v2_metric_vkitti_vits_fp16.onnx")
-
-OPSET = 18          # holding the ONNX opset version, widely supported by modern onnxruntime versions and works well with PyTorch’s exporter.
+OPSET = 13
 
 MODEL_CONFIGS = {
     "vits": {"encoder": "vits", "features": 64,  "out_channels": [48, 96, 192, 384]},
     "vitb": {"encoder": "vitb", "features": 128, "out_channels": [96, 192, 384, 768]},
     "vitl": {"encoder": "vitl", "features": 256, "out_channels": [256, 512, 1024, 1024]},
 }
-ENCODER   = "vits"      # small metric depth model
-MAX_DEPTH = 80.0        # outdoor VKITTI metric depth
+
+ENCODER = "vits"  
+
+# Per-dataset config: checkpoint name + max_depth
+DATASET_CONFIGS = {
+    "vkitti": {
+        "ckpt_name": "depth_anything_v2_metric_vkitti_vits.pth",
+        "max_depth": 80.0,   # outdoor
+    },
+    "hypersim": {
+        "ckpt_name": "depth_anything_v2_metric_hypersim_vits.pth",
+        "max_depth": 10.0,   # indoor 
+    },
+}
+
+cfg_ds = DATASET_CONFIGS[DATASET]
+
+FP32_CKPT = os.path.join(CKPT_DIR, cfg_ds["ckpt_name"])
+ONNX_FP32 = os.path.join(
+    CKPT_DIR,
+    cfg_ds["ckpt_name"].replace(".pth", "_fp32.onnx")
+)
+ONNX_FP16 = os.path.join(
+    CKPT_DIR,
+    cfg_ds["ckpt_name"].replace(".pth", "_fp16.onnx")
+)
+
+MAX_DEPTH = cfg_ds["max_depth"]
 
 def load_state_any_format(path):
-    '''adapter for various checkpoint layouts'''
+    """adapter for various checkpoint layouts"""
     obj = torch.load(path, map_location="cpu")
     if isinstance(obj, dict) and "state_dict" in obj:
         sd = obj["state_dict"]
@@ -63,12 +72,14 @@ def load_state_any_format(path):
     else:
         sd = obj
     # strip 'module.' if present
-    sd = { (k[7:] if isinstance(k, str) and k.startswith("module.") else k): v
-           for k, v in sd.items() }
+    sd = {
+        (k[7:] if isinstance(k, str) and k.startswith("module.") else k): v
+        for k, v in sd.items()
+    }
     return sd
 
 def build_metric_model():
-    '''build metric depth model'''
+    """build metric depth model"""
     assert os.path.isfile(FP32_CKPT), f"Checkpoint not found: {FP32_CKPT}"
     cfg = {**MODEL_CONFIGS[ENCODER], "max_depth": MAX_DEPTH}
     model = DepthAnythingV2(**cfg)
@@ -77,11 +88,13 @@ def build_metric_model():
     model.eval().to("cpu")
     return model
 
+
 def export_fp32(model, H=518, W=518):
-    '''export to onnx float 32'''
+    """export to onnx float 32"""
     print("[1/3] Exporting ONNX FP32 ...")
-    dummy = torch.randn(1, 3, H, W, dtype=torch.float32)    # shape (1, 3, 518, 518) in FP32.
-    torch.onnx.export(                                      # export model to onnx format
+    dummy = torch.randn(1, 3, H, W, dtype=torch.float32)
+
+    torch.onnx.export(
         model,
         (dummy,),
         ONNX_FP32,
@@ -95,14 +108,12 @@ def export_fp32(model, H=518, W=518):
     onnx.checker.check_model(onnx.load(ONNX_FP32))
     print(f"Exported FP32 ONNX: {ONNX_FP32}")
 
-def convert_to_fp16():
-    """Convert FP32 ONNX -> FP16 ONNX, silence tiny truncation warnings."""
-    print("[2/3] Converting ONNX to FP16 ...")
 
-    # Load freshly exported FP32 ONNX
+def convert_to_fp16():
+    """Convert FP32 ONNX -> FP16 ONNX, silencing tiny truncation warnings."""
+    print("[2/3] Converting ONNX to FP16 ...")
     m = onnx.load(ONNX_FP32)
 
-    # Silence specific truncation warning during this conversion
     with warnings.catch_warnings():
         warnings.filterwarnings(
             "ignore",
@@ -123,10 +134,11 @@ def convert_to_fp16():
 
 def optional_to_ort():
     try:
-        import onnxruntime  
+        import onnxruntime
     except Exception:
         print("[3/3] Skipping ORT conversion (onnxruntime not installed).")
         return
+
     module = "onnxruntime.tools.convert_onnx_models_to_ort"
     cmd = [sys.executable, "-m", module, ONNX_FP16, "--optimization_style", "Runtime"]
     print("[3/3] Converting ONNX FP16 -> ORT format ...")
@@ -136,12 +148,14 @@ def optional_to_ort():
     except subprocess.CalledProcessError as e:
         print(f"ORT conversion failed with exit code {e.returncode}.")
 
+
 def main():
     os.makedirs(CKPT_DIR, exist_ok=True)
     model = build_metric_model()
     export_fp32(model)
     convert_to_fp16()
-    # optional_to_ort()
+    #optional_to_ort()
+
 
 if __name__ == "__main__":
     main()

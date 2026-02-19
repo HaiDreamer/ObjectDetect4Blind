@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 
-# ========= CONFIG =========
+# CONFIG
 ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth")
 
 OBJ_GT_JSON    = Path(r"C:\Python\ObjectDetect4Blind\model_eva_object_detect\bb_json_KITTI_val_with_gt_dist.json")
@@ -21,8 +21,6 @@ BOX_SUBSAMP  = 1
 # If True: don't print per-image warnings; only print final summary
 QUIET_MISSING = True
 
-
-# ========= HELPERS =========
 
 def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
     vals = vals[np.isfinite(vals)]
@@ -206,7 +204,7 @@ def load_pred_depth_for_entry(img_entry: dict, png_index: dict, npy_index: dict)
     return None, None
 
 
-# ========= MAIN =========
+# MAIN
 def main():
     assert OBJ_GT_JSON.exists(), f"Missing GT JSON: {OBJ_GT_JSON}"
     assert PRED_DEPTH_DIR.exists(), f"Missing PRED_DEPTH_DIR: {PRED_DEPTH_DIR}"

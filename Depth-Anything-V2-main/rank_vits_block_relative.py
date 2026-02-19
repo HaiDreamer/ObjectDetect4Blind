@@ -3,7 +3,6 @@ import cv2, numpy as np
 import torch, torch.nn as nn
 
 '''
-TODO: change this for metric depth model!!!
 How it is does ?
     running the full model once to get a “teacher” depth map for each image,
     skipping one encoder block at a time (replacing it with Identity()), re-inferencing to get a “student”,
@@ -34,32 +33,20 @@ Processing:
     Per-image metrics (added to running lists)
     MSE01 = mean( (t01 - s01)^2 )
     MAE01 = mean( |t01 - s01| )
-    PSNR = -10 * log10(MSE01) (range is [0,1]; the helper caps zero error at 99 dB)
-    SSIM = structural_similarity(t01, s01, data_range=1.0) if skimage is available; otherwise NaN
 
     After processing all images for this block
     mean_mse = average of all per-image MSE01 values
-    mean_mae = average of all per-image MAE01 values
-    mean_psnr = average of all per-image PSNR values
-    mean_ssim = average (nanmean) of all per-image SSIM values
-    mean_a = average of all alpha values from the alignments
-    mean_b = average of all beta values from the alignments      
-
-Note:
-    Scale & shift alignment: Because monocular depth is relative (affine-ambiguous), you align student → teacher by solving 
-min(a, b) ||as + b - t||^2 per image before computing errors. This mirrors DPT/MiDaS evaluation practice for non-metric depth.
+    mean_mae = average of all per-image MAE01 values 
 '''
 
 
-
-# ---------------- CONFIG ----------------
+# CONFIG 
 CKPT_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits.pth"
-IMG_DIR   = r"C:\Python\ObjectDetect4Blind\assets"  # your images (no labels needed)
+IMG_DIR   = r"C:\Python\ObjectDetect4Blind\assets"  # images (no labels needed)
 OUT_DIR   = r".\block_change_reports"
 MAX_IMGS  = 6
 INPUT_SIZE = 518
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-# ----------------------------------------
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -70,7 +57,7 @@ try:
 except Exception:
     HAVE_SSIM = False
 
-# ---------- helpers ----------
+# helper
 def align_student_to_teacher(student, teacher):
     """
     Solve alpha,beta in alpha * student + beta ~= teacher (least squares),
@@ -118,9 +105,8 @@ def load_images():
             imgs.append((f"random_{i}.png", arr))
     return imgs
 
-# ---------- model ----------
+# model 
 # Depth Anything V2 uses a DINOv2 ViT encoder + DPT-style decoder
-# Ref: official repo run/infer code path.
 from depth_anything_v2.dpt import DepthAnythingV2
 
 model = DepthAnythingV2(encoder='vits', features=64, out_channels=[48,96,192,384]).to(DEVICE).eval()
@@ -140,7 +126,7 @@ def predict_depth(bgr):
     d = model.infer_image(bgr, input_size=INPUT_SIZE)
     return d
 
-# ---------- data ----------
+# data
 imgs = load_images()
 
 # teacher predictions once
@@ -156,7 +142,7 @@ with open(csv_path, "w", newline="") as fcsv:
 
 summary = []
 
-# ---------- loop over blocks ----------
+# loop over blocks
 for i in range(nblocks):
     print(f"[Eval] Skipping block {i} ...")
     original = vit.blocks[i]
@@ -176,7 +162,7 @@ for i in range(nblocks):
         s_aligned, a, b = align_student_to_teacher(s, t)
         ab_list.append((a,b))
 
-        # Use the TEACHER dynamic range for both maps (shared range)
+        # Use the teacher dynamic range for both maps (shared range)
         t_min = float(np.nanmin(t))
         t_ptp = float(np.nanmax(t) - np.nanmin(t) + 1e-12)
 

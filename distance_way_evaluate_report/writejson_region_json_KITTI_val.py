@@ -2,26 +2,23 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
-
 import numpy as np
 from ultralytics import YOLO
 
-
-# --- USER PATHS ---
+# PATHS
 MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best.pt"
 IMAGE_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image"
 OUT_JSON   = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\segment_json_KITTI_val.json"
 
-# Your model labels (must match class-id order in the model)
+# customize model labels (must match class-id order in the model)
 OVERRIDE_CLASS_NAMES = ['Stairs', 'crosswalk', 'sidewalk', 'tree-lined']
-USE_OVERRIDE_NAMES = True  # set False if you want to use model.names instead
+USE_OVERRIDE_NAMES = False  # set False if want to use model.names instead
 
 # Inference settings
 CONF_THRES = 0.25
 IOU_THRES  = 0.7
 IMGSZ      = 640
 DEVICE     = None  # e.g. "cpu" or 0 for GPU; None=auto
-
 
 def get_model_names(model) -> list[str]:
     names = model.names
@@ -32,6 +29,7 @@ def get_model_names(model) -> list[str]:
 
 
 def xyxy_to_xywh(x1, y1, x2, y2):
+    '''corner format (x1, y1, x2, y2) to size format (x, y, w, h)'''
     return [x1, y1, (x2 - x1), (y2 - y1)]
 
 
@@ -39,7 +37,7 @@ def to_flat_polygon(poly, decimals=2):
     """
     Convert polygon points to COCO-like flat list:
       Nx2  -> [x1,y1,x2,y2,...]
-    Also handles the case poly is a list of contours by picking the longest contour.
+    handles the case poly is a list of contours by picking the longest contour.
     """
     if poly is None:
         return []

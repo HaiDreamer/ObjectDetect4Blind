@@ -3,7 +3,7 @@ from pathlib import Path
 from collections import Counter
 import math
 
-'''sanity check
+'''sanity check bb_json_KITTI_val_with_gt_dist.json
 
 OUTPUT
 === Detections by eval_category ===

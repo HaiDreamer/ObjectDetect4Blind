@@ -54,81 +54,6 @@ def load_u16_as_meters(p: Path) -> np.ndarray:
         x = x[..., 0]
     return x.astype(np.float32) / 256.0
 
-
-# def metrics(pred: np.ndarray, gt: np.ndarray,
-#             dmin: float = 1e-3, dmax: float = 80.0):
-#     """
-#     Compute common monocular depth metrics on valid pixels.
-
-#     Parameters
-#     ----------
-#     pred : np.ndarray (HxW, float32)
-#         Predicted depth in meters.
-#     gt   : np.ndarray (HxW, float32)
-#         Ground-truth depth in meters. Values <= 0 are invalid.
-#     dmin : float
-#         Minimum depth considered valid for evaluation (to avoid log(0), etc.).
-#     dmax : float
-#         Maximum depth considered valid for evaluation (typical KITTI cap is 80 m).
-
-#     Returns
-#     -------
-#     tuple of 9 floats:
-#         d1, d2, d3: accuracy rates δ<1.25, δ<1.25^2, δ<1.25^3 (higher is better)
-#         AbsRel: mean absolute relative error
-#         SqRel: mean squared relative error
-#         RMSE: root mean squared error (meters)
-#         RMSElog: RMSE in log space
-#         SILog: scale-invariant log error x 100 (lower is better)
-#         log10: mean absolute log10 error
-#     """
-
-#     # pred, gt: local working copies (both in meters)
-#     pred = np.clip(pred, dmin, dmax)  # clamp predictions to [dmin, dmax]
-#     gt = gt.copy()
-#     gt[np.isinf(gt)] = 0
-#     gt[np.isnan(gt)] = 0
-
-#     # valid: boolean mask where GT is in-range (what we will score on)
-#     valid = (gt > dmin) & (gt < dmax)
-#     if valid.sum() == 0:
-#         # If no valid pixels, return NaNs so caller can handle gracefully.
-#         return tuple([float("nan")] * 9)
-
-#     # p, g: 1D arrays of predicted/GT depths over valid pixels
-#     p, g = pred[valid], gt[valid]
-
-#     # thresh: elementwise max(p/g, g/p) used for δ accuracies
-#     thresh = np.maximum(p / g, g / p)
-
-#     # d1, d2, d3: accuracy under multiplicative thresholds (higher is better)
-#     d1 = (thresh < 1.25).mean()          # δ < 1.25
-#     d2 = (thresh < 1.25 ** 2).mean()     # δ < 1.25^2
-#     d3 = (thresh < 1.25 ** 3).mean()     # δ < 1.25^3
-
-#     # AbsRel: mean absolute relative error |p - g| / g
-#     absrel = np.mean(np.abs(p - g) / g)
-
-#     # SqRel: mean squared relative error (p - g)^2 / g
-#     sqrel = np.mean(((p - g) ** 2) / g)
-
-#     # RMSE: sqrt(mean((p - g)^2)) in meters
-#     rmse = np.sqrt(np.mean((p - g) ** 2))
-
-#     # RMSElog: sqrt(mean((log p - log g)^2))
-#     rmselog = np.sqrt(np.mean((np.log(p) - np.log(g)) ** 2))
-
-#     # e: per-pixel log difference used for SILog
-#     e = np.log(p) - np.log(g)
-
-#     # SILog: scale-invariant log error = sqrt(E[e^2] - (E[e])^2) × 100
-#     silog = np.sqrt(np.mean(e ** 2) - (np.mean(e) ** 2)) * 100.0
-
-#     # log10: mean absolute log10 error
-#     log10 = np.mean(np.abs(np.log10(p) - np.log10(g)))
-
-#     return d1, d2, d3, absrel, sqrel, rmse, rmselog, silog, log10
-
 def metrics(pred: np.ndarray, gt: np.ndarray,
             dmin: float = 1e-3, dmax: float = 80.0):
 
@@ -147,13 +72,9 @@ def metrics(pred: np.ndarray, gt: np.ndarray,
     d1 = (thresh < 1.25).mean()
     d2 = (thresh < 1.25 ** 2).mean()
     d3 = (thresh < 1.25 ** 3).mean()
-
     absrel = np.mean(np.abs(p - g) / g)
     sqrel = np.mean(((p - g) ** 2) / g)
-
     rmse = np.sqrt(np.mean((p - g) ** 2))
-
-    # NEW: mean absolute error in meters
     mae = np.mean(np.abs(p - g))
 
     rmselog = np.sqrt(np.mean((np.log(p) - np.log(g)) ** 2))

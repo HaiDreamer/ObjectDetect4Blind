@@ -7,14 +7,11 @@ import numpy as np
 from PIL import Image
 import cv2
 
-
 DET_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_json_KITTI_val.json"
 DEPTH_GT_DIR = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"
 OUT_JSON = r"C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_distance_json_KITTI_val_GT.json"
 
-# =========================
 # DISTANCE PARAMS
-# =========================
 MAX_DEPTH = 80.0
 Q = 10.0
 FRAC = 0.1
@@ -33,22 +30,20 @@ SUBSAMPLE = 1
 CONF_THR = 0.25
 EXCLUDE_LOW_CONF = False
 #   False: keep object in output, but don't evaluate distance (distance=None, excluded_low_conf=True)
-#   True : drop object entirely from output
+#   True: drop object entirely from output
 
 # ROI method
 ROI_METHOD = "region"   # "region" or "pixel"
 #   "pixel": 1 middle pixel (center) or bottom-center pixel (bottom)
-#   "region": your ROI patch + percentile
+#   "region": ROI patch + percentile
 
-# Mode selection (NO class-name keyword checks)
+# Mode selection
 DEFAULT_MODE = "center"        # "center" or "bottom"
 USE_DET_MODE_FIELD = False     # if True, read mode from detection dict field below
-DET_MODE_FIELD = "roi_mode"    # expected values: "center" or "bottom"
+DET_MODE_FIELD = "roi_mode"    # Only "center" or "bottom" are accepted; anything else is ignored and the code falls back to DEFAULT_MODE
 
 
-# =========================
 # Helpers
-# =========================
 def read_kitti_depth_png_to_meters(depth_png_path: Path) -> np.ndarray:
     """
     KITTI depth GT:
@@ -62,13 +57,14 @@ def read_kitti_depth_png_to_meters(depth_png_path: Path) -> np.ndarray:
     return depth_m
 
 def fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
-    """Use np.partition for fast order statistic."""
-    vals = vals[np.isfinite(vals)]
-    if vals.size == 0:
+    '''computes a single percentile from a 1-D NumPy array quickly by using selection (partial sorting)'''
+    vals = vals[np.isfinite(vals)]      # filter valid value
+    if vals.size == 0:                  # case if no valid data
         return None
+    # Convert percentile q (0–100) into an index k
     k = int(round((q / 100.0) * (vals.size - 1)))
     k = max(0, min(vals.size - 1, k))
-    return float(np.partition(vals, k)[k])
+    return float(np.partition(vals, k)[k])      
 
 def _clamp_box_xyxy(x1, y1, x2, y2, H, W):
     '''Convert possibly-float bbox coords to integer pixel indices and Clamp them so they stay inside the image'''
@@ -360,11 +356,9 @@ def main():
         "eval_seconds_total_after_depth_ready": eval_sec_total,
         "eval_images_counted": eval_images,
         "avg_eval_ms_per_image_after_depth_ready": (eval_sec_total / max(1, eval_images)) * 1000.0,
-
         "dist_seconds_total_bbox_to_roi_to_distance_eval": dist_sec_total,
         "dist_objects_counted": dist_objects,
         "avg_ms_per_bbox_distance_eval": avg_ms_per_bbox_distance_eval,
-
         "timer": "time.perf_counter",
     }
 

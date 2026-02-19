@@ -1,13 +1,15 @@
 from pathlib import Path
 import time
-import cv2, numpy as np, torch
+import cv2
+import numpy as np
+import torch
 from depth_anything_v2.dpt import DepthAnythingV2
 from collections import OrderedDict
 import json  
 
-import onnxruntime as ort  
-import numpy as np
-import cv2
+# model (relative DA-V2)
+from collections import OrderedDict
+from torch.ao.quantization import quantize_dynamic  # dynamic INT8 Linear(weights-only)
 
 """
 Export DA-V2 (relative) predictions on KITTI val_selection_cropped with
@@ -22,11 +24,11 @@ Input: model
 Output: predicted images to compare with the labelled one (NEXT step: run eval_kitti_subset.py)
 """
 
-# ------- config -------
+# config
 N = 100         # number of images to export (set None to do all)
 torch.serialization.add_safe_globals([DepthAnythingV2])
 
-# ------- paths -------
+# paths
 KITTI_ROOT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\kitti_root")
 IMG_DIR = KITTI_ROOT / "val_selection_cropped" / "image"
 GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
@@ -34,9 +36,6 @@ GT_DIR  = KITTI_ROOT / "val_selection_cropped" / "groundtruth_depth"
 OUT_DIR = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\pred_affine_kitti16_100")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-# ------- model (relative DA-V2) -------
-from collections import OrderedDict
-from torch.ao.quantization import quantize_dynamic  # dynamic INT8 Linear  (weights-only)
 
 CKPT = Path(r"C:\Python\ObjectDetectRequireFile\put-in-depth-anything\checkpoints\depth_anything_v2_vits_fp16.onnx")
 BASE_FP32 = CKPT.with_name("depth_anything_v2_vits.pth")  
@@ -510,7 +509,7 @@ for i, gt_path in enumerate(gts, 1):
     if i % 25 == 0 or i == len(gts):
         print(f"{i}/{len(gts)} saved")
 
-# -------- timing end --------
+# timing end
 if DEVICE == 'cuda':
     torch.cuda.synchronize()  # ensure all GPU work is finished before stopping the clock
 elapsed = time.perf_counter() - t0
@@ -518,5 +517,5 @@ imgs = len(gts)
 sec_per_img = elapsed / max(imgs, 1)
 ips = imgs / elapsed if elapsed > 0 else float('inf')
 
-print("Done →", OUT_DIR)
+print("Done ->", OUT_DIR)
 print(f"Total time: {elapsed:.2f} s | Avg: {sec_per_img:.3f} s/img | Throughput: {ips:.2f} img/s")

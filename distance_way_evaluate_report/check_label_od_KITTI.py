@@ -8,8 +8,6 @@ CONF_MIN = 0.4  # e.g. 0.25 to count only detections with conf>=0.25, or None fo
 '''
 INPUT: bb_json_KITTI_val.json
 
-TODO: check conf_min, what value threshold
-
 OUTPUT
 File: C:\Python\ObjectDetect4Blind\distance_way_evaluate_report\bb_json_KITTI_val.json
 Images: 1000
@@ -29,7 +27,6 @@ Detections by class:
   electric pole: 15
   
 '''
-# -------------------
 
 def main():
     p = Path(JSON_PATH)
