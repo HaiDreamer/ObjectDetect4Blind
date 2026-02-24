@@ -61,7 +61,7 @@ OUT_DIR = Path(__file__).resolve().parent / "eval_output"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
-# ----------------- METRICS EXTRACTOR -----------------
+# METRICS EXTRACTOR
 def extract_metrics(val_result):
     """
     - Try to extract common detection metrics

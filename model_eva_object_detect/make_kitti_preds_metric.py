@@ -58,7 +58,7 @@ if MODE == "torch":
     METRIC_DIR = DEPTH_ANYTHING_REPO / "metric_depth"
     assert METRIC_DIR.exists(), f"metric_depth not found at: {METRIC_DIR}"
 
-    # Make metric_depth importable (this is what 'cd Depth-Anything-V2/metric_depth' effectively does)
+    # Make metric_depth importable 
     if str(METRIC_DIR) not in sys.path:
         sys.path.insert(0, str(METRIC_DIR)) 
     from depth_anything_v2.dpt import DepthAnythingV2
@@ -116,7 +116,7 @@ if MODE == "torch":
 
     sd = _strip_module(sd)
 
-    # If pruned variant: ensure we prune the same block BEFORE loading weights
+    # If pruned variant: ensure prune the same block BEFORE loading weights
     if EXPORT_VARIANT == "pruned1layer":
         if pruned_block is None:
             pruned_block = PRUNED_BLOCK_FALLBACK
@@ -129,7 +129,7 @@ if MODE == "torch":
     model.load_state_dict(sd, strict=True)
     model.to(DEVICE).eval()
 
-    @torch.inference_mode()
+    @torch.inference_mode()     # disable auto_grad(model training), view tracking, version counter (cause it not need for model evaluation) => code run better 
     def infer_metric_depth(bgr: np.ndarray) -> np.ndarray:
         depth = model.infer_image(bgr, input_size=518)  # returns meters
         return depth.astype(np.float32, copy=False)
@@ -154,7 +154,7 @@ else:  # MODE starts with "onnx"
 
     assert Path(ONNX_MODEL).exists(), f"Missing ONNX model: {ONNX_MODEL}"
 
-    # Pick providers explicitly (ORT recommends passing providers list)
+    # Pick providers explicitly (ORT recommends passing providers list), try GPU first and fall back to CPU
     avail = ort.get_available_providers()
     if "CUDAExecutionProvider" in avail:
         providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
@@ -194,15 +194,15 @@ else:  # MODE starts with "onnx"
         # BGR -> RGB
         rgb = cv2.cvtColor(bgr_resized, cv2.COLOR_BGR2RGB)
 
-        # float32 in [0, 1]
+        # scale pixel float32 in [0, 1]
         img = rgb.astype(np.float32) / 255.0
 
-        # normalize (ImageNet style)
+        # ImageNet normalize, match the backbone’s training distribution of depth anything v2
         mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
         std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         img = (img - mean) / std
-        img = img.transpose(2, 0, 1)[None, ...]
-        return img.astype(np.float32, copy=False)
+        img = img.transpose(2, 0, 1)[None, ...]     # change HWC to CHW, add batch dim => (1,C,H,W)
+        return img.astype(np.float32, copy=False)   # array is float32, typical input dtype expected by ONNX models
 
     def infer_metric_depth(bgr: np.ndarray) -> np.ndarray:
         """
@@ -218,7 +218,7 @@ else:  # MODE starts with "onnx"
 
 # helpers 
 def read_gt_shape(p: Path):
-    """Just read the GT file to get (H, W) for resizing."""
+    """read the GT file to get (H, W) for resizing."""
     im = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)
     if im is None:
         raise FileNotFoundError(p)

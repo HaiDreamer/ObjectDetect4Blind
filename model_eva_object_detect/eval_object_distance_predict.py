@@ -23,6 +23,7 @@ QUIET_MISSING = True
 
 
 def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
+    '''take k% smallest value of array'''
     vals = vals[np.isfinite(vals)]
     if vals.size == 0:
         return None
@@ -41,24 +42,26 @@ def compute_box_distance(
     subsample: int = BOX_SUBSAMP,
 ) -> float | None:
     """
-    Matches your main pipeline logic:
       - "center": central frac x frac
       - "bottom": bottom frac of height + central 50% width band
       - distance = low percentile (p10 by default)
-      - x2,y2 treated as slice end (exclusive)
+      - x2,y2 treated as slice end
     """
+    # clamping bb, bb must be inside img
     H, W = depth_map_m.shape[:2]
-
-    # IMPORTANT: allow x1 == W or y1 == H (will become empty region -> None)
     x1 = max(0, min(W, x1))
     y1 = max(0, min(H, y1))
     x2 = max(0, min(W, x2))
     y2 = max(0, min(H, y2))
+
+    # fallback case 
     if x2 <= x1 or y2 <= y1:
         return None
 
     w = x2 - x1
     h = y2 - y1
+
+    # fallback case
     if w <= 0 or h <= 0:
         return None
 
@@ -95,16 +98,18 @@ def compute_box_distance(
 
         patch = depth_map_m[cy1:cy2, cx1:cx2]
 
-    if patch.size == 0:
+    if patch.size == 0:     # fallback case
         return None
     if subsample > 1:
         patch = patch[::subsample, ::subsample]
 
-    valid = patch[(patch > 0.0) & np.isfinite(patch) & (patch < MAX_DEPTH_M)].reshape(-1)
+    # take valid value, reshape(-1) for ensure valid is 1D array
+    valid = patch[(patch > 0.0) & np.isfinite(patch) & (patch < MAX_DEPTH_M)].reshape(-1)   
     return _fast_percentile_1d(valid, q=q)
 
 
 def infer_mode(det: dict) -> str:
+    '''object should be in bottom or center mode ?'''
     m = (det.get("distance_mode") or "").lower()
     if m in ("bottom", "center"):
         return m
@@ -124,6 +129,8 @@ def get_bbox_int(det: dict) -> tuple[int, int, int, int] | None:
     if not bb or len(bb) != 4:
         return None
     x1f, y1f, x2f, y2f = bb
+    # floor for round down, ceil for round up. 
+    # FOR Most detection / ROI code assumes an XYXY box where the top-left is included and the bottom-right is excluded
     return int(np.floor(x1f)), int(np.floor(y1f)), int(np.ceil(x2f)), int(np.ceil(y2f))
 
 
@@ -143,7 +150,7 @@ def build_pred_index(pred_dir: Path):
 
 def derive_candidates(img_entry: dict) -> list[str]:
     """
-    Return candidate GT-style filenames we expect preds to be named after.
+    Return candidate GT-style filenames expect preds to be named after.
     Primary = gt_depth_path filename (best)
     Fallback = derived from file_name pattern
     """
@@ -204,7 +211,6 @@ def load_pred_depth_for_entry(img_entry: dict, png_index: dict, npy_index: dict)
     return None, None
 
 
-# MAIN
 def main():
     assert OBJ_GT_JSON.exists(), f"Missing GT JSON: {OBJ_GT_JSON}"
     assert PRED_DEPTH_DIR.exists(), f"Missing PRED_DEPTH_DIR: {PRED_DEPTH_DIR}"

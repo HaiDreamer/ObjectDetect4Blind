@@ -10,11 +10,9 @@ from ultralytics import YOLO
 
 '''
 OUTPUT: json file with ground truth depth distance + object detection for our label
-
-TODO: based on 4 open code, for segmentation is also relative the same 
 '''
 
-# --- USER PATHS ---
+# PATHS
 MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\models\best-lan2.pt"
 IMAGE_DIR  = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\image"
 GT_DIR     = r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"
@@ -39,7 +37,7 @@ IOU_THRES  = 0.7
 IMGSZ      = 640
 DEVICE     = None  # "cpu" or 0 for GPU; None = auto
 
-# Distance settings (sync with your main pipeline)
+# Distance settings 
 MAX_DEPTH_M = 80.0
 BOX_FRAC    = 0.3
 BOX_Q       = 10.0
@@ -70,8 +68,7 @@ def load_kitti_depth_meters(path: Path) -> np.ndarray:
 
 
 def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
-    if vals is None:
-        return None
+    '''take k% smallest value of array'''
     vals = vals[np.isfinite(vals)]
     if vals.size == 0:
         return None
@@ -80,31 +77,36 @@ def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
     return float(np.partition(vals, k)[k])
 
 
-def _compute_box_distance(
+def compute_box_distance(
     depth_map_m: np.ndarray,
     x1: int, y1: int, x2: int, y2: int,
-    frac: float = 0.5,
-    mode: str = "center",  # "center" or "bottom"
-    q: float = 10.0,
-    subsample: int = 1,
+    *,
+    frac: float = BOX_FRAC,
+    mode: str = "center",      # "center" or "bottom"
+    q: float = BOX_Q,
+    subsample: int = BOX_SUBSAMP,
 ) -> float | None:
     """
-    Same logic as your main pipeline:
-      - ROI selection (center or bottom)
-      - robust p10 (or p5) instead of min()
-      - treat x2,y2 as slice end (exclusive) for patch extraction
+      - "center": central frac x frac
+      - "bottom": bottom frac of height + central 50% width band
+      - distance = low percentile (p10 by default)
+      - x2,y2 treated as slice end
     """
+    # clamping bb, bb must be inside img
     H, W = depth_map_m.shape[:2]
-
-    x1 = max(0, min(W - 1, x1))
-    y1 = max(0, min(H - 1, y1))
+    x1 = max(0, min(W, x1))
+    y1 = max(0, min(H, y1))
     x2 = max(0, min(W, x2))
     y2 = max(0, min(H, y2))
+
+    # fallback case 
     if x2 <= x1 or y2 <= y1:
         return None
 
     w = x2 - x1
     h = y2 - y1
+
+    # fallback case
     if w <= 0 or h <= 0:
         return None
 
@@ -132,7 +134,6 @@ def _compute_box_distance(
 
         cx = (x1 + x2) // 2
         cy = (y1 + y2) // 2
-
         cx1 = max(0, cx - cw // 2)
         cy1 = max(0, cy - ch // 2)
         cx2 = min(W, cx1 + cw)
@@ -142,13 +143,13 @@ def _compute_box_distance(
 
         patch = depth_map_m[cy1:cy2, cx1:cx2]
 
-    if patch.size == 0:
+    if patch.size == 0:     # fallback case
         return None
-
     if subsample > 1:
         patch = patch[::subsample, ::subsample]
 
-    valid = patch[(patch > 0) & np.isfinite(patch)].reshape(-1)
+    # take valid value, reshape(-1) for ensure valid is 1D array
+    valid = patch[(patch > 0.0) & np.isfinite(patch) & (patch < MAX_DEPTH_M)].reshape(-1)   
     return _fast_percentile_1d(valid, q=q)
 
 
@@ -190,7 +191,6 @@ def main():
     if not gt_dir.exists():
         raise FileNotFoundError(f"GT_DIR not found: {gt_dir}")
 
-    exts = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
     image_paths = sorted(image_dir.glob("*.png"))
 
     if not image_paths:
@@ -224,7 +224,7 @@ def main():
     }
 
     for idx, img_path in enumerate(image_paths, 1):
-        vis = cv2.imread(str(img_path))  # BGR
+        vis = cv2.imread(str(img_path))  # BGR color not RGB
         with Image.open(img_path) as im:
             width, height = im.size
 
@@ -260,7 +260,7 @@ def main():
                 cls_id_int = int(cls_id)
                 name = class_names[cls_id_int] if 0 <= cls_id_int < len(class_names) else str(cls_id_int)
 
-                # Convert to ints for slicing (treat x2,y2 as slice end)
+                # Convert to ints for slicing 
                 x1 = int(np.floor(x1f))
                 y1 = int(np.floor(y1f))
                 x2 = int(np.ceil(x2f))
@@ -270,7 +270,7 @@ def main():
 
                 gt_distance_m = None
                 if depth_gt is not None:
-                    gt_distance_m = _compute_box_distance(
+                    gt_distance_m = compute_box_distance(
                         depth_gt, x1, y1, x2, y2,
                         frac=BOX_FRAC,
                         mode=mode,
@@ -290,11 +290,11 @@ def main():
                     "gt_distance_m": None if gt_distance_m is None else float(gt_distance_m),
                 })
 
-                # DRAW PER DETECTION (FIX)
+                # DRAW PER DETECTION
                 if vis is not None:
                     H_vis, W_vis = vis.shape[:2]
 
-                    # clamp (x2,y2 are slice end, allow == W/H)
+                    # clamp 
                     x1c = max(0, min(W_vis - 1, x1))
                     y1c = max(0, min(H_vis - 1, y1))
                     x2c = max(0, min(W_vis, x2))

@@ -8,27 +8,11 @@ from PIL import Image
 
 DATA_YAML = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\GroupProject_OD\data.yaml")
 
-# Optional: set True to generate hashes (detect if files changed between runs)
-HASH_FILES = False
-
-
 IMG_EXTS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
-
-
-def sha256_file(p: Path, chunk=1024 * 1024) -> str:
-    h = hashlib.sha256()
-    with p.open("rb") as f:
-        while True:
-            b = f.read(chunk)
-            if not b:
-                break
-            h.update(b)
-    return h.hexdigest()
-
 
 def resolve_split_path(data: dict, key: str) -> Path:
     """
-    Supports absolute paths (like your YAML) or relative paths resolved from `path:`.
+    Supports absolute paths (like YAML) or relative paths resolved from `path:`.
     Ultralytics data.yaml commonly uses `path:` + relative split paths.
     """
     base = Path(data.get("path", "")).expanduser()
@@ -60,7 +44,6 @@ def infer_labels_dir(val_images_path: Path) -> Path:
     """
     Typical Ultralytics/YOLO layout:
       .../images/val  -> .../labels/val
-    :contentReference[oaicite:3]{index=3}
     """
     parts = list(val_images_path.parts)
     # Replace the last occurrence of "images" with "labels"
@@ -75,7 +58,7 @@ def infer_labels_dir(val_images_path: Path) -> Path:
 def parse_label_file(label_path: Path, nc: int):
     """
     YOLO label: class x_center y_center width height (normalized 0..1)
-    :contentReference[oaicite:4]{index=4}
+    nc: number of classes
     """
     errors = []
     boxes = []
@@ -139,11 +122,11 @@ def main():
     manifest = []
 
     for img_path in val_images:
-        # 1) image readability check
+        # image readability check
         try:
             with Image.open(img_path) as im:
                 im.verify()  # quick corruption check
-            # need reopen after verify for size if you want (optional)
+            # need reopen after verify for size (optional)
         except Exception:
             corrupt_images += 1
             continue
@@ -160,16 +143,8 @@ def main():
         if len(boxes) == 0:
             empty_labels += 1
 
-        for (cls, *_rest) in boxes:
+        for cls in boxes:
             class_counts[cls] += 1
-
-        if HASH_FILES:
-            manifest.append({
-                "image": str(img_path),
-                "label": str(label_path),
-                "image_sha256": sha256_file(img_path),
-                "label_sha256": sha256_file(label_path),
-            })
 
     print("Corrupt/unreadable images:", corrupt_images)
     print("Images missing label file:", missing_label)
@@ -184,14 +159,6 @@ def main():
     print("\nPer-class instance counts (by class id):")
     for k in range(nc):
         print(f"  {k}: {class_counts.get(k, 0)}")
-
-    if HASH_FILES:
-        out = Path("val_manifest_sha256.json")
-        out.write_text(__import__("json").dumps(manifest, indent=2), encoding="utf-8")
-        print("\nWrote hash manifest:", out)
-        print("Re-run later and diff this file to detect dataset changes.")
-
-    print("\nDone.")
 
 
 if __name__ == "__main__":
