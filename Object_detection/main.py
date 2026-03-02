@@ -3,7 +3,7 @@ import argparse
 from ultralytics import YOLO
 import json
 
-'''check model if its works, pls dont fix code before ask me cause it affect MAIN_distance.py pipeline'''
+'''check model if its works, fix code can affect MAIN_distance.py pipeline'''
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_IMAGE_PATH = Path(r"C:\Python\ObjectDetect4Blind\assets\demo01.jpg")
@@ -35,15 +35,15 @@ def main():
     model = YOLO(str(MODEL_PATH))
 
     results = model.predict(
-        source=str(image_path),
+        source=str(image_path),     # image input
         conf=0.25,
         iou=0.7,
         save=True,          # save rendered image(s)
         save_txt=True,      # save YOLO-format txt predictions
         save_conf=True,     # include confidences
-        project=str(OUT_IMG),
-        name=RUN_NAME,
-        exist_ok=True
+        project=str(OUT_IMG),       # name of project directory if save enable
+        name=RUN_NAME,      # name of prediction run
+        exist_ok=True       # allow overwritting
     )
 
     print("Saved to:", OUT_IMG / RUN_NAME)
@@ -69,6 +69,7 @@ def main():
 
     out_json = OUT_IMG / RUN_NAME / (image_path.stem + ".json")
     out_json.parent.mkdir(parents=True, exist_ok=True)
+    #payload (list/dict) => str, non-ascii char
     out_json.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 

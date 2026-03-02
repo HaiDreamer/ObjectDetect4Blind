@@ -22,6 +22,7 @@ FOR WHAT?
 # Paths and Python envs
 # =========================
 ROOT = Path(__file__).resolve().parent
+print(ROOT)
 
 # Scripts
 YOLO_SCRIPT          = ROOT / "Object_detection" / "main.py"
@@ -40,11 +41,14 @@ PY_SEG    = PY_YOLO
 METRIC_DEPTH_WEIGHTS = (
     r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
 )
+DIST_SCALE = 0.4 # 0.5 => half distance, 2.0 => double distance
 
+def _scale_dist(d: float | None) -> float | None:
+    return None if d is None else float(d) * DIST_SCALE
 # =========================
 # Inputs / Outputs
 # =========================
-ORIG_IMG = ROOT / "assets" / "demo03.jpg"
+ORIG_IMG = ROOT / "assets" / "demo08.jpg"
 
 # YOLO labels
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels"
@@ -353,6 +357,7 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
             "--outdir", str(METRIC_DEPTH_OUT_DIR),
             "--pred-only",
             "--save-numpy",
+            "--grayscale"
         ]
         p_depth = subprocess.Popen(metric_cmd, cwd=str(METRIC_DEPTH_SCRIPT.parent))
         t2 = threading.Thread(target=_watch, args=("METRIC_DEPTH", p_depth), daemon=True)
@@ -442,7 +447,8 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
                 name_l = cls_name.lower()
                 is_bottom_region = any(k in name_l for k in ("car", "bicycle", "truck", "motorbike", "motorcycle"))
                 mode = "bottom" if is_bottom_region else "center"
-                dist = _compute_box_distance(depth_map_m, x1, y1, x2, y2, frac=0.1, mode=mode)
+                dist_raw = _compute_box_distance(depth_map_m, x1, y1, x2, y2, frac=0.1, mode=mode)
+                dist = _scale_dist(dist_raw)
                 if dist is not None:
                     label_txt += f" {dist:.2f}m"
 
@@ -482,6 +488,7 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
                 max_depth=80.0,
                 band_start_frac=0.1,
             )
+            d_min = _scale_dist(d_min)
 
             # anchor point: nearest depth pixel if exists, else polygon centroid
             if x_min is None or y_min is None:

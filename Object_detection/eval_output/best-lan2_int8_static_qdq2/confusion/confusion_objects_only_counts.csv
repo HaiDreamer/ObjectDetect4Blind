@@ -1,0 +1,10 @@
+predicted\true,bicycle,bus,car,electric pole,motocycle,pedestrian crossing sign,person,tree,truck
+bicycle,215,0,0,0,12,0,3,0,0
+bus,0,61,0,0,0,0,0,0,6
+car,0,1,2059,0,5,0,5,0,5
+electric pole,0,0,0,257,0,0,0,4,0
+motocycle,16,0,23,0,2949,0,48,0,0
+pedestrian crossing sign,0,0,0,0,0,562,0,1,0
+person,4,1,8,0,33,0,3003,0,0
+tree,0,0,0,5,0,0,1,688,12
+truck,0,6,3,0,1,0,0,0,42

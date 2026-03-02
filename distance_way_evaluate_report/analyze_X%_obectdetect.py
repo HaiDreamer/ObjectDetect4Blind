@@ -31,7 +31,7 @@ def load_distance_json(path: str | Path) -> pd.DataFrame:
     return df
 
 def merge_ref_ablation(ref_df: pd.DataFrame, abl_df: pd.DataFrame) -> pd.DataFrame:
-    '''keep only evaluated objects (not excluded + has distance)'''
+    '''keep only evaluated objects (not being excluded + has distance)'''
     ref = ref_df[(~ref_df["excluded_low_conf"]) & ref_df["distance_m"].notna()].copy()
     abl = abl_df[(~abl_df["excluded_low_conf"]) & abl_df["distance_m"].notna()].copy()
     # inner join = only objects that have distance in BOTH ref and ablation

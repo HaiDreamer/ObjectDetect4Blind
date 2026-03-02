@@ -31,7 +31,7 @@ DATA_YAML = Path(r"C:\Python\ObjectDetectRequireFile\put-in-obj-detect\GroupProj
 
 IMGSZ = 640
 OPSET = 13  
-DYNAMIC = False       # strongly recommended for quantization stability
+DYNAMIC = False       # recommended for quantization stability
 SIMPLIFY = False
 
 # Calibration settings
@@ -48,16 +48,15 @@ QFORMAT         = QuantFormat.QDQ
 OP_TYPES_TO_QUANTIZE = ["Conv", "MatMul", "Gemm"]
 
 
-# ----------------- UTILS -----------------
 def export_fp32_onnx(pt_path: Path, onnx_fp32_path: Path) -> Path:
     print(f"[1/3] Export FP32 ONNX: {pt_path} -> {onnx_fp32_path}")
     model = YOLO(str(pt_path))
     exported = model.export(
         format="onnx",
         opset=OPSET,
-        dynamic=DYNAMIC,
-        simplify=SIMPLIFY,
-        half=False,
+        dynamic=DYNAMIC,        # enable enhancing flexibility in handling varying image dimensions
+        simplify=SIMPLIFY,      # Simplifies the model graph for ONNX exports, potentially improving performance and compatibility with inference engines.
+        half=False,             # Enables FP16 (half-precision) quantization
         imgsz=IMGSZ,
     )
     exported_path = Path(exported) if exported else pt_path.with_suffix(".onnx")
@@ -67,7 +66,7 @@ def export_fp32_onnx(pt_path: Path, onnx_fp32_path: Path) -> Path:
     if exported_path.resolve() != onnx_fp32_path.resolve():
         onnx_fp32_path.write_bytes(exported_path.read_bytes())
 
-    print(f"  Saved: {onnx_fp32_path} ({onnx_fp32_path.stat().st_size/1024/1024:.2f} MB)")
+    print(f"Saved: {onnx_fp32_path} ({onnx_fp32_path.stat().st_size/1024/1024:.2f} MB)")
     return onnx_fp32_path
 
 
@@ -106,25 +105,33 @@ def list_images(folder: Path):
 
 
 def letterbox(im, new_shape=640, color=(114, 114, 114)):
-    """Classic YOLO letterbox to keep aspect ratio."""
+    """Classic YOLO letterbox to keep aspect ratio(ti le khung hinh).
+    - Target size: 640x640
+    - 
+    """
     shape = im.shape[:2]  # (h,w)
-    if isinstance(new_shape, int):
+    if isinstance(new_shape, int):              # normalize 640 to (640, 640)
         new_shape = (new_shape, new_shape)
 
+    # cal scale factor 
     r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
+    # cal resized image size
     new_unpad = (int(round(shape[1] * r)), int(round(shape[0] * r)))  # (w,h)
 
-    dw = new_shape[1] - new_unpad[0]
-    dh = new_shape[0] - new_unpad[1]
+    # how much padding(extra border pixel) is need?
+    dw = new_shape[1] - new_unpad[0]        # pad width total
+    dh = new_shape[0] - new_unpad[1]        # pad height total
     dw /= 2
     dh /= 2
 
-    if shape[::-1] != new_unpad:
-        im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
+    if shape[::-1] != new_unpad:            # if size actually change, resize with speed + quality maximize
+        im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)      
 
-    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
+    # keep top-left, remove 1 pixel border bottom-right
+    top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))        
     left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-    im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
+    # add const color to border
+    im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color) 
     return im
 
 
@@ -133,12 +140,17 @@ def preprocess_yolo(im_bgr: np.ndarray) -> np.ndarray:
     im = letterbox(im_bgr, IMGSZ)
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
     im = im.transpose(2, 0, 1)  # HWC -> CHW
-    im = np.ascontiguousarray(im, dtype=np.float32) / 255.0
-    im = im[None, ...]  # add batch
+    im = np.ascontiguousarray(im, dtype=np.float32) / 255.0     # contiguous fp32 arr img
+    im = im[None, ...]  # add batch 
     return im
 
 
 class YoloCalibrationDataReader(CalibrationDataReader):
+    '''
+    calibration: estimating activation ranges/distributions
+    weights, the quantizer can compute these parameters directly from the weight values (because weights are fixed).
+    activations (intermediate tensors), the value ranges depend on real input data (images),
+    '''
     def __init__(self, image_paths, input_name: str):
         self.image_paths = list(image_paths)
         self.input_name = input_name
@@ -162,17 +174,22 @@ def try_load_ort(path: Path, providers=None):
     _ = ort.InferenceSession(str(path), providers=providers)
 
 
-# ----------------- INT8 STATIC QUANT -----------------
+# INT8 STATIC QUANT
 def quantize_int8_static(fp32_path: Path, out_int8_path: Path, calib_images, prefer_trt=False):
     """
     prefer_trt=False (CPU): asymmetric activation + symmetric weights recommended.
+        U8S8 with asymmetric activations + symmetric weights (and per-channel weights)
+        Activations are often not symmetric around 0 (especially after ops like ReLU where values are mostly ≥ 0). 
+        Asymmetric quantization uses (min, max) to pick scale and zero_point
+        Weights are often closer to zero-centered (roughly positive/negative balanced)
+        ORT emphasizes that zero_point matters because 0 must be representable (CNNs use zero padding)
     prefer_trt=True  (TensorRT): symmetric activation + symmetric weights required (usually).
     """
     print(f"[2/3] INT8 static quantization (QDQ): {fp32_path} -> {out_int8_path}")
 
     sess = ort.InferenceSession(str(fp32_path), providers=["CPUExecutionProvider"])
-    input_name = sess.get_inputs()[0].name
-    print("  Model input:", input_name, sess.get_inputs()[0].shape, sess.get_inputs()[0].type)
+    input_name = sess.get_inputs()[0].name      # grabbing the name of the model’s first input tensor
+    print("Model input:", input_name, sess.get_inputs()[0].shape, sess.get_inputs()[0].type)
 
     reader = YoloCalibrationDataReader(calib_images, input_name=input_name)
 
@@ -186,13 +203,13 @@ def quantize_int8_static(fp32_path: Path, out_int8_path: Path, calib_images, pre
         model_input=str(fp32_path),
         model_output=str(out_int8_path),
         calibration_data_reader=reader,
-        quant_format=QFORMAT,
+        quant_format=QFORMAT,       # qdq format
         activation_type=(QuantType.QInt8 if prefer_trt else ACTIVATION_TYPE),
-        weight_type=WEIGHT_TYPE,
-        op_types_to_quantize=OP_TYPES_TO_QUANTIZE,
-        per_channel=True,
-        reduce_range=False,
-        calibrate_method=CalibrationMethod.MinMax,
+        weight_type=WEIGHT_TYPE,    
+        op_types_to_quantize=OP_TYPES_TO_QUANTIZE,      # Limits quantization to only these operator types, everything stay fp32
+        per_channel=True,       # Per-channel quantization can improve accuracy for models whose weight ranges are large, model’s Conv weights are not “well-behaved” for per-tensor INT8 in several places
+        reduce_range=False,     # keeping full int8 range (8-bit)
+        calibrate_method=CalibrationMethod.MinMax,      # uses the absolute minimum and maximum values observed in the calibration data for a given tensor (or quantization group) to determine the range
         extra_options=extra,
     )
 
@@ -223,7 +240,7 @@ def main():
     calib = images[: min(N_CALIB_IMAGES, len(images))]
     print(f"Using {len(calib)} calibration images")
 
-    # IMPORTANT: start with CPU-style INT8 (most common)
+    # start with CPU-style INT8 (most common)
     quantize_int8_static(ONNX_FP32, ONNX_INT8_STATIC, calib, prefer_trt=False)
 
     print("[3/3] Done.")

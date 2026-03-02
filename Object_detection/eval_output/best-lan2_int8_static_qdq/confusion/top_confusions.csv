@@ -1,0 +1,23 @@
+pred_class_id,pred_class,true_class_id,true_class,count
+4,motocycle,6,person,48
+6,person,4,motocycle,33
+4,motocycle,2,car,23
+4,motocycle,0,bicycle,16
+0,bicycle,4,motocycle,12
+7,tree,8,truck,12
+6,person,2,car,8
+1,bus,8,truck,6
+8,truck,1,bus,6
+2,car,4,motocycle,5
+2,car,6,person,5
+2,car,8,truck,5
+7,tree,3,electric pole,5
+3,electric pole,7,tree,4
+6,person,0,bicycle,4
+0,bicycle,6,person,3
+8,truck,2,car,3
+2,car,1,bus,1
+5,pedestrian crossing sign,7,tree,1
+6,person,1,bus,1
+7,tree,6,person,1
+8,truck,4,motocycle,1

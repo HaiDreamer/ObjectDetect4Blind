@@ -1,0 +1,430 @@
+[
+  {
+    "id": "yolo_0",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.976007,
+    "bbox": {
+      "x1": 48,
+      "y1": 669,
+      "x2": 624,
+      "y2": 1124
+    },
+    "distance_m": 7.099056243896484
+  },
+  {
+    "id": "yolo_1",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.948831,
+    "bbox": {
+      "x1": 744,
+      "y1": 662,
+      "x2": 979,
+      "y2": 904
+    },
+    "distance_m": 12.343232154846191
+  },
+  {
+    "id": "yolo_2",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.939301,
+    "bbox": {
+      "x1": 970,
+      "y1": 773,
+      "x2": 1078,
+      "y2": 958
+    },
+    "distance_m": 10.261918067932129
+  },
+  {
+    "id": "yolo_3",
+    "source": "yolo",
+    "class_id": 3,
+    "class_name": "electric pole",
+    "confidence": 0.90792,
+    "bbox": {
+      "x1": 703,
+      "y1": 597,
+      "x2": 758,
+      "y2": 1015
+    },
+    "distance_m": 8.832473754882812
+  },
+  {
+    "id": "yolo_4",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.89768,
+    "bbox": {
+      "x1": 984,
+      "y1": 639,
+      "x2": 1047,
+      "y2": 777
+    },
+    "distance_m": 11.74919605255127
+  },
+  {
+    "id": "yolo_5",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.86563,
+    "bbox": {
+      "x1": 1029,
+      "y1": 622,
+      "x2": 1079,
+      "y2": 775
+    },
+    "distance_m": 11.096986770629883
+  },
+  {
+    "id": "yolo_6",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.321926,
+    "bbox": {
+      "x1": 983,
+      "y1": 639,
+      "x2": 1065,
+      "y2": 807
+    },
+    "distance_m": 11.69935417175293
+  },
+  {
+    "id": "yolo_7",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.976007,
+    "bbox": {
+      "x1": 48,
+      "y1": 669,
+      "x2": 624,
+      "y2": 1124
+    },
+    "distance_m": 7.099056243896484
+  },
+  {
+    "id": "yolo_8",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.948831,
+    "bbox": {
+      "x1": 744,
+      "y1": 662,
+      "x2": 979,
+      "y2": 904
+    },
+    "distance_m": 12.343232154846191
+  },
+  {
+    "id": "yolo_9",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.939301,
+    "bbox": {
+      "x1": 970,
+      "y1": 773,
+      "x2": 1078,
+      "y2": 958
+    },
+    "distance_m": 10.261918067932129
+  },
+  {
+    "id": "yolo_10",
+    "source": "yolo",
+    "class_id": 3,
+    "class_name": "electric pole",
+    "confidence": 0.90792,
+    "bbox": {
+      "x1": 703,
+      "y1": 597,
+      "x2": 758,
+      "y2": 1015
+    },
+    "distance_m": 8.832473754882812
+  },
+  {
+    "id": "yolo_11",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.89768,
+    "bbox": {
+      "x1": 984,
+      "y1": 639,
+      "x2": 1047,
+      "y2": 777
+    },
+    "distance_m": 11.74919605255127
+  },
+  {
+    "id": "yolo_12",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.86563,
+    "bbox": {
+      "x1": 1029,
+      "y1": 622,
+      "x2": 1079,
+      "y2": 775
+    },
+    "distance_m": 11.096986770629883
+  },
+  {
+    "id": "yolo_13",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.321926,
+    "bbox": {
+      "x1": 983,
+      "y1": 639,
+      "x2": 1065,
+      "y2": 807
+    },
+    "distance_m": 11.69935417175293
+  },
+  {
+    "id": "yolo_14",
+    "source": "yolo",
+    "class_id": 2,
+    "class_name": "car",
+    "confidence": 0.976007,
+    "bbox": {
+      "x1": 48,
+      "y1": 669,
+      "x2": 624,
+      "y2": 1124
+    },
+    "distance_m": 7.099056243896484
+  },
+  {
+    "id": "yolo_15",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.948831,
+    "bbox": {
+      "x1": 744,
+      "y1": 662,
+      "x2": 979,
+      "y2": 904
+    },
+    "distance_m": 12.343232154846191
+  },
+  {
+    "id": "yolo_16",
+    "source": "yolo",
+    "class_id": 4,
+    "class_name": "motocycle",
+    "confidence": 0.939301,
+    "bbox": {
+      "x1": 970,
+      "y1": 773,
+      "x2": 1078,
+      "y2": 958
+    },
+    "distance_m": 10.261918067932129
+  },
+  {
+    "id": "yolo_17",
+    "source": "yolo",
+    "class_id": 3,
+    "class_name": "electric pole",
+    "confidence": 0.90792,
+    "bbox": {
+      "x1": 703,
+      "y1": 597,
+      "x2": 758,
+      "y2": 1015
+    },
+    "distance_m": 8.832473754882812
+  },
+  {
+    "id": "yolo_18",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.89768,
+    "bbox": {
+      "x1": 984,
+      "y1": 639,
+      "x2": 1047,
+      "y2": 777
+    },
+    "distance_m": 11.74919605255127
+  },
+  {
+    "id": "yolo_19",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.86563,
+    "bbox": {
+      "x1": 1029,
+      "y1": 622,
+      "x2": 1079,
+      "y2": 775
+    },
+    "distance_m": 11.096986770629883
+  },
+  {
+    "id": "yolo_20",
+    "source": "yolo",
+    "class_id": 6,
+    "class_name": "person",
+    "confidence": 0.321926,
+    "bbox": {
+      "x1": 983,
+      "y1": 639,
+      "x2": 1065,
+      "y2": 807
+    },
+    "distance_m": 11.69935417175293
+  },
+  {
+    "id": "seg_0",
+    "source": "segmentation",
+    "class_id": 2,
+    "class_name": "sidewalk",
+    "confidence": 0.963501,
+    "polygon": [
+      [
+        580,
+        1050
+      ],
+      [
+        580,
+        1085
+      ],
+      [
+        593,
+        1085
+      ],
+      [
+        633,
+        1121
+      ],
+      [
+        723,
+        1181
+      ],
+      [
+        753,
+        1193
+      ],
+      [
+        796,
+        1229
+      ],
+      [
+        829,
+        1241
+      ],
+      [
+        861,
+        1271
+      ],
+      [
+        1034,
+        1382
+      ],
+      [
+        1038,
+        1397
+      ],
+      [
+        1051,
+        1397
+      ],
+      [
+        1051,
+        954
+      ],
+      [
+        1002,
+        957
+      ],
+      [
+        976,
+        945
+      ],
+      [
+        956,
+        912
+      ],
+      [
+        922,
+        884
+      ],
+      [
+        922,
+        870
+      ],
+      [
+        805,
+        870
+      ],
+      [
+        805,
+        881
+      ],
+      [
+        768,
+        909
+      ],
+      [
+        768,
+        929
+      ],
+      [
+        782,
+        953
+      ],
+      [
+        852,
+        974
+      ],
+      [
+        860,
+        990
+      ],
+      [
+        813,
+        996
+      ],
+      [
+        779,
+        1011
+      ],
+      [
+        647,
+        1020
+      ],
+      [
+        619,
+        1032
+      ],
+      [
+        604,
+        1050
+      ]
+    ],
+    "distance_m": 9.721402168273926,
+    "nearest_pixel": {
+      "x": 1022,
+      "y": 1259
+    }
+  }
+]

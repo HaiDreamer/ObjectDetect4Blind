@@ -1,0 +1,6 @@
+predicted\true,Stairs,crosswalk,sidewalk,tree-lined,background
+Stairs,0.866667,0.0,0.000844,0.0,0.048696
+crosswalk,0.0,0.787172,0.0,0.0,0.073043
+sidewalk,0.002564,0.0,0.802532,0.005865,0.624348
+tree-lined,0.0,0.0,0.0,0.583578,0.253913
+background,0.130769,0.212828,0.196624,0.410557,0.0

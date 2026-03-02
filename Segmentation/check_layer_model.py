@@ -19,12 +19,12 @@ OUTPUT
 
 MODEL_PATH = r"C:\Python\ObjectDetectRequireFile\put-in-segment\models\best_seg.pt"
 
-model = YOLO(MODEL_PATH)          # load .pt in Python :contentReference[oaicite:1]{index=1}
+model = YOLO(MODEL_PATH)          # load .pt in Python 
 
-# 1) Structured summary (layers/params); detailed=True gives a more layer-level view :contentReference[oaicite:2]{index=2}
+# 1) Structured summary (layers/params); detailed=True gives a more layer-level view 
 model.info(detailed=True, verbose=True)
 
-# 2) Print the actual PyTorch module (full architecture repr) :contentReference[oaicite:3]{index=3}
+# 2) Print the actual PyTorch module (full architecture repr)
 print(model.model)
 
 # 3) List modules (nice “layer-by-layer” listing)

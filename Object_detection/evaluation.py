@@ -64,7 +64,7 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 # METRICS EXTRACTOR
 def extract_metrics(val_result):
     """
-    - Try to extract common detection metrics
+    - extract common detection metrics
     - Ultralytics val returns a metrics object (or dict) depending on version/task. 
     """
     out = {}
@@ -116,9 +116,7 @@ def main():
             continue
 
         try:
-            print("\n==============================")
             print("Validating:", model_path)
-            print("==============================")
 
             model = YOLO(str(model_path), task=TASK)
 
