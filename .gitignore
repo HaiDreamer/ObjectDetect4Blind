@@ -1,3 +1,6 @@
 *.png
 *.jpg
 *.json
+
+# Keep vscode settings
+!.vscode/settings.json
