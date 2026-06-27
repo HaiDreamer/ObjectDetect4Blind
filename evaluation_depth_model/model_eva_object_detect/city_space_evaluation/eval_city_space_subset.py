@@ -7,6 +7,9 @@ r"""
 PER PIXEL accuracy comparation
 
 Run code
+  # Cityscapes dataset (default)
+  python eval_kitti_subset.py
+
   # metric model: Evaluate KITTI-style depth predictions (uint16 PNG, depth[m] = value/256).
   python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_onnx"
 
@@ -15,27 +18,18 @@ Run code
 
   # Pruned model (torch)
   python eval_kitti_subset.py --gt-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth" --pred-dir "C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_pruned1layer_torch_cpu"
-  
+
 NOTE
     missing predictions are omitted (skipped)
 
-OUTPUT (depth anything v2 small model(original relative version))
-    Original model
-		 - Avg speed: 3.524 s/img
-		 - Memory: 97 MB
-    d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
-    0.943, 0.988, 0.996, 0.084, 0.452, 3.581, 0.124, 12.326, 0.036
-
 OUTPUT (depth anything v2 small model(original metric depth version))
-    Original model
-		 - Avg speed: 3.2.969 s/img
-		 - Memory: 94.6 MB 
-    d1, d2, d3, AbsRel, SqRel, RMSE, RMSElog, SILog, log10
-    0.854, 0.969, 0.991, 0.119, 0.679, 4.668, 0.176, 16.453, 0.053
+    GT_DIR   = D:\ObjectDetection4Blind-pt2\CitySpace\depth_gt\val
+    PRED_DIR = D:\ObjectDetection4Blind-pt2\CitySpace\depth_pred\val
 
-Algorithm
-    INPUT: ground truth depth and RGB image
-    OUTPUT: accuracy...
+    # Images evaluated: 500
+    d1, d2, d3, AbsRel, SqRel, RMSE, MAE, RMSElog, SILog, log10
+    0.696, 0.922, 0.977, 0.218, 2.007, 8.566, 5.138, 0.264, 24.526, 0.091
+    
 """
 
 def load_u16_as_meters(p: Path) -> np.ndarray:
@@ -46,11 +40,10 @@ def load_u16_as_meters(p: Path) -> np.ndarray:
         depth_meters = uint16_value / 256.0
         0 means invalid pixel.
     """
-    x = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)  # x: raw uint16 image from disk
+    x = cv2.imread(str(p), cv2.IMREAD_UNCHANGED)
     if x is None:
         raise FileNotFoundError(p)
     if x.ndim != 2:
-        # Ensure single-channel depth
         x = x[..., 0]
     return x.astype(np.float32) / 256.0
 
@@ -64,7 +57,7 @@ def metrics(pred: np.ndarray, gt: np.ndarray,
 
     valid = (gt > dmin) & (gt < dmax)
     if valid.sum() == 0:
-        return tuple([float("nan")] * 10)  # now 10 metrics
+        return tuple([float("nan")] * 10)
 
     p, g = pred[valid], gt[valid]
 
@@ -91,20 +84,18 @@ def main():
     parser.add_argument(
         "--gt-dir",
         type=Path,
-        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\kitti_root\val_selection_cropped\groundtruth_depth"),
-        help="Directory containing GT uint16 KITTI depth PNGs (default: mini_gt_100).",
+        default=Path(r"D:\ObjectDetection4Blind-pt2\CitySpace\depth_gt\val"),
+        help="Directory containing GT uint16 KITTI depth PNGs.",
     )
     parser.add_argument(
         "--pred-dir",
         type=Path,
-        #pred_metric_kitti_vkitti_vits_torch for original model, pred_metric_kitti_vkitti_vits_onnx_azure for onnx model, pred_metric_kitti_vkitti_vits_onnx_int8_cpu for int8 onnx model
-        default=Path(r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\pred_metric_kitti_vkitti_vits_torch"), 
-        help=("Directory containing prediction uint16 KITTI depth PNGs. "
-              "Default: metric model outputs (pred_metric_kitti_vkitti_vits)."),
+        default=Path(r"D:\ObjectDetection4Blind-pt2\CitySpace\depth_pred\val"),
+        help="Directory containing prediction uint16 KITTI depth PNGs.",
     )
     args = parser.parse_args()
 
-    GT_DIR = args.gt_dir
+    GT_DIR   = args.gt_dir
     PRED_DIR = args.pred_dir
 
     print(f"GT_DIR   = {GT_DIR}")
@@ -117,16 +108,18 @@ def main():
     missing = 0
 
     for gt_path in gts:
-        pred_path = PRED_DIR / gt_path.name  # prediction must share the same basename
+        # ── Match GT filename to pred filename ────────────────────────────────
+        base      = gt_path.name.replace("_depth_gt.png", "")
+        pred_path = PRED_DIR / f"{base}_depth_pred.png"
+
         if not pred_path.exists():
             print(f"[WARN] Missing prediction for {gt_path.name} → {pred_path}")
             missing += 1
             continue
 
-        gt_m = load_u16_as_meters(gt_path)
+        gt_m   = load_u16_as_meters(gt_path)
         pred_m = load_u16_as_meters(pred_path)
 
-        # If shapes differ (shouldn't happen if you resized properly), resize pred to GT
         if pred_m.shape != gt_m.shape:
             pred_m = cv2.resize(
                 pred_m,
@@ -139,8 +132,8 @@ def main():
     if not accs:
         raise RuntimeError("No valid GT/prediction pairs found. Check directories and filenames.")
 
-    accs = np.array(accs, dtype=np.float64)
-    labels = ["d1","d2","d3","AbsRel","SqRel","RMSE","MAE","RMSElog","SILog","log10"]
+    accs   = np.array(accs, dtype=np.float64)
+    labels = ["d1", "d2", "d3", "AbsRel", "SqRel", "RMSE", "MAE", "RMSElog", "SILog", "log10"]
 
     print("\n# Images evaluated:", accs.shape[0])
     if missing > 0:

@@ -25,7 +25,7 @@ df_plot = pd.DataFrame({
 fig, ax = plt.subplots(figsize=(8.5, 4.8))
 parallel_coordinates(df_plot, "Model", ax=ax)  # không set màu -> dùng mặc định
 ax.set_title("Normalized comparison (higher is better)")
-ax.set_ylabel("Gain (×)")
+ax.set_ylabel("Gain (x)")
 ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.6)
 
 fig.savefig(out_dir / "quant_parallel_coordinates.png", dpi=300, bbox_inches="tight")
