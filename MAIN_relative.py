@@ -1,8 +1,11 @@
 from pathlib import Path
-import subprocess, threading, sys
+import subprocess, threading, sys, json
 import cv2
 import numpy as np
 import time
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+from utils.process_utils import _watch, _ensure_depth_size
 
 '''
 Run demo 1 image fully object detect + segment + evaluate distance per bb and region from segment
@@ -10,13 +13,16 @@ Run demo 1 image fully object detect + segment + evaluate distance per bb and re
 
 # Paths and Python environments
 ROOT = Path(__file__).resolve().parent
-YOLO_SCRIPT   = ROOT / "Object detection" / "main.py"
+YOLO_SCRIPT   = ROOT / "Object_detection" / "main.py"
 DEPTH_SCRIPT  = ROOT / "Depth-Anything-V2-main" / "run.py"
 SEG_SCRIPT    = ROOT / "Segmentation" / "test_model.py"         
 
-PY_YOLO   = r"C:\Python\miniconda\envs\tensor_test\python.exe"
-PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
-PY_SEG    = PY_YOLO
+with open(ROOT / "src" / "configs" / "config.json", "r", encoding="utf-8") as _cf:
+    _APP_CFG = json.load(_cf)
+
+PY_YOLO  = _APP_CFG["python_interpreters"]["yolo"]
+PY_DEPTH = _APP_CFG["python_interpreters"]["depth"]
+PY_SEG   = _APP_CFG["python_interpreters"]["seg"]
 
 # Inputs/outputs
 ORIG_IMG   = ROOT / "assets" / "demo01.jpg"                                          
@@ -29,16 +35,6 @@ FINAL_OUT       = ROOT / "output" / f"{ORIG_IMG.stem}_depth_boxes_borders.png"
 
 
 # Helpers
-def _watch(name: str, proc: subprocess.Popen):
-    """Wait for the child process to exit and log its rc. (safe because we don't pipe stdout)"""
-    rc = proc.wait()  # Popen.wait blocks until completion. 
-    print(f"[{name}] finished with exit code {rc}")
-
-def _ensure_depth_size(depth_bgr, H, W):
-    if (depth_bgr.shape[0], depth_bgr.shape[1]) != (H, W):
-        depth_bgr = cv2.resize(depth_bgr, (W, H), interpolation=cv2.INTER_NEAREST)
-    return depth_bgr
-
 def _draw_yolo_boxes_on(depth_bgr, labels_dir: Path, stem: str, W: int, H: int, class_names: dict | None = None):
     """Draw YOLO-format labels (class cx cy w h [conf]) on depth image."""
     label_file = labels_dir / f"{stem}.txt"
@@ -84,10 +80,16 @@ def _draw_seg_borders_on(depth_bgr, border_txt_path: Path, W: int, H: int, *, no
     polys = []
     for ln in lines:
         vals = ln.split()
-        if len(vals) < 4 or len(vals) % 2 != 0:
+        # Line format is "class_id conf x1 y1 x2 y2 ..." — skip the first
+        # two fields, otherwise class_id/conf get read in as a phantom
+        # (x, y) vertex near the image origin.
+        if len(vals) < 2 + 6:
+            continue
+        coords = vals[2:]
+        if len(coords) % 2 != 0:
             continue
         pts = []
-        it = iter(map(float, vals))
+        it = iter(map(float, coords))
         if normalized:
             for x, y in zip(it, it):
                 pts.append([int(round(x * W)), int(round(y * H))])

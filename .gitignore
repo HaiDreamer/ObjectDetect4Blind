@@ -4,3 +4,16 @@
 
 # Keep vscode settings
 !.vscode/settings.json
+
+# Large model weights
+*.pth
+*.onnx
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+venv/
+.env/

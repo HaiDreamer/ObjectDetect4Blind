@@ -6,11 +6,16 @@ import numpy as np
 import time
 import json
 import os
+import sys
 
-try:
-    import onnxruntime as ort
-except ImportError:
-    ort = None
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+
+from utils.process_utils import _watch, _ensure_depth_size
+from utils.distance_utils import _compute_box_distance, _nearest_sidewalk_distance
+from utils.seg_utils import _load_seg_regions_from_border_txt
+from utils.depth_onnx_utils import _run_metric_depth_onnx
+from utils.draw_utils import putText_outline
+from utils.config_loader import SEG_CLASS_NAMES, OD_CLASS_NAME, COLORS
 
 r'''Fully run metric depth model + object detection model + image segmentation model
 FOR WHAT?
@@ -21,36 +26,29 @@ FOR WHAT?
 # =========================
 # Paths and Python envs
 # =========================
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent  # project root (this file is in src/)
 
 # Scripts
 YOLO_SCRIPT          = ROOT / "Object_detection" / "main.py"
 METRIC_DEPTH_SCRIPT  = ROOT / "Depth-Anything-V2-main" / "metric_depth" / "run.py"
 SEG_SCRIPT           = ROOT / "Segmentation" / "test_model.py"
 
-SEG_CLASS_NAMES = {0: 'Stairs', 1: 'crosswalk', 2: 'sidewalk', 3: 'tree-lined'}
-OD_CLASS_NAME = {0: 'bicycle', 1: 'bus', 2: 'car', 3: 'electric pole', 4: 'motocycle', 5: 'pedestrian crossing sign', 6: 'person', 7: 'tree', 8: 'truck'}
-
 # Python interpreters
-PY_YOLO   = r"C:\Python\miniconda\envs\tensor_test\python.exe"
-PY_DEPTH  = r"C:\Users\Admin\AppData\Local\Programs\Python\Python313\python.exe"
-PY_SEG    = PY_YOLO
+with open(ROOT / "src" / "configs" / "config.json", "r", encoding="utf-8") as _cf:
+    _APP_CFG = json.load(_cf)
 
-# Metric depth weight
-METRIC_DEPTH_WEIGHTS = (
-    r"C:\Python\ObjectDetectRequireFile\put-in-metric-depth\checkpoints\depth_anything_v2_metric_vkitti_vits.pth"
-)
+PY_YOLO  = _APP_CFG["python_interpreters"]["yolo"]
+PY_DEPTH = _APP_CFG["python_interpreters"]["depth"]
+PY_SEG   = _APP_CFG["python_interpreters"]["seg"]
 
-# =========================
-# Inputs / Outputs
-# =========================
-ORIG_IMG = ROOT / "assets" / "demo03.jpg"
+METRIC_DEPTH_WEIGHTS = _APP_CFG["metric_depth_weights"]
+ORIG_IMG = ROOT / _APP_CFG["default_image"]
 
 # YOLO labels
 YOLO_LABELS_DIR = YOLO_SCRIPT.parent / "output" / "run1" / "labels"
 
 # Metric-depth outputs
-METRIC_DEPTH_OUT_DIR = Path(r"C:\Python\ObjectDetect4Blind\output_metric_depth")
+METRIC_DEPTH_OUT_DIR = ROOT / "output_metric_depth"
 METRIC_DEPTH_VIS_PNG = METRIC_DEPTH_OUT_DIR / f"{ORIG_IMG.stem}.png"
 METRIC_DEPTH_RAW_NPY = METRIC_DEPTH_OUT_DIR / f"{ORIG_IMG.stem}_raw_depth_meter.npy"
 
@@ -62,268 +60,21 @@ FINAL_OUT = ROOT / "output" / f"{ORIG_IMG.stem}_metric_depth_boxes_borders.png"
 JSON_OUT  = ROOT / "output" / f"{ORIG_IMG.stem}_objects_distance.json"
 
 # Colors (BGR)
-COLOR_YOLO_BOX       = (0, 0, 0)
-COLOR_YOLO_TEXT      = (0, 0, 0)
-COLOR_SEG_BORDER     = (0, 0, 0)
-COLOR_SIDEWALK_PT    = (0, 0, 0)
-COLOR_SIDEWALK_TEXT  = (0, 0, 0)
+COLOR_YOLO_BOX       = tuple(COLORS["yolo_box"])
+COLOR_YOLO_TEXT      = tuple(COLORS["yolo_text"])
+COLOR_SEG_BORDER     = tuple(COLORS["seg_border"])
+COLOR_SIDEWALK_PT    = tuple(COLORS["sidewalk_pt"])
+COLOR_SIDEWALK_TEXT  = tuple(COLORS["sidewalk_text"])
 
 # =========================
 # Helpers
 # =========================
-def _watch(name: str, proc: subprocess.Popen):
-    rc = proc.wait()
-    print(f"[{name}] finished with exit code {rc}")
-
-
-def _ensure_depth_size(depth_bgr, H, W):
-    if depth_bgr is None:
-        return None
-    if (depth_bgr.shape[0], depth_bgr.shape[1]) != (H, W):
-        depth_bgr = cv2.resize(depth_bgr, (W, H), interpolation=cv2.INTER_NEAREST)
-    return depth_bgr
-
-
 def _draw_seg_borders_on(depth_bgr, polys, *, color=(0, 0, 0), thickness=2):
     if not polys:
         return depth_bgr
     cv2.polylines(depth_bgr, polys, isClosed=True,
                   color=color, thickness=thickness, lineType=cv2.LINE_AA)
     return depth_bgr
-
-
-def _fast_percentile_1d(vals: np.ndarray, q: float) -> float | None:
-    if vals is None:
-        return None
-    vals = vals[np.isfinite(vals)]
-    if vals.size == 0:
-        return None
-    k = int(round((q / 100.0) * (vals.size - 1)))
-    k = max(0, min(vals.size - 1, k))
-    return float(np.partition(vals, k)[k])
-
-
-def _compute_box_distance(
-    depth_map_m: np.ndarray,
-    x1: int, y1: int, x2: int, y2: int,
-    frac: float = 0.5,
-    mode: str = "center",
-    q: float = 10.0,
-    subsample: int = 1,
-) -> float | None:
-    H, W = depth_map_m.shape[:2]
-    x1 = max(0, min(W - 1, x1))
-    y1 = max(0, min(H - 1, y1))
-    x2 = max(0, min(W, x2))
-    y2 = max(0, min(H, y2))
-    if x2 <= x1 or y2 <= y1:
-        return None
-
-    w = x2 - x1
-    h = y2 - y1
-    if w <= 0 or h <= 0:
-        return None
-
-    if mode == "bottom":
-        ch = int(h * frac)
-        if ch <= 0:
-            return None
-        y_start = max(y1, y2 - ch)
-
-        center_band_width = int(w * 0.5)
-        if center_band_width <= 0:
-            return None
-
-        cx = (x1 + x2) // 2
-        x_start = max(x1, cx - center_band_width // 2)
-        x_end = min(x2, x_start + center_band_width)
-        if x_end <= x_start:
-            return None
-
-        patch = depth_map_m[y_start:y2, x_start:x_end]
-    else:
-        cw = int(w * frac)
-        ch = int(h * frac)
-        if cw <= 0 or ch <= 0:
-            return None
-
-        cx = (x1 + x2) // 2
-        cy = (y1 + y2) // 2
-
-        cx1 = max(0, cx - cw // 2)
-        cy1 = max(0, cy - ch // 2)
-        cx2 = min(W, cx1 + cw)
-        cy2 = min(H, cy1 + ch)
-        if cx2 <= cx1 or cy2 <= cy1:
-            return None
-
-        patch = depth_map_m[cy1:cy2, cx1:cx2]
-
-    if patch.size == 0:
-        return None
-
-    if subsample > 1:
-        patch = patch[::subsample, ::subsample]
-
-    valid = patch[(patch > 0) & np.isfinite(patch)].reshape(-1)
-    return _fast_percentile_1d(valid, q=q)
-
-
-def _nearest_sidewalk_distance(
-    depth_map_m: np.ndarray,
-    sidewalk_mask: np.ndarray,
-    max_depth: float = 80.0,
-    band_start_frac: float = 0.1,
-    q: float = 10.0,
-    subsample: int = 1,
-):
-    assert depth_map_m.shape == sidewalk_mask.shape, "Depth and mask must have same size"
-    H, W = depth_map_m.shape
-
-    base_cond = (
-        (sidewalk_mask == 1) &
-        (depth_map_m > 0) &
-        (depth_map_m < max_depth) &
-        np.isfinite(depth_map_m)
-    )
-    if not np.any(base_cond):
-        return None, None, None
-
-    y_band_start = int(H * band_start_frac)
-    band_mask = np.zeros_like(sidewalk_mask, dtype=bool)
-    band_mask[y_band_start:H, :] = True
-
-    cond = base_cond & band_mask
-    if not np.any(cond):
-        cond = base_cond
-
-    ys, xs = np.where(cond)
-
-    if subsample > 1 and ys.size > 0:
-        take = np.arange(0, ys.size, subsample, dtype=np.int64)
-        ys = ys[take]
-        xs = xs[take]
-
-    vals = depth_map_m[ys, xs].astype(np.float32)
-    finite = np.isfinite(vals)
-    vals = vals[finite]
-    ys = ys[finite]
-    xs = xs[finite]
-
-    d_q = _fast_percentile_1d(vals, q=q)
-    if d_q is None:
-        return None, None, None
-
-    idx = int(np.argmin(np.abs(vals - d_q)))
-    return float(d_q), int(xs[idx]), int(ys[idx])
-
-
-def _load_seg_regions_from_border_txt(border_txt_path: Path):
-    """
-    Expects lines like:
-      <cls_id> <conf> x1 y1 x2 y2 x3 y3 ...
-    """
-    if not border_txt_path.exists():
-        print(f"[SEG] border file not found: {border_txt_path}")
-        return []
-
-    regions = []
-    with open(border_txt_path, "r", encoding="utf-8") as f:
-        for ln in f:
-            ln = ln.strip()
-            if not ln:
-                continue
-            vals = ln.split()
-            if len(vals) < 2 + 6:
-                continue
-
-            cls_id = int(float(vals[0]))
-            conf = float(vals[1])
-
-            coords = list(map(float, vals[2:]))
-            if len(coords) % 2 != 0:
-                continue
-
-            pts = []
-            it = iter(coords)
-            for x, y in zip(it, it):
-                pts.append([int(round(x)), int(round(y))])
-
-            if len(pts) < 3:
-                continue
-
-            poly = np.asarray(pts, dtype=np.int32).reshape(-1, 1, 2)
-            cls_name = SEG_CLASS_NAMES.get(cls_id, str(cls_id))
-            regions.append({
-                "poly": poly,
-                "class_id": cls_id,
-                "class_name": cls_name,
-                "confidence": conf
-            })
-
-    return regions
-
-
-# =========================
-# Metric depth via ONNX Runtime
-# =========================
-def _run_metric_depth_onnx():
-    if ort is None:
-        raise RuntimeError("onnxruntime is not installed, cannot run ONNX metric depth backend.")
-
-    onnx_path = METRIC_DEPTH_WEIGHTS
-    if not os.path.isfile(onnx_path):
-        raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] ONNX model not found: {onnx_path}")
-
-    print(f"[METRIC_DEPTH_ONNX] loading model: {onnx_path}")
-    providers = ["CUDAExecutionProvider", "CPUExecutionProvider"]
-    sess = ort.InferenceSession(onnx_path, providers=providers)
-
-    input_name  = sess.get_inputs()[0].name
-    output_name = sess.get_outputs()[0].name
-
-    img_bgr = cv2.imread(str(ORIG_IMG))
-    if img_bgr is None:
-        raise FileNotFoundError(f"[METRIC_DEPTH_ONNX] Original image not found: {ORIG_IMG}")
-    H0, W0 = img_bgr.shape[:2]
-
-    EXPORT_SIZE = 518
-    bgr_resized = cv2.resize(img_bgr, (EXPORT_SIZE, EXPORT_SIZE), interpolation=cv2.INTER_LINEAR)
-
-    rgb = cv2.cvtColor(bgr_resized, cv2.COLOR_BGR2RGB)
-    x = rgb.astype(np.float32) / 255.0
-    mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
-    std  = np.array([0.229, 0.224, 0.225], dtype=np.float32)
-    x = (x - mean) / std
-    x = x.transpose(2, 0, 1)[None, ...]
-
-    out = sess.run([output_name], {input_name: x})[0]
-    depth_small = np.squeeze(out).astype(np.float32)
-
-    depth_map_m = cv2.resize(depth_small, (W0, H0), interpolation=cv2.INTER_LINEAR)
-    depth_map_m = np.clip(depth_map_m, 1e-3, 80.0)
-
-    METRIC_DEPTH_OUT_DIR.mkdir(parents=True, exist_ok=True)
-    np.save(str(METRIC_DEPTH_RAW_NPY), depth_map_m)
-    print(f"[METRIC_DEPTH_ONNX] saved raw depth: {METRIC_DEPTH_RAW_NPY}")
-
-    depth_norm = depth_map_m / 80.0
-    depth_norm = np.clip(depth_norm, 0.0, 1.0)
-    depth_8u = (depth_norm * 255.0).astype(np.uint8)
-    depth_bgr = cv2.applyColorMap(depth_8u, cv2.COLORMAP_INFERNO)
-
-    if not cv2.imwrite(str(METRIC_DEPTH_VIS_PNG), depth_bgr):
-        raise RuntimeError(f"[METRIC_DEPTH_ONNX] Failed to save depth PNG: {METRIC_DEPTH_VIS_PNG}")
-    print(f"[METRIC_DEPTH_ONNX] saved vis PNG: {METRIC_DEPTH_VIS_PNG}")
-
-
-def putText_outline(img, text, org, fontFace, fontScale, color, thickness,
-                    outline_color=(255,255,255), outline_thickness=None):
-    # draw outline first, then main text on top (thickness controls "bold")
-    if outline_thickness is None:
-        outline_thickness = thickness + 4
-    cv2.putText(img, text, org, fontFace, fontScale, outline_color, outline_thickness, cv2.LINE_AA)
-    cv2.putText(img, text, org, fontFace, fontScale, color, thickness, cv2.LINE_AA)
 
 
 # Main pipeline
@@ -355,7 +106,7 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
     else:
         def _depth_worker():
             print("[METRIC_DEPTH_ONNX] starting...")
-            _run_metric_depth_onnx()
+            _run_metric_depth_onnx(ORIG_IMG, METRIC_DEPTH_WEIGHTS, METRIC_DEPTH_OUT_DIR, METRIC_DEPTH_RAW_NPY)
             print("[METRIC_DEPTH_ONNX] finished.")
         t2 = threading.Thread(target=_depth_worker, daemon=True)
 
@@ -469,15 +220,36 @@ def run_parallel_and_overlay_metric(class_names: dict | None = None, seg_args: l
             seg_conf = float(reg["confidence"])
             seg_cls  = int(reg["class_id"])
 
-            poly_mask = np.zeros((H, W), dtype=np.uint8)
-            cv2.fillPoly(poly_mask, [poly], 1)
+            # Crop to the polygon's bounding box instead of scanning the
+            # full frame: turns this from O(H*W) per region into O(bbox area).
+            bx, by, bw, bh = cv2.boundingRect(poly)
+            bx, by = max(0, bx), max(0, by)
+            bw = min(bw, W - bx)
+            bh = min(bh, H - by)
 
-            d_min, x_min, y_min = _nearest_sidewalk_distance(
-                depth_map_m,
-                poly_mask,
-                max_depth=80.0,
-                band_start_frac=0.1,
-            )
+            if bw <= 0 or bh <= 0:
+                d_min, x_min, y_min = None, None, None
+            else:
+                local_poly = poly - [bx, by]
+                poly_mask = np.zeros((bh, bw), dtype=np.uint8)
+                cv2.fillPoly(poly_mask, [local_poly], 1)
+
+                # band_start_frac originally excluded the top 10% of the FULL
+                # image; translate that same absolute row into the crop's
+                # local coordinate frame so behavior is unchanged.
+                global_band_row = 0.1 * H
+                local_band_frac = float(np.clip((global_band_row - by) / bh, 0.0, 1.0))
+
+                d_min, x_min, y_min = _nearest_sidewalk_distance(
+                    depth_map_m[by:by + bh, bx:bx + bw],
+                    poly_mask,
+                    max_depth=80.0,
+                    band_start_frac=local_band_frac,
+                )
+
+                if x_min is not None and y_min is not None:
+                    x_min += bx
+                    y_min += by
 
             # anchor point: nearest depth pixel if exists, else polygon centroid
             if x_min is None or y_min is None:

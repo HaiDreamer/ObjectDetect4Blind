@@ -1,0 +1,28 @@
+# configs/class_names.yaml
+# Extracted verbatim from MAIN_distance.py / main_visualize.py
+# (SEG_CLASS_NAMES, OD_CLASS_NAME, COLOR_* constants)
+
+seg_class_names:
+  0: "Stairs"
+  1: "crosswalk"
+  2: "sidewalk"
+  3: "tree-lined"
+
+od_class_name:
+  0: "bicycle"
+  1: "bus"
+  2: "car"
+  3: "electric pole"
+  4: "motocycle"
+  5: "pedestrian crossing sign"
+  6: "person"
+  7: "tree"
+  8: "truck"
+
+# Colors are BGR (OpenCV convention), stored as [B, G, R]
+colors:
+  yolo_box: [0, 0, 0]
+  yolo_text: [0, 0, 0]
+  seg_border: [0, 0, 0]
+  sidewalk_pt: [0, 0, 0]
+  sidewalk_text: [0, 0, 0]
